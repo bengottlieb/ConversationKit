@@ -8,6 +8,6 @@
 
 import Foundation
 
-class Speaker: NSObject {
-	
+public class Speaker: NSObject {
+	public var localSpeaker = Speaker()
 }

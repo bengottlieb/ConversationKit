@@ -11,19 +11,27 @@ import Foundation
 public class Conversation: NSObject {
 	
 	
-	var messages: [Message] {
+	public var messages: [Message] {
 		return []
 	}
 	
-	var speakers: [Speaker] {
+	public var speakers: [Speaker] {
 		return []
 	}
 	
-	func messagesFromSpeaker(speaker: Speaker) -> [Message] {
+	public func messagesFromSpeaker(speaker: Speaker) -> [Message] {
 		return []
 	}
+	
+	public func createNewMessage(content: String, speaker: Speaker  = Speaker.localSpeaker) {
+		
+	}
+}
+
+extension Conversation {
 	
 	func ingestNewMessage(message: Message) {
 		
 	}
+
 }

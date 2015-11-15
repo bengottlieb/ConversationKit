@@ -8,10 +8,10 @@
 
 import Foundation
 
-class Message: NSObject {
-	let conversation: Conversation
-	let content: String
-	let speaker: Speaker
+public class Message: NSObject {
+	public let conversation: Conversation
+	public let content: String
+	public let speaker: Speaker
 	
 	init(conversation convo: Conversation, content msg: String, speaker spkr: Speaker) {
 		conversation = convo
