@@ -9,5 +9,12 @@
 import Foundation
 
 public class Speaker: NSObject {
-	public var localSpeaker = Speaker()
+	public static var localSpeaker = Speaker(identifier: nil)
+	
+	public let identifier: String?
+	
+	public init(identifier id: String?) {
+		identifier = id
+		super.init()
+	}
 }

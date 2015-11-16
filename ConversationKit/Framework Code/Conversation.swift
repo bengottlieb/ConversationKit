@@ -9,22 +9,21 @@
 import Foundation
 
 public class Conversation: NSObject {
-	
-	
-	public var messages: [Message] {
-		return []
+	init(speakers spkrs: [Speaker]) {
+		speakers = spkrs
+		super.init()
 	}
 	
-	public var speakers: [Speaker] {
-		return []
-	}
+	public var messages: [Message] = []
+	public let speakers: [Speaker]
 	
 	public func messagesFromSpeaker(speaker: Speaker) -> [Message] {
 		return []
 	}
 	
-	public func createNewMessage(content: String, speaker: Speaker  = Speaker.localSpeaker) {
-		
+	public func createNewMessage(content: String, speaker: Speaker = Speaker.localSpeaker) {
+		let message = Message(conversation: self, content: content, speaker: speaker)
+		self.messages.append(message)
 	}
 }
 

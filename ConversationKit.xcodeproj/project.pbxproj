@@ -164,8 +164,8 @@
 			isa = PBXGroup;
 			children = (
 				B549E3361BF8C8F80046463A /* Cloud.swift */,
-				B549E3371BF8C8F80046463A /* Conversation.swift */,
 				B549E3381BF8C8F80046463A /* ConversationKit.swift */,
+				B549E3371BF8C8F80046463A /* Conversation.swift */,
 				B549E3391BF8C8F80046463A /* ConversationKitUtilities.swift */,
 				B549E33A1BF8C8F80046463A /* Message.swift */,
 				B549E33B1BF8C8F80046463A /* Speaker.swift */,
@@ -632,6 +632,7 @@
 				B549E3311BF8C8460046463A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B549E3321BF8C8460046463A /* Build configuration list for PBXNativeTarget "ConversationKitTests" */ = {
 			isa = XCConfigurationList;
@@ -640,6 +641,7 @@
 				B549E3341BF8C8460046463A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B549E3491BF8CA0C0046463A /* Build configuration list for PBXAggregateTarget "Combined Framework" */ = {
 			isa = XCConfigurationList;
@@ -648,6 +650,7 @@
 				B549E34B1BF8CA0C0046463A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B549E3601BF8CA4F0046463A /* Build configuration list for PBXNativeTarget "TestHarness" */ = {
 			isa = XCConfigurationList;
@@ -656,6 +659,7 @@
 				B549E3621BF8CA4F0046463A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
