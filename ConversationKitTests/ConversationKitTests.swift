@@ -23,12 +23,12 @@ class ConversationKitTests: XCTestCase {
     }
 	
 	func testCreateConversation() {
-		let moc = store.createWorkerContext()
+		let moc = self.store.createWorkerContext()
 		
 		moc.performBlock {
 			let speaker1: Speaker = moc.speakerWithIdentifier("1")
 			let speaker2: Speaker = moc.localSpeaker
-			let convo = Conversation.conversationWithSpeakers([speaker1, speaker2], inContext: moc)
+			let convo = Conversation.conversationWithSpeakers([speaker1, speaker2])
 			
 			convo.createNewMessage("Hello")
 			
@@ -42,7 +42,7 @@ class ConversationKitTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
-    func testPerformanceExample() {
+    func testxPerformanceExample() {
         // This is an example of a performance test case.
         self.measureBlock {
             // Put the code you want to measure the time of here.

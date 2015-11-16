@@ -24,6 +24,7 @@ class DataStore: NSObject {
 		let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
 		let cachesPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, [.UserDomainMask], true).first!
 		let storeURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(dbName)
+		print("Creating database at \(storeURL.absoluteString)")
 		model = NSManagedObjectModel(contentsOfURL: modelURL)!
 		persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
 		let parentURL = storeURL.URLByDeletingLastPathComponent!
@@ -71,12 +72,12 @@ class DataStore: NSObject {
 
 extension NSManagedObjectContext {
 	public var localSpeaker: Speaker {
-		if let spkr: Speaker = self.anyObject(NSPredicate(format: "isLocalSpeaker = true")) {
+		if let spkr: Speaker = self.anyObject(NSPredicate(format: "isLocalUser = true")) {
 			return spkr
 		}
 		
 		let localSpeaker: Speaker = self.insertObject()
-		localSpeaker["isLocalSpeaker"] = true
+		localSpeaker["isLocalUser"] = true
 		localSpeaker.identifier = ""
 		return localSpeaker
 	}
@@ -94,6 +95,7 @@ extension NSManagedObjectContext {
 	func safeSave() {
 		do {
 			try self.save()
+			self.parentContext?.safeSave()
 		} catch let error {
 			print("Error while saving database: \(error)")
 		}
