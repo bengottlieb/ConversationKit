@@ -36,6 +36,8 @@
 		B549E35E1BF8CA4F0046463A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B549E35C1BF8CA4F0046463A /* LaunchScreen.storyboard */; };
 		B549E3661BF8CB750046463A /* ConversationKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B549E31B1BF8C8460046463A /* ConversationKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B549E3691BF8CBCB0046463A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E3681BF8CBCB0046463A /* CloudKit.framework */; };
+		B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */; };
+		B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397F1BF9F5CC004262BA /* DataStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +93,8 @@
 		B549E35F1BF8CA4F0046463A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B549E3671BF8CBC80046463A /* TestHarness.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = TestHarness.entitlements; sourceTree = "<group>"; };
 		B549E3681BF8CBCB0046463A /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		B5A7397C1BF9F50B004262BA /* ConversationKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ConversationKit.xcdatamodel; sourceTree = "<group>"; };
+		B5A7397F1BF9F5CC004262BA /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataStore.swift; path = Model/DataStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,12 +167,10 @@
 		B549E3351BF8C8F80046463A /* Framework Code */ = {
 			isa = PBXGroup;
 			children = (
-				B549E3361BF8C8F80046463A /* Cloud.swift */,
+				B5A739781BF9F4C3004262BA /* iCloud */,
 				B549E3381BF8C8F80046463A /* ConversationKit.swift */,
-				B549E3371BF8C8F80046463A /* Conversation.swift */,
 				B549E3391BF8C8F80046463A /* ConversationKitUtilities.swift */,
-				B549E33A1BF8C8F80046463A /* Message.swift */,
-				B549E33B1BF8C8F80046463A /* Speaker.swift */,
+				B5A7397E1BF9F510004262BA /* Model */,
 			);
 			name = "Framework Code";
 			path = "ConversationKit/Framework Code";
@@ -196,6 +198,26 @@
 				B549E35F1BF8CA4F0046463A /* Info.plist */,
 			);
 			path = TestHarness;
+			sourceTree = "<group>";
+		};
+		B5A739781BF9F4C3004262BA /* iCloud */ = {
+			isa = PBXGroup;
+			children = (
+				B549E3361BF8C8F80046463A /* Cloud.swift */,
+			);
+			name = iCloud;
+			sourceTree = "<group>";
+		};
+		B5A7397E1BF9F510004262BA /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B5A7397F1BF9F5CC004262BA /* DataStore.swift */,
+				B549E3371BF8C8F80046463A /* Conversation.swift */,
+				B549E33A1BF8C8F80046463A /* Message.swift */,
+				B549E33B1BF8C8F80046463A /* Speaker.swift */,
+				B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -365,8 +387,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */,
 				B549E3421BF8C8F80046463A /* ConversationKitUtilities.swift in Sources */,
 				B549E3411BF8C8F80046463A /* ConversationKit.swift in Sources */,
+				B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */,
 				B549E3431BF8C8F80046463A /* Message.swift in Sources */,
 				B549E3441BF8C8F80046463A /* Speaker.swift in Sources */,
 				B549E3401BF8C8F80046463A /* Conversation.swift in Sources */,
@@ -662,6 +686,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				B5A7397C1BF9F50B004262BA /* ConversationKit.xcdatamodel */,
+			);
+			currentVersion = B5A7397C1BF9F50B004262BA /* ConversationKit.xcdatamodel */;
+			name = ConversationKit.xcdatamodeld;
+			path = Model/ConversationKit.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = B549E3121BF8C8460046463A /* Project object */;
 }

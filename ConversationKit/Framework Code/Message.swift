@@ -7,16 +7,11 @@
 //
 
 import Foundation
+import CoreData
 
-public class Message: NSObject {
-	public let conversation: Conversation
-	public let content: String
-	public let speaker: Speaker
+public class Message: NSManagedObject {
+	@NSManaged public var conversation: Conversation
+	@NSManaged public var content: String
+	@NSManaged public var speaker: Speaker
 	
-	init(conversation convo: Conversation, content msg: String, speaker spkr: Speaker) {
-		conversation = convo
-		content = msg
-		speaker = spkr
-		super.init()
-	}
 }

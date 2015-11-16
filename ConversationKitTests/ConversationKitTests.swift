@@ -10,7 +10,8 @@ import XCTest
 @testable import ConversationKit
 
 class ConversationKitTests: XCTestCase {
-    
+	let store = DataStore(dbName: "TestDB.db")
+	
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -20,7 +21,22 @@ class ConversationKitTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
+	
+	func testCreateConversation() {
+		let moc = store.createWorkerContext()
+		
+		moc.performBlock {
+			let speaker1: Speaker = moc.speakerWithIdentifier("1")
+			let speaker2: Speaker = moc.localSpeaker
+			let convo = Conversation.conversationWithSpeakers([speaker1, speaker2], inContext: moc)
+			
+			convo.createNewMessage("Hello")
+			
+			moc.safeSave()
+			
+		}
+	}
+	
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.

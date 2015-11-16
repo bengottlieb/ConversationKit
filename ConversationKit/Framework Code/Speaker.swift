@@ -7,14 +7,8 @@
 //
 
 import Foundation
+import CoreData
 
-public class Speaker: NSObject {
-	public static var localSpeaker = Speaker(identifier: nil)
-	
-	public let identifier: String?
-	
-	public init(identifier id: String?) {
-		identifier = id
-		super.init()
-	}
+public class Speaker: NSManagedObject {	
+	@NSManaged public var identifier: String?
 }
