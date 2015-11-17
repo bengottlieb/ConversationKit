@@ -19,8 +19,16 @@ public class Message: CloudObject {
 	override func loadFromCloudKitRecord(record: CKRecord) {
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
+		
+		if let ref = record["speaker"] as? CKReference {
+			self.speaker = Speaker.loadSpeakerFromRecordID(ref.recordID) { speaker in
+				self.speaker = speaker
+				self.saveManagedObject(nil)
+			}
+			self.saveManagedObject(nil)
+		}
 	}
-
+	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
 		if let speakerID = self.speaker?.cloudKitRecordID, listenerID = self.listener?.cloudKitRecordID {
 			let speakerRef = CKReference(recordID: speakerID, action: .DeleteSelf)
@@ -34,6 +42,15 @@ public class Message: CloudObject {
 		}
 		return false
 	}
+	
+	override func writeToManagedObject(object: ManagedCloudObject) {
+		guard let speakerObject = object as? SpeakerRecord else { return }
+		
+		
+	}
+	
+	internal override class var recordName: String { return "Speaker" }
+	internal override class var entityName: String { return "SpeakerRecord" }
 
 }
 

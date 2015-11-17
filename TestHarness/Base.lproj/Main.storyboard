@@ -23,8 +23,8 @@
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rby-a1-0FP">
-                                <rect key="frame" x="28" y="562" width="31" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rby-a1-0FP">
+                                <rect key="frame" x="20" y="562" width="31" height="30"/>
                                 <animations/>
                                 <state key="normal" title="Ariel"/>
                                 <connections>
@@ -39,8 +39,8 @@
                                     <action selector="buttonTouched:" destination="BYZ-38-t0r" eventType="touchUpInside" id="v9D-nW-9YC"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weB-Po-2rm">
-                                <rect key="frame" x="540" y="562" width="34" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weB-Po-2rm">
+                                <rect key="frame" x="546" y="562" width="34" height="30"/>
                                 <animations/>
                                 <state key="normal" title="Belle"/>
                                 <connections>
@@ -54,12 +54,12 @@
                             <constraint firstItem="Vbq-uO-FpR" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" id="2d7-FW-S3g"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Vbq-uO-FpR" secondAttribute="trailing" constant="-20" id="5jS-yc-Z8o"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Vbq-uO-FpR" secondAttribute="bottom" constant="58" id="FMq-XK-32D"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="weB-Po-2rm" secondAttribute="bottom" constant="8" id="IKa-8a-X4M"/>
                             <constraint firstAttribute="leadingMargin" secondItem="rby-a1-0FP" secondAttribute="leading" id="Kzs-Ks-DQ1"/>
                             <constraint firstItem="Vbq-uO-FpR" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="OSM-vk-YYu"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="rby-a1-0FP" secondAttribute="bottom" constant="8" id="byF-Co-2o0"/>
                             <constraint firstItem="D4a-ET-TQq" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="fdF-Sb-Il3"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="D4a-ET-TQq" secondAttribute="bottom" constant="8" id="fnt-63-DlV"/>
-                            <constraint firstItem="weB-Po-2rm" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="seB-NW-AuM"/>
                             <constraint firstAttribute="trailingMargin" secondItem="weB-Po-2rm" secondAttribute="trailing" id="zgY-J9-A8W"/>
                         </constraints>
                     </view>

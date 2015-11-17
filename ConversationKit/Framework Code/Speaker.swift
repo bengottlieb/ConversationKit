@@ -14,7 +14,7 @@ public class Speaker: CloudObject {
 	public var identifier: String? { didSet {
 		if self.identifier != oldValue {
 			self.needsCloudSave = true
-			self.cloudKitRecordID = self.identifier == nil ? nil : CKRecordID(recordName: "Speaker: " + self.identifier!)
+			self.cloudKitRecordID = Speaker.cloudKitRecordIDFromIdentifier(self.identifier)
 		}
 	}}
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = true }}}
@@ -22,6 +22,33 @@ public class Speaker: CloudObject {
 	
 	static var knownSpeakers = Set<Speaker>()
 	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers.insert(spkr) } }
+	class func cloudKitRecordIDFromIdentifier(identifier: String?) -> CKRecordID? {
+		if let ident = identifier {
+			return CKRecordID(recordName: "Speaker: " + ident)
+		}
+		return nil
+	}
+	
+	internal class func loadSpeakerFromRecordID(recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
+		for speaker in self.knownSpeakers {
+			if speaker.cloudKitRecordID == recordID { return speaker }
+		}
+		
+		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
+			if let record = record {
+				let speaker = Speaker()
+				speaker.loadFromCloudKitRecord(record)
+				Speaker.addKnownSpeaker(speaker)
+				
+				completion?(speaker)
+			} else {
+				Cloud.instance.reportError(error, note: "Problem loading speaker with ID \(recordID)")
+				completion?(nil)
+			}
+		}
+		
+		return nil
+	}
 	
 	public static var localSpeaker: Speaker = {
 		let speaker = Speaker()
