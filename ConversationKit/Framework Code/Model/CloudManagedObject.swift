@@ -21,11 +21,9 @@ public class CloudObject: NSObject {
 	internal class var entityName: String { return "" }
 	
 	func writeToManagedObject(object: ManagedCloudObject) {
-		object.cloudKitRecordIDName = self.cloudKitRecordID?.recordName
-		object.needsCloudSave = false
 	}
 
-	func writeToCloudKitRecord(record: CKRecord) -> Bool {
+	func writeToCloudKitRecord(record: CKRecord) -> Bool {		//return true if any changes were made
 		return false
 	}
 	
@@ -42,49 +40,37 @@ internal extension CloudObject {
 			return
 		}
 		
-		if let recordID = self.cloudKitRecordID {
-			Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
-				if let actual = record {
-					self.saveToCloudKitRecord(actual, completion: completion)
-				} else {
-					Cloud.instance.reportError(error, note: "Unable to fetch existing record")
-					completion?(false)
-				}
-			}
-		} else if let record = self.createNewCloudKitRecord() {
-			self.saveToCloudKitRecord(record, completion: completion)
-		} else {
-			Cloud.instance.reportError(NSError(domain: "Data", code: 1, userInfo: nil), note: "Unable to create a new speaker record")
-			completion?(false)
-		}
-	}
-	
-	func createNewCloudKitRecord() -> CKRecord? {
-		let record = CKRecord(recordType: self.dynamicType.recordName)
-		return record
-	}
-	
-	func saveToCloudKitRecord(record: CKRecord, completion: ((Bool) -> Void)?) {
-		if self.writeToCloudKitRecord(record) {
-			Cloud.instance.database.saveRecord(record) { record, error in
-				Cloud.instance.reportError(error, note: "Problem saving record \(self)")
-				
-				if let actual = record {
-					self.cloudKitRecordID = actual.recordID
-					self.saveManagedObject { object in
-						self.writeToManagedObject(object)
+		guard let recordID = self.cloudKitRecordID else { fatalError("no cloudkit record id found") }
+		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
+			let actual = record ?? self.createNewCloudKitRecord(recordID)
+
+			if self.writeToCloudKitRecord(actual) {
+				Cloud.instance.database.saveRecord(actual) { record, error in
+					Cloud.instance.reportError(error, note: "Problem saving record \(self)")
+					
+					if let saved = record {
+						self.cloudKitRecordID = saved.recordID
+						self.needsCloudSave = false
+						self.saveManagedObject(completion)
+					} else {
+						completion?(false)
 					}
 				}
-				completion?(error == nil)
+			} else {
+				self.needsCloudSave = false
+				self.saveManagedObject(completion)
 			}
-		} else {
-			completion?(false)
 		}
+	}
+	
+	func createNewCloudKitRecord(recordID: CKRecordID) -> CKRecord {
+		let record = CKRecord(recordType: self.dynamicType.recordName, recordID: recordID)
+		return record
 	}
 }
 
 internal extension CloudObject {
-	func saveManagedObject(block: (ManagedCloudObject) -> Void) {
+	func saveManagedObject(completion: ((Bool) -> Void)?) {
 		DataStore.instance.importBlock { moc in
 			let localRecord: ManagedCloudObject?
 			if let recordID = self.recordID {
@@ -94,8 +80,12 @@ internal extension CloudObject {
 			}
 			guard let record = localRecord else { return }
 			
-			block(record)
+			record.cloudKitRecordIDName = self.cloudKitRecordID?.recordName
+			record.needsCloudSave = self.needsCloudSave
+			
+			self.writeToManagedObject(record)
 			moc.safeSave()
+			completion?(true)
 		}
 	}
 }
@@ -104,15 +94,14 @@ public class ManagedCloudObject: NSManagedObject {
 	@NSManaged public var cloudKitRecordIDName: String?
 	@NSManaged public var needsCloudSave: Bool
 
-	
-	public override func setValue(value: AnyObject?, forKey key: String) {
-		if let value = value as? NSObject {
-			let oldValue = self.valueForKey(key) as? NSObject
-			
-			super.setValue(value, forKey: key)
-			if value != oldValue { self.needsCloudSave = true }
-		} else {
-			super.setValue(value, forKey: key)
-		}
-	}
+//	public override func setValue(value: AnyObject?, forKey key: String) {
+//		if let value = value as? NSObject {
+//			let oldValue = self.valueForKey(key) as? NSObject
+//			
+//			super.setValue(value, forKey: key)
+//			if value != oldValue { self.needsCloudSave = true }
+//		} else {
+//			super.setValue(value, forKey: key)
+//		}
+//	}
 }

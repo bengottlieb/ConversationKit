@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9057" systemVersion="15B42" minimumToolsVersion="Xcode 7.0">
-    <entity name="MessageRecord" representedClassName=".Message" syncable="YES">
-        <attribute name="cloudKitRecordIDString" optional="YES" attributeType="String" syncable="YES"/>
+    <entity name="MessageRecord" representedClassName=".MessageRecord" syncable="YES">
+        <attribute name="cloudKitRecordIDName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="content" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="heardAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
@@ -9,10 +9,10 @@
         <relationship name="listener" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpeakerRecord" inverseName="messagesHeard" inverseEntity="SpeakerRecord" syncable="YES"/>
         <relationship name="speaker" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpeakerRecord" inverseName="messagesSpoken" inverseEntity="SpeakerRecord" syncable="YES"/>
     </entity>
-    <entity name="SpeakerRecord" representedClassName=".Speaker" syncable="YES">
-        <attribute name="cloudKitRecordIDString" optional="YES" attributeType="String" syncable="YES"/>
+    <entity name="SpeakerRecord" representedClassName=".SpeakerRecord" syncable="YES">
+        <attribute name="cloudKitRecordIDName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="isLocalUser" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="isLocalSpeaker" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
         <relationship name="messagesHeard" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageRecord" inverseName="listener" inverseEntity="MessageRecord" syncable="YES"/>

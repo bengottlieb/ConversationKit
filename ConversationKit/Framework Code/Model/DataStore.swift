@@ -71,27 +71,6 @@ class DataStore: NSObject {
 }
 
 extension NSManagedObjectContext {
-	public var localSpeaker: SpeakerRecord {
-		if let spkr: SpeakerRecord = self.anyObject(NSPredicate(format: "isLocalUser = true")) {
-			return spkr
-		}
-		
-		let localSpeaker: Speaker = self.insertObject()
-		localSpeaker["isLocalUser"] = true
-		localSpeaker.identifier = ""
-		return localSpeaker
-	}
-	
-	public func speakerWithIdentifier(id: String) -> Speaker {
-		if let spkr: Speaker = self.anyObject(NSPredicate(format: "identifier = %@", id)) {
-			return spkr
-		}
-		
-		let localSpeaker: Speaker = self.insertObject()
-		localSpeaker.identifier = id
-		return localSpeaker
-	}
-	
 	func safeSave() {
 		do {
 			try self.save()

@@ -47,7 +47,7 @@ public class Cloud: NSObject {
 		print("\(note): \(error)")
 	}
 	
-	internal let queue = dispatch_queue_create("ConversationKitQueue", DISPATCH_QUEUE_SERIAL)
+	internal let queue = dispatch_queue_create("ConversationKitCloudQueue", DISPATCH_QUEUE_SERIAL)
 	internal var container: CKContainer!
 	internal var database: CKDatabase!
 }

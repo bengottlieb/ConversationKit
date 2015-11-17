@@ -22,17 +22,14 @@ public class ConversationKit: NSObject {
 	public func setup(containerName: String? = nil, localSpeakerName: String, localSpeakerIdentifier: String, completion: (Bool) -> Void) {
 		
 		Cloud.instance.setup(containerName) {
-			DataStore.instance.importBlock { moc in
-				let localSpeaker = moc.localSpeaker
-				localSpeaker.name = localSpeakerName
-				localSpeaker.identifier = localSpeakerIdentifier
+			Speaker.localSpeaker.name = localSpeakerName
+			Speaker.localSpeaker.identifier = localSpeakerIdentifier
+			Speaker.localSpeaker.saveToCloudKit { success in
+				Utilities.postNotification(ConversationKit.notifications.setupComplete)
 				
-				localSpeaker.saveToCloudKit { success in
-					Utilities.postNotification(ConversationKit.notifications.setupComplete)
-				
-					completion(success)
-				}
+				completion(success)
 			}
 		}
 	}
+	internal let queue = dispatch_queue_create("ConversationKitQueue", DISPATCH_QUEUE_SERIAL)
 }
