@@ -13,6 +13,7 @@ public class ConversationKit: NSObject {
 	
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
+		public static let updateComplete = "ConversationKit.updateComplete"
 	}
 	
 	override init() {

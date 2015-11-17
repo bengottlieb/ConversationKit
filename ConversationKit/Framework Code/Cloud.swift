@@ -35,11 +35,28 @@ public class Cloud: NSObject {
 				}
 				
 				self.setupComplete = true
+				self.pullDownMessages()
 				completion?()
 			}
 		}
 	}
 	
+	func pullDownMessages() {
+		let ref = Speaker.localSpeaker.cloudKitReference
+		let pred = NSPredicate(format: "startedBy == %@ || joinedBy == %@", ref, ref)
+		let query = CKQuery(recordType: Message.recordName, predicate: pred)
+		let operation = CKQueryOperation(query: query)
+		
+		operation.recordFetchedBlock = { record in
+			Router.instance.importMessage(record)
+		}
+		
+		operation.queryCompletionBlock = { cursor, error in
+			Utilities.postNotification(ConversationKit.notifications.setupComplete)
+		}
+		
+		self.database.addOperation(operation)
+	}
 	
 	internal func reportError(error: NSError?, note: String) {
 		guard let error = error else { return }

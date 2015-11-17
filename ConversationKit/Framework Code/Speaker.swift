@@ -19,6 +19,7 @@ public class Speaker: CloudObject {
 	}}
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = true }}}
 	public var isLocalSpeaker = false
+	public var cloudKitReference: CKReference { return CKReference(recordID: self.cloudKitRecordID!, action: .None) }
 	
 	static var knownSpeakers = Set<Speaker>()
 	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers.insert(spkr) } }
@@ -29,11 +30,14 @@ public class Speaker: CloudObject {
 		return nil
 	}
 	
-	internal class func loadSpeakerFromRecordID(recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
+	internal class func speakerFromRecordID(recordID: CKRecordID) -> Speaker? {
 		for speaker in self.knownSpeakers {
 			if speaker.cloudKitRecordID == recordID { return speaker }
 		}
-		
+		return nil
+	}
+
+	internal class func loadSpeakerFromRecordID(recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
 			if let record = record {
 				let speaker = Speaker()
