@@ -8,23 +8,27 @@
 
 import Foundation
 import CoreData
+import CloudKit
 
-public class Conversation: NSManagedObject {
-	class func conversationWithSpeakers(speakers: [Speaker]) -> Conversation {
-		let moc = speakers[0].moc!
+public class Conversation: CloudManagedObject {
+	@NSManaged var startedBy: Speaker?
+	@NSManaged var joinedBy: Speaker?
+	
+	
+	class func conversationBetween(starter: Speaker, and other: Speaker, completion: ((Bool) -> Void)?) -> Conversation {
+		let moc = starter.moc!
 		
-		if let existing: Conversation = moc.anyObject(NSPredicate(format: "(speakers.@count == %d) AND (SUBQUERY(speakers, $x, $x IN %@).@count == %d)", speakers.count, speakers, speakers.count)) {
+		if let existing: Conversation = moc.anyObject(NSPredicate(format: "(startedBy == %@ || startedBy == %@) && (joinedBy == %@ || joinedBy == %@)", starter, other, starter, other)) {
 			return existing
 		}
 		
 		let convo: Conversation = moc.insertObject()
-		speakers.forEach { convo.addSpeaker($0) }
+		convo.startedBy = starter
+		convo.joinedBy = other
+		convo.saveToCloudKit(completion)
+		
 		return convo
 	}
-	
-//	public func messagesFromSpeaker(speaker: Speaker) -> [Message] {
-//		return self.messages.flatMap { return $0.speaker == speaker ? $0 : nil }
-//	}
 	
 	public func createNewMessage(content: String, speaker: Speaker? = nil) {
 		let message: Message = self.moc!.insertObject()
@@ -41,8 +45,21 @@ public class Conversation: NSManagedObject {
 
 extension Conversation {
 	
-	func ingestNewMessage(message: Message) {
-		
+	
+	override func loadFromCloudKitRecord(record: CKRecord) {
 	}
+	
+	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
+		if let starterID = self.startedBy?.cloudKitRecordID, joinedID = self.joinedBy?.cloudKitRecordID {
+			let starterRef = CKReference(recordID: starterID, action: .DeleteSelf)
+			let joinedByRef = CKReference(recordID: joinedID, action: .DeleteSelf)
+			
+			record["startedBy"] = starterRef
+			record["joinedBy"] = joinedByRef
+			return true
+		}
+		return false
+	}
+
 
 }

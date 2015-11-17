@@ -16,7 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		Cloud.instance.setup()
+		ConversationKit.instance.setup(localSpeakerName: "Ben", localSpeakerIdentifier: "001") { setup in
+			print("setup complete")
+		}
+		
 		// Override point for customization after application launch.
 		return true
 	}

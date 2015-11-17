@@ -38,6 +38,7 @@
 		B549E3691BF8CBCB0046463A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E3681BF8CBCB0046463A /* CloudKit.framework */; };
 		B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */; };
 		B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397F1BF9F5CC004262BA /* DataStore.swift */; };
+		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		B549E3681BF8CBCB0046463A /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		B5A7397C1BF9F50B004262BA /* ConversationKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ConversationKit.xcdatamodel; sourceTree = "<group>"; };
 		B5A7397F1BF9F5CC004262BA /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataStore.swift; path = Model/DataStore.swift; sourceTree = "<group>"; };
+		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,6 +214,7 @@
 			isa = PBXGroup;
 			children = (
 				B5A7397F1BF9F5CC004262BA /* DataStore.swift */,
+				B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */,
 				B549E3371BF8C8F80046463A /* Conversation.swift */,
 				B549E33A1BF8C8F80046463A /* Message.swift */,
 				B549E33B1BF8C8F80046463A /* Speaker.swift */,
@@ -390,6 +393,7 @@
 				B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */,
 				B549E3421BF8C8F80046463A /* ConversationKitUtilities.swift in Sources */,
 				B549E3411BF8C8F80046463A /* ConversationKit.swift in Sources */,
+				B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */,
 				B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */,
 				B549E3431BF8C8F80046463A /* Message.swift in Sources */,
 				B549E3441BF8C8F80046463A /* Speaker.swift in Sources */,

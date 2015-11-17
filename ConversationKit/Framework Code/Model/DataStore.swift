@@ -151,7 +151,7 @@ public extension NSManagedObject {
 	public func log() { print("\(self)") }
 	
 	class var entityName: String {
-		return NSStringFromClass(self).componentsSeparatedByString(".").last!
+		return "\(self)"
 	}
 	
 	func deleteFromContext() {
