@@ -1,34 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9057" systemVersion="15B42" minimumToolsVersion="Xcode 7.0">
-    <entity name="Conversation" representedClassName=".Conversation" syncable="YES">
-        <attribute name="cloudKitRecordIDString" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <relationship name="joinedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Speaker" inverseName="conversationsJoined" inverseEntity="Speaker" syncable="YES"/>
-        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="conversation" inverseEntity="Message" syncable="YES"/>
-        <relationship name="startedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Speaker" inverseName="conversationsStarted" inverseEntity="Speaker" syncable="YES"/>
-    </entity>
-    <entity name="Message" representedClassName=".Message" syncable="YES">
+    <entity name="MessageRecord" representedClassName=".Message" syncable="YES">
         <attribute name="cloudKitRecordIDString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="content" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="heardAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <attribute name="readAt" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="sentAt" optional="YES" attributeType="Date" syncable="YES"/>
-        <relationship name="conversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="messages" inverseEntity="Conversation" syncable="YES"/>
-        <relationship name="speaker" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Speaker" inverseName="messages" inverseEntity="Speaker" syncable="YES"/>
+        <attribute name="spokenAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="listener" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpeakerRecord" inverseName="messagesHeard" inverseEntity="SpeakerRecord" syncable="YES"/>
+        <relationship name="speaker" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpeakerRecord" inverseName="messagesSpoken" inverseEntity="SpeakerRecord" syncable="YES"/>
     </entity>
-    <entity name="Speaker" representedClassName=".Speaker" syncable="YES">
+    <entity name="SpeakerRecord" representedClassName=".Speaker" syncable="YES">
         <attribute name="cloudKitRecordIDString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isLocalUser" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <relationship name="conversationsJoined" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="joinedBy" inverseEntity="Conversation" syncable="YES"/>
-        <relationship name="conversationsStarted" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Conversation" inverseName="startedBy" inverseEntity="Conversation" syncable="YES"/>
-        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="speaker" inverseEntity="Message" syncable="YES"/>
+        <relationship name="messagesHeard" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageRecord" inverseName="listener" inverseEntity="MessageRecord" syncable="YES"/>
+        <relationship name="messagesSpoken" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageRecord" inverseName="speaker" inverseEntity="MessageRecord" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Conversation" positionX="-63" positionY="-18" width="128" height="120"/>
-        <element name="Message" positionX="-54" positionY="-9" width="128" height="150"/>
-        <element name="Speaker" positionX="-36" positionY="9" width="128" height="165"/>
+        <element name="MessageRecord" positionX="-54" positionY="-9" width="128" height="150"/>
+        <element name="SpeakerRecord" positionX="-36" positionY="9" width="128" height="150"/>
     </elements>
 </model>

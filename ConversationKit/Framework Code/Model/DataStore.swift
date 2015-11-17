@@ -71,8 +71,8 @@ class DataStore: NSObject {
 }
 
 extension NSManagedObjectContext {
-	public var localSpeaker: Speaker {
-		if let spkr: Speaker = self.anyObject(NSPredicate(format: "isLocalUser = true")) {
+	public var localSpeaker: SpeakerRecord {
+		if let spkr: SpeakerRecord = self.anyObject(NSPredicate(format: "isLocalUser = true")) {
 			return spkr
 		}
 		
@@ -130,10 +130,12 @@ extension NSManagedObjectContext {
 		return request
 	}
 	
+	public func insert(entityName: String) -> NSManagedObject {
+		return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self)
+	}
+	
 	public func insertObject<T where T:NSManagedObject>() -> T {
-		let entityName = T.entityName
-		let object = NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self)
-		return object as! T
+		return self.insert(T.entityName) as! T
 	}
 }
 

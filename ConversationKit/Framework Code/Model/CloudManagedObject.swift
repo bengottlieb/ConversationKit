@@ -10,38 +10,38 @@ import Foundation
 import CoreData
 import CloudKit
 
-public class CloudManagedObject: NSManagedObject {
-	@NSManaged public var cloudKitRecordIDString: String?
-	@NSManaged public var needsCloudSave: Bool
+public class CloudObject: NSObject {
+	public var needsCloudSave: Bool = false
 	
-	var cloudKitRecordID: CKRecordID?
+	internal var cloudKitRecordID: CKRecordID?
+	internal var recordID: NSManagedObjectID?
+	
+	internal var managedObject: ManagedCloudObject?
+	internal class var recordName: String { return "" }
+	internal class var entityName: String { return "" }
+	
+	func writeToManagedObject(object: ManagedCloudObject) {
+		object.cloudKitRecordIDName = self.cloudKitRecordID?.recordName
+		object.needsCloudSave = false
+	}
+
+	func writeToCloudKitRecord(record: CKRecord) -> Bool {
+		return false
+	}
 	
 	func loadFromCloudKitRecord(record: CKRecord) {
 		
 	}
 	
-	func writeToCloudKitRecord(record: CKRecord) -> Bool {
-		return false
-	}
-	
-	public override func setValue(value: AnyObject?, forKey key: String) {
-		if let value = value as? NSObject {
-			let oldValue = self.valueForKey(key) as? NSObject
-			
-			super.setValue(value, forKey: key)
-			if value != oldValue { self.needsCloudSave = true }
-		} else {
-			super.setValue(value, forKey: key)
-		}
-	}
-	
+}
+
+internal extension CloudObject {
 	func saveToCloudKit(completion: ((Bool) -> Void)?) {
 		if !self.needsCloudSave {
 			completion?(true)
 			return
 		}
 		
-		self.moc?.safeSave()
 		if let recordID = self.cloudKitRecordID {
 			Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
 				if let actual = record {
@@ -60,7 +60,7 @@ public class CloudManagedObject: NSManagedObject {
 	}
 	
 	func createNewCloudKitRecord() -> CKRecord? {
-		let record = CKRecord(recordType: self.dynamicType.entityName)
+		let record = CKRecord(recordType: self.dynamicType.recordName)
 		return record
 	}
 	
@@ -70,16 +70,49 @@ public class CloudManagedObject: NSManagedObject {
 				Cloud.instance.reportError(error, note: "Problem saving record \(self)")
 				
 				if let actual = record {
-					self.moc?.performBlock {
-						self.cloudKitRecordID = actual.recordID
-						self.needsCloudSave = false
-						self.moc?.safeSave()
+					self.cloudKitRecordID = actual.recordID
+					self.saveManagedObject { object in
+						self.writeToManagedObject(object)
 					}
 				}
 				completion?(error == nil)
 			}
 		} else {
 			completion?(false)
+		}
+	}
+}
+
+internal extension CloudObject {
+	func saveManagedObject(block: (ManagedCloudObject) -> Void) {
+		DataStore.instance.importBlock { moc in
+			let localRecord: ManagedCloudObject?
+			if let recordID = self.recordID {
+				localRecord = moc.objectWithID(recordID) as? ManagedCloudObject
+			} else {
+				localRecord = moc.insert(self.dynamicType.entityName) as? ManagedCloudObject
+			}
+			guard let record = localRecord else { return }
+			
+			block(record)
+			moc.safeSave()
+		}
+	}
+}
+
+public class ManagedCloudObject: NSManagedObject {
+	@NSManaged public var cloudKitRecordIDName: String?
+	@NSManaged public var needsCloudSave: Bool
+
+	
+	public override func setValue(value: AnyObject?, forKey key: String) {
+		if let value = value as? NSObject {
+			let oldValue = self.valueForKey(key) as? NSObject
+			
+			super.setValue(value, forKey: key)
+			if value != oldValue { self.needsCloudSave = true }
+		} else {
+			super.setValue(value, forKey: key)
 		}
 	}
 }

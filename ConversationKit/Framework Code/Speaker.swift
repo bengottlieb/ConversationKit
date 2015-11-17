@@ -10,9 +10,9 @@ import Foundation
 import CoreData
 import CloudKit
 
-public class Speaker: CloudManagedObject {	
-	@NSManaged public var identifier: String?
-	@NSManaged public var name: String?
+public class Speaker: CloudObject {
+	public var identifier: String?
+	public var name: String?
 	
 	override func loadFromCloudKitRecord(record: CKRecord) {
 		identifier = record["identifier"] as? String
@@ -24,4 +24,9 @@ public class Speaker: CloudManagedObject {
 		record["name"] = self.name
 		return true
 	}
+}
+
+internal class SpeakerRecord: ManagedCloudObject {
+	@NSManaged var identifier: String?
+	@NSManaged var name: String?
 }
