@@ -19,7 +19,7 @@ public class Speaker: CloudObject {
 	}}
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = true }}}
 	public var isLocalSpeaker = false
-	public var cloudKitReference: CKReference { return CKReference(recordID: self.cloudKitRecordID!, action: .None) }
+	public var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
 	
 	static var knownSpeakers = Set<Speaker>()
 	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers.insert(spkr) } }
@@ -41,7 +41,7 @@ public class Speaker: CloudObject {
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
 			if let record = record {
 				let speaker = Speaker()
-				speaker.loadFromCloudKitRecord(record)
+				speaker.loadWithCloudKitRecord(record)
 				Speaker.addKnownSpeaker(speaker)
 				
 				completion?(speaker)
@@ -70,9 +70,13 @@ public class Speaker: CloudObject {
 		return speaker
 	}()
 	
-	override func loadFromCloudKitRecord(record: CKRecord) {
+	override func readFromCloudKitRecord(record: CKRecord) {
 		identifier = record["identifier"] as? String
 		name = record["name"] as? String
+	}
+	
+	override func didCreateFromServerRecord() {
+		Cloud.instance.pullDownMessages()
 	}
 	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {

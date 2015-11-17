@@ -15,9 +15,16 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		
+		
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "localSpeakerUpdated:", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
 		// Do any additional setup after loading the view, typically from a nib.
 	}
 
+	func localSpeakerUpdated(note: NSNotification) {
+		self.nameField.text = Speaker.localSpeaker.name
+	}
+	
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.

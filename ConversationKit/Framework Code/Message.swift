@@ -16,7 +16,7 @@ public class Message: CloudObject {
 	var listener: Speaker!
 	var spokenAt = NSDate()
 	
-	override func loadFromCloudKitRecord(record: CKRecord) {
+	override func readFromCloudKitRecord(record: CKRecord) {
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
 		

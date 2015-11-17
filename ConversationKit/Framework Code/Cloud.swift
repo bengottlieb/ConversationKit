@@ -42,23 +42,27 @@ public class Cloud: NSObject {
 		}
 	}
 	
+	var queryOperation: CKQueryOperation?
 	func pullDownMessages() {
-		if !self.configured { return }
+		guard self.configured, let ref = Speaker.localSpeaker.cloudKitReference else { return }
 		
-		let ref = Speaker.localSpeaker.cloudKitReference
-		let pred = NSPredicate(format: "speakers contains %@", ref)
-		let query = CKQuery(recordType: Message.recordName, predicate: pred)
-		let operation = CKQueryOperation(query: query)
-		
-		operation.recordFetchedBlock = { record in
-			Router.instance.importMessage(record)
+		if self.queryOperation == nil {
+			let pred = NSPredicate(format: "speakers contains %@", ref)
+			let query = CKQuery(recordType: Message.recordName, predicate: pred)
+			self.queryOperation = CKQueryOperation(query: query)
+			
+			self.queryOperation!.recordFetchedBlock = { record in
+				Router.instance.importMessage(record)
+			}
+			
+			self.queryOperation!.queryCompletionBlock = { cursor, error in
+				Utilities.postNotification(ConversationKit.notifications.setupComplete)
+				print("message loading complete")
+				self.queryOperation = nil
+			}
+			
+			self.database.addOperation(self.queryOperation!)
 		}
-		
-		operation.queryCompletionBlock = { cursor, error in
-			Utilities.postNotification(ConversationKit.notifications.setupComplete)
-		}
-		
-		self.database.addOperation(operation)
 	}
 	
 	internal func reportError(error: NSError?, note: String) {

@@ -27,7 +27,10 @@ public class CloudObject: NSObject {
 		return false
 	}
 	
-	func loadFromCloudKitRecord(record: CKRecord) {
+	func readFromCloudKitRecord(record: CKRecord) {
+	}
+	
+	func didCreateFromServerRecord() {
 		
 	}
 	
@@ -35,6 +38,27 @@ public class CloudObject: NSObject {
 }
 
 internal extension CloudObject {
+	func refreshFromCloud(completion: ((Bool) -> Void)? = nil) {
+		guard let recordID = self.cloudKitRecordID else { completion?(false); return }
+		
+		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
+			Cloud.instance.reportError(error, note: "Problem refreshing record \(self)")
+			if let record = record { self.loadWithCloudKitRecord(record) }
+			completion?(record != nil)
+		}
+	}
+	
+	func loadWithCloudKitRecord(record: CKRecord) {
+		let isNew = self.cloudKitRecordID == nil
+		self.cloudKitRecordID = record.recordID
+		self.readFromCloudKitRecord(record)
+		
+		if isNew {
+			self.saveManagedObject()
+			self.didCreateFromServerRecord()
+		}
+	}
+	
 	func saveToCloudKit(completion: ((Bool) -> Void)?) {
 		if !self.canSaveToCloud{ completion?(false); return }
 		if !self.needsCloudSave { completion?(true); return }
@@ -69,7 +93,7 @@ internal extension CloudObject {
 }
 
 internal extension CloudObject {
-	func saveManagedObject(completion: ((Bool) -> Void)?) {
+	func saveManagedObject(completion: ((Bool) -> Void)? = nil) {
 		DataStore.instance.importBlock { moc in
 			let localRecord: ManagedCloudObject?
 			if let recordID = self.recordID {

@@ -14,6 +14,7 @@ public class ConversationKit: NSObject {
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
 		public static let updateComplete = "ConversationKit.updateComplete"
+		public static let localSpeakerUpdated = "ConversationKit.localSpeakerUpdated"
 	}
 	
 	override init() {
@@ -40,23 +41,23 @@ public class ConversationKit: NSObject {
 	}
 	
 	public func setup(containerName: String? = nil, localSpeakerName: String? = nil, localSpeakerIdentifier: String? = nil, completion: ((Bool) -> Void)? = nil) {
+		DataStore.instance.setup()
 		Cloud.instance.setup(containerName) { configured in 
-			if let name = localSpeakerName {
-				self.loadLocalSpeaker(name, identifier: localSpeakerIdentifier, completion: completion)
-			} else {
-				completion?(configured)
-			}
+			self.loadLocalSpeaker(localSpeakerName, identifier: localSpeakerIdentifier, completion: completion)
 		}
 	}
 	
-	public func loadLocalSpeaker(name: String, identifier: String?, completion: ((Bool) -> Void)?) {
+	public func loadLocalSpeaker(name: String?, identifier: String?, completion: ((Bool) -> Void)?) {
 		if Cloud.instance.configured {
-			Speaker.localSpeaker.name = name
+			if name != nil { Speaker.localSpeaker.name = name! }
 			if identifier != nil { Speaker.localSpeaker.identifier = identifier! }
-			Speaker.localSpeaker.saveToCloudKit { success in
-				Utilities.postNotification(ConversationKit.notifications.setupComplete)
-				Cloud.instance.pullDownMessages()
-				completion?(success)
+			Speaker.localSpeaker.refreshFromCloud() { success in
+				if success { Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated) }
+				Speaker.localSpeaker.saveToCloudKit { success in
+					Utilities.postNotification(ConversationKit.notifications.setupComplete)
+					Cloud.instance.pullDownMessages()
+					completion?(success)
+				}
 			}
 		} else {
 			completion?(false)
