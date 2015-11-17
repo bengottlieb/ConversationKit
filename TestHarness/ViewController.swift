@@ -7,9 +7,12 @@
 //
 
 import UIKit
+import ConversationKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextFieldDelegate {
 
+	@IBOutlet var nameField: UITextField!
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
@@ -22,6 +25,16 @@ class ViewController: UIViewController {
 
 	@IBAction func buttonTouched(sender: UIButton) {
 		
+	}
+	
+	override func viewDidAppear(animated: Bool) {
+		super.viewDidAppear(animated)
+		self.nameField.text = Speaker.localSpeaker.name
+	}
+	
+	func textFieldShouldReturn(textField: UITextField) -> Bool {
+		ConversationKit.instance.setup(localSpeakerName: textField.text)
+		return false
 	}
 }
 

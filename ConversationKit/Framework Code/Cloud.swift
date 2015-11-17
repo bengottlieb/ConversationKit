@@ -14,11 +14,13 @@ public class Cloud: NSObject {
 	
 	public var configured = false
 	public var setupComplete = false
+	public var container: CKContainer!
+	public var database: CKDatabase!
 	
-	public func setup(containerID: String? = nil, completion: (() -> Void)?) {
+	public func setup(containerID: String? = nil, completion: (Bool) -> Void) {
 		dispatch_async(self.queue) {
 			if self.setupComplete {
-				completion?()
+				completion(self.configured)
 				return
 			}
 			self.container = (containerID == nil) ? CKContainer.defaultContainer() : CKContainer(identifier: containerID!)
@@ -35,15 +37,16 @@ public class Cloud: NSObject {
 				}
 				
 				self.setupComplete = true
-				self.pullDownMessages()
-				completion?()
+				completion(self.configured)
 			}
 		}
 	}
 	
 	func pullDownMessages() {
+		if !self.configured { return }
+		
 		let ref = Speaker.localSpeaker.cloudKitReference
-		let pred = NSPredicate(format: "startedBy == %@ || joinedBy == %@", ref, ref)
+		let pred = NSPredicate(format: "speakers contains %@", ref)
 		let query = CKQuery(recordType: Message.recordName, predicate: pred)
 		let operation = CKQueryOperation(query: query)
 		
@@ -65,6 +68,4 @@ public class Cloud: NSObject {
 	}
 	
 	internal let queue = dispatch_queue_create("ConversationKitCloudQueue", DISPATCH_QUEUE_SERIAL)
-	internal var container: CKContainer!
-	internal var database: CKDatabase!
 }

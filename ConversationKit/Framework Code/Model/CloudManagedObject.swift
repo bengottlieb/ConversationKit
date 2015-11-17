@@ -31,14 +31,13 @@ public class CloudObject: NSObject {
 		
 	}
 	
+	var canSaveToCloud: Bool { return true }
 }
 
 internal extension CloudObject {
 	func saveToCloudKit(completion: ((Bool) -> Void)?) {
-		if !self.needsCloudSave {
-			completion?(true)
-			return
-		}
+		if !self.canSaveToCloud{ completion?(false); return }
+		if !self.needsCloudSave { completion?(true); return }
 		
 		guard let recordID = self.cloudKitRecordID else { fatalError("no cloudkit record id found") }
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in

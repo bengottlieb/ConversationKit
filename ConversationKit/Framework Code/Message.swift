@@ -36,8 +36,7 @@ public class Message: CloudObject {
 			
 			record["spokenAt"] = self.spokenAt;
 			record["content"] = self.content
-			record["speaker"] = speakerRef
-			record["listener"] = listenerRef
+			record["speakers"] = [speakerRef, listenerRef]
 			return true
 		}
 		return false

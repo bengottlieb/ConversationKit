@@ -8,6 +8,7 @@
 
 import UIKit
 import ConversationKit
+import CloudKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,8 +17,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		ConversationKit.instance.setup(localSpeakerName: "Ben", localSpeakerIdentifier: "001") { setup in
-			print("setup complete")
+		
+		ConversationKit.instance.setup() { setup in
+			ConversationKit.instance.fetchAccountIdentifier { email in
+				if let email = email {
+					ConversationKit.instance.setup(localSpeakerName: "", localSpeakerIdentifier: email) { success in 
+						
+						
+					}
+				}
+			}
 		}
 		
 		// Override point for customization after application launch.

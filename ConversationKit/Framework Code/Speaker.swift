@@ -93,6 +93,7 @@ public class Speaker: CloudObject {
 	internal override class var recordName: String { return "Speaker" }
 	internal override class var entityName: String { return "SpeakerRecord" }
 
+	internal override var canSaveToCloud: Bool { return self.identifier != nil }
 }
 
 public func ==(lhs: Speaker, rhs: Speaker) -> Bool {
