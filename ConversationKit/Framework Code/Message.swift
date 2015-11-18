@@ -43,9 +43,12 @@ public class Message: CloudObject {
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
-		guard let speakerObject = object as? SpeakerRecord else { return }
+		guard let messageObject = object as? MessageRecord else { return }
 		
-		
+		messageObject.content = self.content
+		messageObject.speaker = self.speaker?.objectInContext(object.moc!) as? SpeakerRecord
+		messageObject.listener = self.speaker?.objectInContext(object.moc!) as? SpeakerRecord
+		messageObject.spokenAt = self.spokenAt
 	}
 	
 	internal override class var recordName: String { return "Speaker" }
@@ -55,6 +58,7 @@ public class Message: CloudObject {
 
 internal class MessageRecord: ManagedCloudObject {
 	@NSManaged var content: String?
-	@NSManaged var speaker: Speaker?
-	
+	@NSManaged var speaker: SpeakerRecord?
+	@NSManaged var listener: SpeakerRecord?
+	@NSManaged var spokenAt: NSDate?
 }

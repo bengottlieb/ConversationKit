@@ -16,7 +16,6 @@ public class CloudObject: NSObject {
 	internal var cloudKitRecordID: CKRecordID?
 	internal var recordID: NSManagedObjectID?
 	
-	internal var managedObject: ManagedCloudObject?
 	internal class var recordName: String { return "" }
 	internal class var entityName: String { return "" }
 	
@@ -28,6 +27,10 @@ public class CloudObject: NSObject {
 	}
 	
 	func readFromCloudKitRecord(record: CKRecord) {
+	}
+	
+	func readFromManagedObject(object: ManagedCloudObject) {
+		
 	}
 	
 	func didCreateFromServerRecord() {
@@ -57,6 +60,13 @@ internal extension CloudObject {
 			self.saveManagedObject()
 			self.didCreateFromServerRecord()
 		}
+	}
+	
+	func loadWithManagedObject(object: ManagedCloudObject) {
+		self.needsCloudSave = object.needsCloudSave
+		self.recordID = object.objectID
+		
+		self.readFromManagedObject(object)	
 	}
 	
 	func saveToCloudKit(completion: ((Bool) -> Void)?) {
@@ -110,6 +120,11 @@ internal extension CloudObject {
 			moc.safeSave()
 			completion?(true)
 		}
+	}
+	
+	func objectInContext(moc: NSManagedObjectContext) -> ManagedCloudObject? {
+		if let id = self.recordID { return moc.objectWithID(id) as? ManagedCloudObject }
+		return nil
 	}
 }
 

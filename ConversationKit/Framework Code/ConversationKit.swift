@@ -10,6 +10,7 @@ import Foundation
 
 public class ConversationKit: NSObject {
 	public static let instance = ConversationKit()
+	public var setupComplete = false
 	
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
@@ -49,13 +50,17 @@ public class ConversationKit: NSObject {
 	
 	public func loadLocalSpeaker(name: String?, identifier: String?, completion: ((Bool) -> Void)?) {
 		if Cloud.instance.configured {
-			if name != nil { Speaker.localSpeaker.name = name! }
-			if identifier != nil { Speaker.localSpeaker.identifier = identifier! }
 			Speaker.localSpeaker.refreshFromCloud() { success in
+				if name != nil { Speaker.localSpeaker.name = name! }
+				if identifier != nil { Speaker.localSpeaker.identifier = identifier! }
+
 				if success { Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated) }
 				Speaker.localSpeaker.saveToCloudKit { success in
-					Utilities.postNotification(ConversationKit.notifications.setupComplete)
-					Cloud.instance.pullDownMessages()
+					if !self.setupComplete {
+						self.setupComplete = true
+						Utilities.postNotification(ConversationKit.notifications.setupComplete)
+						Cloud.instance.pullDownMessages()
+					}
 					completion?(success)
 				}
 			}

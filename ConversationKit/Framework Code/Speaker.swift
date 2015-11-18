@@ -60,10 +60,7 @@ public class Speaker: CloudObject {
 		let moc = DataStore.instance.privateContext
 		moc.performBlockAndWait {
 			if let spkr: SpeakerRecord = moc.anyObject(NSPredicate(format: "isLocalSpeaker = true")) {
-				speaker.identifier = spkr.identifier
-				speaker.name = spkr.name
-				speaker.recordID = spkr.objectID
-				speaker.needsCloudSave = spkr.needsCloudSave
+				speaker.loadWithManagedObject(spkr)
 			}
 		}
 		Speaker.addKnownSpeaker(speaker)
@@ -85,6 +82,13 @@ public class Speaker: CloudObject {
 		record["identifier"] = self.identifier
 		record["name"] = self.name
 		return true
+	}
+	
+	override func readFromManagedObject(object: ManagedCloudObject) {
+		guard let spkr = object as? SpeakerRecord else { return }
+		
+		self.identifier = spkr.identifier
+		self.name = spkr.name
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
