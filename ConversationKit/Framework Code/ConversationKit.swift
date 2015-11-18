@@ -58,8 +58,8 @@ public class ConversationKit: NSObject {
 						if !self.setupComplete {
 							self.setupComplete = true
 							Utilities.postNotification(ConversationKit.notifications.setupComplete)
-							Cloud.instance.pullDownMessages()
 						}
+						Cloud.instance.pullDownMessages()
 						completion?(success)
 					}
 				}

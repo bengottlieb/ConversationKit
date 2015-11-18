@@ -42,10 +42,6 @@ public class CloudObject: NSObject {
 		
 	}
 	
-	func didCreateFromServerRecord() {
-		
-	}
-	
 	var canSaveToCloud: Bool { return true }
 }
 
@@ -61,13 +57,12 @@ internal extension CloudObject {
 	}
 	
 	func loadWithCloudKitRecord(record: CKRecord) {
-		let isNew = self.cloudKitRecordID == nil
+		let isNew = self.recordID == nil
 		self.cloudKitRecordID = record.recordID
 		self.readFromCloudKitRecord(record)
 		
 		if isNew {
 			self.saveManagedObject()
-			self.didCreateFromServerRecord()
 		}
 	}
 	

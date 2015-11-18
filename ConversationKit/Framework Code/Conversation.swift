@@ -22,8 +22,8 @@ public class Conversation: NSObject {
 		dispatch_async(ConversationKit.instance.queue) { self.messages.insert(message) }
 	}
 	
-	func hasMembers(members: [Speaker]) -> Bool {
-		return members.contains(self.startedBy) && members.contains(self.joinedBy)
+	func hasSpeakers(speakers: [Speaker]) -> Bool {
+		return speakers.contains(self.startedBy) && speakers.contains(self.joinedBy)
 	}
 	
 	init(starter: Speaker, and other: Speaker) {
@@ -33,10 +33,10 @@ public class Conversation: NSObject {
 	}
 	
 	class func conversationWithSpeaker(speaker: Speaker, listener: Speaker) -> Conversation {
-		let members = [speaker, listener]
+		let speakers = [speaker, listener]
 		
 		for conversation in Conversation.existingConversations {
-			if conversation.hasMembers(members) {
+			if conversation.hasSpeakers(speakers) {
 				return conversation
 			}
 		}

@@ -13,11 +13,11 @@ import CloudKit
 public class Speaker: CloudObject {
 	public var identifier: String? { didSet {
 		if self.identifier != oldValue {
-			self.needsCloudSave = true
+			self.needsCloudSave = self.isLocalSpeaker
 			self.cloudKitRecordID = Speaker.cloudKitRecordIDFromIdentifier(self.identifier)
 		}
 	}}
-	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = true }}}
+	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var isLocalSpeaker = false
 	
 	public static var localSpeaker: Speaker!
@@ -29,7 +29,6 @@ public class Speaker: CloudObject {
 		newSpeaker.name = name
 		self.addKnownSpeaker(newSpeaker)
 		newSpeaker.saveManagedObject()
-		newSpeaker.saveToCloudKit(nil)
 		return newSpeaker
 	}
 	
@@ -55,7 +54,6 @@ public class Speaker: CloudObject {
 			if self.localSpeaker == nil {
 				let speaker = Speaker()
 				speaker.isLocalSpeaker = true
-				speaker.needsCloudSave = false
 				speaker.saveManagedObject()
 				Speaker.addKnownSpeaker(speaker)
 				self.localSpeaker = speaker
@@ -107,11 +105,8 @@ public class Speaker: CloudObject {
 		}
 	}
 	
-	override func didCreateFromServerRecord() {
-		Cloud.instance.pullDownMessages()
-	}
-	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
+		if !self.isLocalSpeaker { return false }
 		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name { return self.needsCloudSave }
 		
 		record["identifier"] = self.identifier

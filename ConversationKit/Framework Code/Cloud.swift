@@ -44,15 +44,19 @@ public class Cloud: NSObject {
 	
 	var queryOperation: CKQueryOperation?
 	func pullDownMessages() {
-		guard self.configured, let ref = Speaker.localSpeaker.cloudKitReference else { return }
+		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
 		if self.queryOperation == nil {
-			let pred = NSPredicate(format: "speakers contains %@", ref)
+			print("pulling down messages for \(localUserID)")
+			let pred = NSPredicate(format: "speakers contains %@", localUserID)
 			let query = CKQuery(recordType: Message.recordName, predicate: pred)
 			self.queryOperation = CKQueryOperation(query: query)
 			
 			self.queryOperation!.recordFetchedBlock = { record in
-				Router.instance.importMessage(record)
+				if let message = Message(record: record) {
+					message.saveManagedObject()
+					Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message)
+				}
 			}
 			
 			self.queryOperation!.queryCompletionBlock = { cursor, error in

@@ -23,29 +23,38 @@ public class Message: CloudObject {
 		self.listener = listener
 		self.content = content
 		self.spokenAt = NSDate()
+		self.needsCloudSave = true
+		self.cloudKitRecordID = CKRecordID(recordName: "Message: \(NSUUID().UUIDString)")
+	}
+	
+	convenience init?(record: CKRecord) {
+		self.init()
+		
+		
+		guard let speakers = record["speakers"] as? [String] where speakers.count == 2 else { return nil }
+		
+		self.readFromCloudKitRecord(record)
 	}
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
+		self.cloudKitRecordID = record.recordID
 		
-		if let ref = record["speaker"] as? CKReference {
-			self.speaker = Speaker.loadSpeakerFromRecordID(ref.recordID) { speaker in
-				self.speaker = speaker
-				self.saveManagedObject(nil)
-			}
-			self.saveManagedObject(nil)
+		if let speakers = record["speakers"] as? [String] where speakers.count == 2 {
+			let speaker = Speaker.speakerWithIdentifier(speakers[0]), listener = Speaker.speakerWithIdentifier(speakers[1])
+
+			self.speaker = speaker
+			self.listener = listener
 		}
 	}
 	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
-		if let speakerID = self.speaker?.cloudKitRecordID, listenerID = self.listener?.cloudKitRecordID {
-			let speakerRef = CKReference(recordID: speakerID, action: .DeleteSelf)
-			let listenerRef = CKReference(recordID: listenerID, action: .DeleteSelf)
+		if let speakerID = self.speaker?.identifier, listenerID = self.listener?.identifier {
 			
 			record["spokenAt"] = self.spokenAt;
 			record["content"] = self.content
-			record["speakers"] = [speakerRef, listenerRef]
+			record["speakers"] = [speakerID, listenerID]
 			return true
 		}
 		return self.needsCloudSave
@@ -56,15 +65,15 @@ public class Message: CloudObject {
 		
 		messageObject.content = self.content
 		messageObject.speaker = self.speaker?.objectInContext(object.moc!) as? SpeakerRecord
-		messageObject.listener = self.speaker?.objectInContext(object.moc!) as? SpeakerRecord
+		messageObject.listener = self.listener?.objectInContext(object.moc!) as? SpeakerRecord
 		messageObject.spokenAt = self.spokenAt
 	}
 	
-	internal override class var recordName: String { return "Speaker" }
-	internal override class var entityName: String { return "SpeakerRecord" }
+	internal override class var recordName: String { return "Message" }
+	internal override class var entityName: String { return "MessageRecord" }
 
 	internal override var canSaveToCloud: Bool {
-		return self.speaker.hasSavedToCloud && self.listener.hasSavedToCloud
+		return self.speaker != nil && self.listener != nil
 	}
 }
 
