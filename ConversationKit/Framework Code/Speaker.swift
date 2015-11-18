@@ -19,7 +19,22 @@ public class Speaker: CloudObject {
 	}}
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = true }}}
 	public var isLocalSpeaker = false
-	public var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
+	
+	public static var localSpeaker: Speaker = {
+		let speaker = Speaker()
+		speaker.isLocalSpeaker = true
+		let moc = DataStore.instance.privateContext
+		moc.performBlockAndWait {
+			if let spkr: SpeakerRecord = moc.anyObject(NSPredicate(format: "isLocalSpeaker = true")) {
+				speaker.loadWithManagedObject(spkr)
+			}
+		}
+		Speaker.addKnownSpeaker(speaker)
+		return speaker
+	}()
+	
+	
+	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
 	
 	static var knownSpeakers = Set<Speaker>()
 	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers.insert(spkr) } }
@@ -53,19 +68,6 @@ public class Speaker: CloudObject {
 		
 		return nil
 	}
-	
-	public static var localSpeaker: Speaker = {
-		let speaker = Speaker()
-		speaker.isLocalSpeaker = true
-		let moc = DataStore.instance.privateContext
-		moc.performBlockAndWait {
-			if let spkr: SpeakerRecord = moc.anyObject(NSPredicate(format: "isLocalSpeaker = true")) {
-				speaker.loadWithManagedObject(spkr)
-			}
-		}
-		Speaker.addKnownSpeaker(speaker)
-		return speaker
-	}()
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
 		identifier = record["identifier"] as? String

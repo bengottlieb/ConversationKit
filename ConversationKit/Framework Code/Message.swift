@@ -11,10 +11,10 @@ import CoreData
 import CloudKit
 
 public class Message: CloudObject {
-	var content = ""
-	var speaker: Speaker!
-	var listener: Speaker!
-	var spokenAt = NSDate()
+	public var content = ""
+	public var speaker: Speaker!
+	public var listener: Speaker!
+	public var spokenAt = NSDate()
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
 		self.content = record["content"] as? String ?? ""

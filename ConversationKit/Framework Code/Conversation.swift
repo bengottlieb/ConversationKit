@@ -18,7 +18,7 @@ public class Conversation: NSObject {
 	public var joinedBy: Speaker
 	public var messages: Set<Message> = []
 	
-	func addMessage(message: Message) {
+	public func addMessage(message: Message) {
 		dispatch_async(ConversationKit.instance.queue) { self.messages.insert(message) }
 	}
 	

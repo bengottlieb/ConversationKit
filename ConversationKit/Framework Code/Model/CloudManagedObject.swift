@@ -11,7 +11,7 @@ import CoreData
 import CloudKit
 
 public class CloudObject: NSObject {
-	public var needsCloudSave: Bool = false
+	var needsCloudSave: Bool = false
 	
 	internal var cloudKitRecordID: CKRecordID?
 	internal var recordID: NSManagedObjectID?
@@ -128,9 +128,9 @@ internal extension CloudObject {
 	}
 }
 
-public class ManagedCloudObject: NSManagedObject {
-	@NSManaged public var cloudKitRecordIDName: String?
-	@NSManaged public var needsCloudSave: Bool
+class ManagedCloudObject: NSManagedObject {
+	@NSManaged var cloudKitRecordIDName: String?
+	@NSManaged var needsCloudSave: Bool
 
 //	public override func setValue(value: AnyObject?, forKey key: String) {
 //		if let value = value as? NSObject {
