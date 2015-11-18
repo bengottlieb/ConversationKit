@@ -12,6 +12,10 @@ import ConversationKit
 class ViewController: UIViewController, UITextFieldDelegate {
 
 	@IBOutlet var nameField: UITextField!
+	@IBOutlet var messageField: UITextField!
+	
+	let speakerIDs = [ "Aurora": "ID:_aceaf3d4cc8dc52f96307ec4374201c5" ]
+	var currentConversationalist: Speaker?
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -31,16 +35,31 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	}
 
 	@IBAction func buttonTouched(sender: UIButton) {
-		
+		if let name = sender.titleLabel?.text, speakerID = self.speakerIDs[name] {
+			self.currentConversationalist = Speaker.speakerWithIdentifier(speakerID, name: name)
+			
+			sender.backgroundColor = UIColor.blueColor()
+			sender.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+		}
 	}
 	
 	override func viewDidAppear(animated: Bool) {
 		super.viewDidAppear(animated)
-		self.nameField.text = Speaker.localSpeaker.name
+		self.nameField.text = Speaker.localSpeaker?.name
 	}
 	
 	func textFieldShouldReturn(textField: UITextField) -> Bool {
-		ConversationKit.instance.setup(localSpeakerName: textField.text)
+		if textField == self.nameField {
+			Speaker.localSpeaker.name = textField.text
+			Speaker.localSpeaker.save()
+		} else if textField == self.messageField {
+			if let text = textField.text where text != "" {
+				self.currentConversationalist?.sendMessage(text) { saved in
+					print("message saved: \(saved)")
+				}
+				textField.text = ""
+			}
+		}
 		return false
 	}
 }

@@ -20,21 +20,50 @@ public class Speaker: CloudObject {
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = true }}}
 	public var isLocalSpeaker = false
 	
-	public static var localSpeaker: Speaker = {
-		let speaker = Speaker()
-		speaker.isLocalSpeaker = true
-		let moc = DataStore.instance.privateContext
-		moc.performBlockAndWait {
-			if let spkr: SpeakerRecord = moc.anyObject(NSPredicate(format: "isLocalSpeaker = true")) {
-				speaker.loadWithManagedObject(spkr)
-			}
-		}
-		Speaker.addKnownSpeaker(speaker)
-		return speaker
-	}()
+	public static var localSpeaker: Speaker!
+	public class func speakerWithIdentifier(identifier: String, name: String? = nil) -> Speaker {
+		if let cloudID = Speaker.cloudKitRecordIDFromIdentifier(identifier), existing = self.speakerFromRecordID(cloudID) { return existing }
+		
+		let newSpeaker = Speaker()
+		newSpeaker.identifier = identifier
+		newSpeaker.name = name
+		self.addKnownSpeaker(newSpeaker)
+		newSpeaker.saveManagedObject()
+		newSpeaker.saveToCloudKit(nil)
+		return newSpeaker
+	}
 	
+	public func sendMessage(content: String, completion: ((Bool) -> Void)?) {
+		let message = Message(speaker: Speaker.localSpeaker, listener: self, content: content)
+		
+		message.saveManagedObject()
+		message.saveToCloudKit(completion)
+	}
 	
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
+	
+	class func loadCachedSpeakers(completion: () -> Void) {
+		DataStore.instance.importBlock { moc in
+			let speakers: [SpeakerRecord] = moc.allObjects()
+			for record in speakers {
+				let speaker = Speaker()
+				speaker.readFromManagedObject(record)
+				if speaker.isLocalSpeaker { self.localSpeaker = speaker }
+				self.knownSpeakers.insert(speaker)
+			}
+			
+			if self.localSpeaker == nil {
+				let speaker = Speaker()
+				speaker.isLocalSpeaker = true
+				speaker.needsCloudSave = false
+				speaker.saveManagedObject()
+				Speaker.addKnownSpeaker(speaker)
+				self.localSpeaker = speaker
+			}
+			
+			completion()
+		}
+	}
 	
 	static var knownSpeakers = Set<Speaker>()
 	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers.insert(spkr) } }
@@ -72,6 +101,10 @@ public class Speaker: CloudObject {
 	override func readFromCloudKitRecord(record: CKRecord) {
 		identifier = record["identifier"] as? String
 		name = record["name"] as? String
+		
+		if self.isLocalSpeaker {
+			Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated)
+		}
 	}
 	
 	override func didCreateFromServerRecord() {
@@ -79,7 +112,7 @@ public class Speaker: CloudObject {
 	}
 	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
-		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name { return false }
+		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name { return self.needsCloudSave }
 		
 		record["identifier"] = self.identifier
 		record["name"] = self.name
@@ -89,8 +122,10 @@ public class Speaker: CloudObject {
 	override func readFromManagedObject(object: ManagedCloudObject) {
 		guard let spkr = object as? SpeakerRecord else { return }
 		
+		self.recordID = spkr.objectID
 		self.identifier = spkr.identifier
 		self.name = spkr.name
+		self.isLocalSpeaker = spkr.isLocalSpeaker
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {

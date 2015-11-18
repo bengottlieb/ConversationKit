@@ -11,7 +11,16 @@ import CoreData
 import CloudKit
 
 public class CloudObject: NSObject {
-	var needsCloudSave: Bool = false
+	internal var needsCloudSave = false
+	internal var hasSavedToCloud = false
+	
+	public func save() {
+		self.saveManagedObject { savedToDisk in
+			self.saveToCloudKit { savedToCloud in
+				
+			}
+		}
+	}
 	
 	internal var cloudKitRecordID: CKRecordID?
 	internal var recordID: NSManagedObjectID?
@@ -65,6 +74,10 @@ internal extension CloudObject {
 	func loadWithManagedObject(object: ManagedCloudObject) {
 		self.needsCloudSave = object.needsCloudSave
 		self.recordID = object.objectID
+		if let cloudRecordName = object.cloudKitRecordIDName {
+			self.hasSavedToCloud = true
+			self.cloudKitRecordID = CKRecordID(recordName: cloudRecordName)
+		}
 		
 		self.readFromManagedObject(object)	
 	}
@@ -82,6 +95,7 @@ internal extension CloudObject {
 					Cloud.instance.reportError(error, note: "Problem saving record \(self)")
 					
 					if let saved = record {
+						self.hasSavedToCloud = true
 						self.cloudKitRecordID = saved.recordID
 						self.needsCloudSave = false
 						self.saveManagedObject(completion)
@@ -113,10 +127,11 @@ internal extension CloudObject {
 			}
 			guard let record = localRecord else { return }
 			
-			record.cloudKitRecordIDName = self.cloudKitRecordID?.recordName
+			if !self.needsCloudSave { record.cloudKitRecordIDName = self.cloudKitRecordID?.recordName }
 			record.needsCloudSave = self.needsCloudSave
 			
 			self.writeToManagedObject(record)
+			self.recordID = record.objectID
 			moc.safeSave()
 			completion?(true)
 		}

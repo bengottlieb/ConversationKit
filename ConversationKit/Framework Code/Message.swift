@@ -16,6 +16,15 @@ public class Message: CloudObject {
 	public var listener: Speaker!
 	public var spokenAt = NSDate()
 	
+	convenience init(speaker: Speaker, listener: Speaker, content: String) {
+		self.init()
+		
+		self.speaker = speaker
+		self.listener = listener
+		self.content = content
+		self.spokenAt = NSDate()
+	}
+	
 	override func readFromCloudKitRecord(record: CKRecord) {
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
@@ -39,7 +48,7 @@ public class Message: CloudObject {
 			record["speakers"] = [speakerRef, listenerRef]
 			return true
 		}
-		return false
+		return self.needsCloudSave
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
@@ -54,6 +63,9 @@ public class Message: CloudObject {
 	internal override class var recordName: String { return "Speaker" }
 	internal override class var entityName: String { return "SpeakerRecord" }
 
+	internal override var canSaveToCloud: Bool {
+		return self.speaker.hasSavedToCloud && self.listener.hasSavedToCloud
+	}
 }
 
 internal class MessageRecord: ManagedCloudObject {

@@ -103,6 +103,21 @@ extension NSManagedObjectContext {
 		return nil
 	}
 
+	func allObjects<T where T:NSManagedObject>(predicate: NSPredicate? = nil, sortedBy: [NSSortDescriptor] = []) -> [T] {
+		let request = self.fetchRequest(T.entityName)
+		if predicate != nil { request.predicate = predicate! }
+		if sortedBy.count > 0 { request.sortDescriptors = sortedBy }
+		
+		do {
+			if let results = try self.executeFetchRequest(request) as? [T] {
+				return results
+			}
+		} catch let error {
+			print("Error (\(error) executing fetch request: \(request)")
+		}
+		return []
+	}
+	
 	public func fetchRequest(name: String) -> NSFetchRequest {
 		let request = NSFetchRequest(entityName: name)
 		

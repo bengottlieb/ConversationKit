@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		ConversationKit.instance.setup() { setup in
 			ConversationKit.instance.fetchAccountIdentifier { email in
 				if let email = email {
-					ConversationKit.instance.setup(localSpeakerName: nil, localSpeakerIdentifier: email) { success in
+					ConversationKit.instance.setup(localSpeakerIdentifier: email) { success in
 						
 						
 					}
