@@ -84,6 +84,18 @@ public class Speaker: CloudObject {
 		}
 		return nil
 	}
+	
+	internal class func speakerFromRecord(record: CKRecord) -> Speaker {
+		for speaker in self.knownSpeakers {
+			if speaker.cloudKitRecordID == record.recordID { return speaker }
+		}
+		
+		let speaker = Speaker()
+		speaker.loadWithCloudKitRecord(record)
+		speaker.saveManagedObject()
+		self.addKnownSpeaker(speaker)
+		return speaker
+	}
 
 	internal class func loadSpeakerFromRecordID(recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
@@ -145,6 +157,12 @@ public class Speaker: CloudObject {
 	internal override class var entityName: String { return "Speaker" }
 
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
+}
+
+public extension Speaker {
+	override var description: String {
+		return "\(self.name ?? "unnamed"): \(self.identifier ?? "--")"
+	}
 }
 
 public func ==(lhs: Speaker, rhs: Speaker) -> Bool {
