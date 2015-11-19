@@ -15,11 +15,12 @@
         <attribute name="isLocalSpeaker" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable" syncable="YES"/>
         <relationship name="messagesHeard" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageRecord" inverseName="listener" inverseEntity="MessageRecord" syncable="YES"/>
         <relationship name="messagesSpoken" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageRecord" inverseName="speaker" inverseEntity="MessageRecord" syncable="YES"/>
     </entity>
     <elements>
         <element name="MessageRecord" positionX="-54" positionY="-9" width="128" height="150"/>
-        <element name="SpeakerRecord" positionX="-36" positionY="9" width="128" height="150"/>
+        <element name="SpeakerRecord" positionX="-36" positionY="9" width="128" height="165"/>
     </elements>
 </model>

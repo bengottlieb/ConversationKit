@@ -18,6 +18,7 @@ public class Speaker: CloudObject {
 		}
 	}}
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
+	public var tags: Set<String> = [] { didSet { if self.tags != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var isLocalSpeaker = false
 	
 	public static var localSpeaker: Speaker!
@@ -102,8 +103,9 @@ public class Speaker: CloudObject {
 	}
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
-		identifier = record["identifier"] as? String
-		name = record["name"] as? String
+		self.identifier = record["identifier"] as? String
+		self.name = record["name"] as? String
+		self.tags = Set(record["tags"] as? [String] ?? [])
 		
 		if self.isLocalSpeaker {
 			Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated)
@@ -112,10 +114,12 @@ public class Speaker: CloudObject {
 	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
 		if !self.isLocalSpeaker { return false }
-		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name { return self.needsCloudSave }
+		let recordTags = Set(record["tags"] as? [String] ?? [])
+		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name && recordTags == self.tags { return self.needsCloudSave }
 		
 		record["identifier"] = self.identifier
 		record["name"] = self.name
+		record["tags"] = self.tags.count > 0 ? Array(self.tags): nil
 		return true
 	}
 	
@@ -126,6 +130,7 @@ public class Speaker: CloudObject {
 		self.identifier = spkr.identifier
 		self.name = spkr.name
 		self.isLocalSpeaker = spkr.isLocalSpeaker
+		self.tags = Set(spkr.tags ?? [])
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
@@ -133,6 +138,7 @@ public class Speaker: CloudObject {
 		speakerObject.name = self.name
 		speakerObject.identifier = self.identifier
 		speakerObject.isLocalSpeaker = self.isLocalSpeaker
+		speakerObject.tags = self.tags.count > 0 ? Array(self.tags) : nil
 	}
 
 	internal override class var recordName: String { return "Speaker" }
@@ -149,6 +155,7 @@ internal class SpeakerRecord: ManagedCloudObject {
 	@NSManaged var identifier: String?
 	@NSManaged var name: String?
 	@NSManaged var isLocalSpeaker: Bool
+	@NSManaged var tags: [String]?
 	
 	var speaker: Speaker { return Speaker.speakerWithIdentifier(self.identifier!, name: self.name) }
 }

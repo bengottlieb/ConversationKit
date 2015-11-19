@@ -22,8 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			ConversationKit.instance.fetchAccountIdentifier { email in
 				if let email = email {
 					ConversationKit.instance.setup(localSpeakerIdentifier: email) { success in
-						
-						
+						Speaker.localSpeaker.tags = ["tester"]
+						Speaker.localSpeaker.save { success in
+							print("saved local speaker \(success)")
+						}
 					}
 				}
 			}

@@ -14,10 +14,10 @@ public class CloudObject: NSObject {
 	internal var needsCloudSave = false
 	internal var hasSavedToCloud = false
 	
-	public func save() {
+	public func save(completion: ((Bool) -> Void)? = nil) {
 		self.saveManagedObject { savedToDisk in
 			self.saveToCloudKit { savedToCloud in
-				
+				completion?(savedToCloud && savedToDisk)
 			}
 		}
 	}
