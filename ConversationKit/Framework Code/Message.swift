@@ -29,7 +29,7 @@ public class Message: CloudObject {
 	
 	class func recordExists(record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
 		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
-		let object: MessageRecord? = moc.anyObject(pred)
+		let object: MessageObject? = moc.anyObject(pred)
 		
 		return object != nil
 	}
@@ -42,7 +42,7 @@ public class Message: CloudObject {
 		self.readFromCloudKitRecord(record)
 	}
 	
-	convenience init(object: MessageRecord) {
+	convenience init(object: MessageObject) {
 		self.init()
 		
 		self.speaker = object.speaker?.speaker
@@ -77,25 +77,26 @@ public class Message: CloudObject {
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
-		guard let messageObject = object as? MessageRecord else { return }
+		guard let messageObject = object as? MessageObject else { return }
 		
 		messageObject.content = self.content
-		messageObject.speaker = self.speaker?.objectInContext(object.moc!) as? SpeakerRecord
-		messageObject.listener = self.listener?.objectInContext(object.moc!) as? SpeakerRecord
+		messageObject.speaker = self.speaker?.objectInContext(object.moc!) as? SpeakerObject
+		messageObject.listener = self.listener?.objectInContext(object.moc!) as? SpeakerObject
 		messageObject.spokenAt = self.spokenAt
 	}
 	
-	internal override class var recordName: String { return "Message" }
-	internal override class var entityName: String { return "MessageRecord" }
+	internal override class var recordName: String { return "ConversationKitMessage" }
+	internal override class var entityName: String { return "Message" }
 
 	internal override var canSaveToCloud: Bool {
 		return self.speaker != nil && self.listener != nil
 	}
 }
 
-internal class MessageRecord: ManagedCloudObject {
+internal class MessageObject: ManagedCloudObject {
 	@NSManaged var content: String?
-	@NSManaged var speaker: SpeakerRecord?
-	@NSManaged var listener: SpeakerRecord?
+	@NSManaged var speaker: SpeakerObject?
+	@NSManaged var listener: SpeakerObject?
 	@NSManaged var spokenAt: NSDate?
+	internal override class var entityName: String { return "Message" }
 }

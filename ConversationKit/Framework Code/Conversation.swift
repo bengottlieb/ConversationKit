@@ -50,7 +50,7 @@ public class Conversation: NSObject {
 	func loadMessagesFromCoreData() {
 		DataStore.instance.importBlock { moc in
 			if let pred = self.messagePredicateInContext(moc) {
-				let objects: [MessageRecord] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])
+				let objects: [MessageObject] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])
 				
 				for object in objects {
 					let message = Message(object: object)

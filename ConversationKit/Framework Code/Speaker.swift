@@ -49,7 +49,7 @@ public class Speaker: CloudObject {
 	
 	class func loadCachedSpeakers(completion: () -> Void) {
 		DataStore.instance.importBlock { moc in
-			let speakers: [SpeakerRecord] = moc.allObjects()
+			let speakers: [SpeakerObject] = moc.allObjects()
 			for record in speakers {
 				let speaker = Speaker()
 				speaker.readFromManagedObject(record)
@@ -124,7 +124,7 @@ public class Speaker: CloudObject {
 	}
 	
 	override func readFromManagedObject(object: ManagedCloudObject) {
-		guard let spkr = object as? SpeakerRecord else { return }
+		guard let spkr = object as? SpeakerObject else { return }
 		
 		self.recordID = spkr.objectID
 		self.identifier = spkr.identifier
@@ -134,15 +134,15 @@ public class Speaker: CloudObject {
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
-		guard let speakerObject = object as? SpeakerRecord else { return }
+		guard let speakerObject = object as? SpeakerObject else { return }
 		speakerObject.name = self.name
 		speakerObject.identifier = self.identifier
 		speakerObject.isLocalSpeaker = self.isLocalSpeaker
 		speakerObject.tags = self.tags.count > 0 ? Array(self.tags) : nil
 	}
 
-	internal override class var recordName: String { return "Speaker" }
-	internal override class var entityName: String { return "SpeakerRecord" }
+	internal override class var recordName: String { return "ConversationKitSpeaker" }
+	internal override class var entityName: String { return "Speaker" }
 
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
 }
@@ -151,11 +151,12 @@ public func ==(lhs: Speaker, rhs: Speaker) -> Bool {
 	return lhs.identifier == rhs.identifier
 }
 
-internal class SpeakerRecord: ManagedCloudObject {
+internal class SpeakerObject: ManagedCloudObject {
 	@NSManaged var identifier: String?
 	@NSManaged var name: String?
 	@NSManaged var isLocalSpeaker: Bool
 	@NSManaged var tags: [String]?
 	
+	internal override class var entityName: String { return "Speaker" }
 	var speaker: Speaker { return Speaker.speakerWithIdentifier(self.identifier!, name: self.name) }
 }
