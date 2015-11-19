@@ -21,6 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */; };
+		B53CFA961BFE04250005120C /* SpeakerInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */; };
 		B549E3261BF8C8460046463A /* ConversationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E31B1BF8C8460046463A /* ConversationKit.framework */; };
 		B549E32B1BF8C8460046463A /* ConversationKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B549E32A1BF8C8460046463A /* ConversationKitTests.swift */; };
 		B549E33F1BF8C8F80046463A /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = B549E3361BF8C8F80046463A /* Cloud.swift */; };
@@ -72,6 +74,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpeakerInfoViewController.swift; path = "Speaker Info/SpeakerInfoViewController.swift"; sourceTree = "<group>"; };
+		B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SpeakerInfoViewController.xib; path = "Speaker Info/SpeakerInfoViewController.xib"; sourceTree = "<group>"; };
 		B549E31B1BF8C8460046463A /* ConversationKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ConversationKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B549E3251BF8C8460046463A /* ConversationKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConversationKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B549E32A1BF8C8460046463A /* ConversationKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationKitTests.swift; sourceTree = "<group>"; };
@@ -194,6 +198,8 @@
 				B549E3671BF8CBC80046463A /* TestHarness.entitlements */,
 				B549E3531BF8CA4F0046463A /* AppDelegate.swift */,
 				B549E3551BF8CA4F0046463A /* ViewController.swift */,
+				B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */,
+				B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */,
 				B549E3571BF8CA4F0046463A /* Main.storyboard */,
 				B549E35A1BF8CA4F0046463A /* Assets.xcassets */,
 				B549E35C1BF8CA4F0046463A /* LaunchScreen.storyboard */,
@@ -361,6 +367,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B53CFA961BFE04250005120C /* SpeakerInfoViewController.xib in Resources */,
 				B549E35E1BF8CA4F0046463A /* LaunchScreen.storyboard in Resources */,
 				B549E35B1BF8CA4F0046463A /* Assets.xcassets in Resources */,
 				B549E3591BF8CA4F0046463A /* Main.storyboard in Resources */,
@@ -416,6 +423,7 @@
 			files = (
 				B549E3561BF8CA4F0046463A /* ViewController.swift in Sources */,
 				B549E3541BF8CA4F0046463A /* AppDelegate.swift in Sources */,
+				B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

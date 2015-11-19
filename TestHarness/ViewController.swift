@@ -11,7 +11,6 @@ import ConversationKit
 
 class ViewController: UIViewController, UITextFieldDelegate {
 
-	@IBOutlet var nameField: UITextField!
 	@IBOutlet var messageField: UITextField!
 	
 	let speakerIDs = [ "Aurora": "ID:_aceaf3d4cc8dc52f96307ec4374201c5" ]
@@ -26,7 +25,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	}
 
 	func localSpeakerUpdated(note: NSNotification) {
-		self.nameField.text = Speaker.localSpeaker.name
+		self.title = Speaker.localSpeaker.name
 	}
 	
 	override func didReceiveMemoryWarning() {
@@ -45,14 +44,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	
 	override func viewDidAppear(animated: Bool) {
 		super.viewDidAppear(animated)
-		self.nameField.text = Speaker.localSpeaker?.name
 	}
 	
 	func textFieldShouldReturn(textField: UITextField) -> Bool {
-		if textField == self.nameField {
-			Speaker.localSpeaker.name = textField.text
-			Speaker.localSpeaker.save()
-		} else if textField == self.messageField {
+		if textField == self.messageField {
 			if let text = textField.text where text != "" {
 				self.currentConversationalist?.sendMessage(text) { saved in
 					print("message saved: \(saved)")
@@ -61,6 +56,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
 			}
 		}
 		return false
+	}
+	
+	@IBAction func showSpeakerInfo() {
+		SpeakerInfoViewController.showSpeaker(Speaker.localSpeaker, inController: self)
 	}
 }
 
