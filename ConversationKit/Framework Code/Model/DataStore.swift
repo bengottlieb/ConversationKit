@@ -54,6 +54,17 @@ class DataStore: NSObject {
 		
 	}
 	
+	subscript(key: String) -> AnyObject? {
+		get {
+			let store = self.persistentStoreCoordinator.persistentStores[0]
+			return store.metadata[key]
+		}
+		set {
+			let store = self.persistentStoreCoordinator.persistentStores[0]
+			store.metadata[key] = newValue
+		}
+	}
+	
 	func createWorkerContext() -> NSManagedObjectContext {
 		let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
 		context.parentContext = self.mainThreadContext

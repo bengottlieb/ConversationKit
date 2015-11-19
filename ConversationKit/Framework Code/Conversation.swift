@@ -18,7 +18,7 @@ public class Conversation: NSObject {
 	public var joinedBy: Speaker
 	public var messages: Set<Message> = []
 	
-	public func addMessage(message: Message) {
+	public func addMessage(message: Message, fromCache: Bool) {
 		dispatch_async(ConversationKit.instance.queue) { self.messages.insert(message) }
 	}
 	
@@ -43,7 +43,28 @@ public class Conversation: NSObject {
 		
 		let conversation = Conversation(starter: speaker, and: listener)
 		self.addExistingConversation(conversation)
+		conversation.loadMessagesFromCoreData()
 		return conversation
+	}
+	
+	func loadMessagesFromCoreData() {
+		DataStore.instance.importBlock { moc in
+			if let pred = self.messagePredicateInContext(moc) {
+				let objects: [MessageRecord] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])
+				
+				for object in objects {
+					let message = Message(object: object)
+					self.addMessage(message, fromCache: true)
+				}
+			}
+		}
+	}
+	
+	func messagePredicateInContext(moc: NSManagedObjectContext) -> NSPredicate? {
+		if let speaker = self.startedBy.objectInContext(moc), other = self.joinedBy.objectInContext(moc) {
+			return NSPredicate(format: "(speaker == %@ || listener == %@) && (speaker == %@ || listener == %@)", speaker, speaker, other, other)
+		}
+		return nil
 	}
 	
 }

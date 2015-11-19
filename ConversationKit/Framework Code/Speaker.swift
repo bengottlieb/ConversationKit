@@ -37,6 +37,11 @@ public class Speaker: CloudObject {
 		
 		message.saveManagedObject()
 		message.saveToCloudKit(completion)
+		
+	}
+	
+	public func conversationWith(other: Speaker) -> Conversation {
+		return Conversation.conversationWithSpeaker(self, listener: other)
 	}
 	
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
@@ -144,4 +149,6 @@ internal class SpeakerRecord: ManagedCloudObject {
 	@NSManaged var identifier: String?
 	@NSManaged var name: String?
 	@NSManaged var isLocalSpeaker: Bool
+	
+	var speaker: Speaker { return Speaker.speakerWithIdentifier(self.identifier!, name: self.name) }
 }

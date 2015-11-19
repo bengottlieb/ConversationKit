@@ -27,13 +27,29 @@ public class Message: CloudObject {
 		self.cloudKitRecordID = CKRecordID(recordName: "Message: \(NSUUID().UUIDString)")
 	}
 	
+	class func recordExists(record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
+		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
+		let object: MessageRecord? = moc.anyObject(pred)
+		
+		return object != nil
+	}
+	
 	convenience init?(record: CKRecord) {
 		self.init()
-		
 		
 		guard let speakers = record["speakers"] as? [String] where speakers.count == 2 else { return nil }
 		
 		self.readFromCloudKitRecord(record)
+	}
+	
+	convenience init(object: MessageRecord) {
+		self.init()
+		
+		self.speaker = object.speaker?.speaker
+		self.listener = object.listener?.speaker
+		self.content = object.content ?? ""
+		self.needsCloudSave = object.needsCloudSave
+		self.spokenAt = object.spokenAt ?? NSDate()
 	}
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
