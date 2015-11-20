@@ -12,6 +12,8 @@ import ConversationKit
 class ViewController: UIViewController, UITextFieldDelegate {
 
 	@IBOutlet var messageField: UITextField!
+	@IBOutlet var entryContainer: UIView!
+	@IBOutlet var tableView: UITableView!
 	
 	let lastConversationalistKey = "lastConversationalist"
 	let speakerIDs = [ "Aurora": "ID:_aceaf3d4cc8dc52f96307ec4374201c5" ]
@@ -31,9 +33,47 @@ class ViewController: UIViewController, UITextFieldDelegate {
 		
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateTitle", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "didLoadLocalSpeakers:", name: ConversationKit.notifications.loadedKnownSpeakers, object: nil)
-		// Do any additional setup after loading the view, typically from a nib.
+
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+
+	}
+
+	//┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+	//┃ //MARK: Notifications
+	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+	
+	func keyboardWillShow(note: NSNotification) {
+		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
+		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
+		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseOut
+		guard let frameHolder = userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue else { return }
+		let finalFrame = frameHolder.CGRectValue()
+		let localKeyboardFrame = self.view.convertRect(finalFrame, fromView: nil)
+		let heightDelta = self.view.frame.maxY - localKeyboardFrame.origin.y
+		var insets = self.tableView.contentInset
+		insets.bottom += heightDelta
+		
+		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
+			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -heightDelta)
+			self.tableView.contentInset = insets
+		}, completion: nil)
 	}
 	
+	func keyboardWillHide(note: NSNotification) {
+		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
+		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
+		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseIn
+		var insets = self.tableView.contentInset
+		insets.bottom = 0
+		
+		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
+			self.entryContainer.transform = CGAffineTransformIdentity
+			self.tableView.contentInset = insets
+		}, completion: nil)
+	}
+
 	func didLoadLocalSpeakers(note: NSNotification) {
 		self.currentConversationalist = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef)
 	}
@@ -66,12 +106,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	
 	func textFieldShouldReturn(textField: UITextField) -> Bool {
 		if textField == self.messageField {
-			if let text = textField.text where text != "" {
-				self.currentConversationalist?.sendMessage(text) { saved in
-					print("message saved: \(saved)")
-				}
-				textField.text = ""
-			}
+			textField.resignFirstResponder()
 		}
 		return false
 	}
