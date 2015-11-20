@@ -47,7 +47,7 @@ class SpeakerInfoViewController: UIViewController {
 	
 	@IBAction func save() {
 		self.speaker.name = self.nameField.text
-		self.speaker.tags = Set(self.tagsField.text?.componentsSeparatedByString(",") ?? [])
+		self.speaker.tags = Set(self.tagsField.text?.componentsSeparatedByString(",").map({ $0.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) }) ?? [])
 		self.view.alpha = 0.25
 		self.view.userInteractionEnabled = false
 		self.speaker.save { success in
