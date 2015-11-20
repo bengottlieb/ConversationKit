@@ -13,21 +13,37 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 	@IBOutlet var messageField: UITextField!
 	
+	let lastConversationalistKey = "lastConversationalist"
 	let speakerIDs = [ "Aurora": "ID:_aceaf3d4cc8dc52f96307ec4374201c5" ]
-	var currentConversationalist: Speaker?
+	var currentConversationalist: Speaker? { didSet {
+		if let speaker = self.currentConversationalist {
+			let defaults = NSUserDefaults()
+			defaults.setObject(speaker.speakerRef, forKey: self.lastConversationalistKey)
+			defaults.synchronize()
+			self.updateTitle()
+		}
+	}}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .Plain, target: self, action: "chooseConverationalist:")
 		
-		
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "localSpeakerUpdated:", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateTitle", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "didLoadLocalSpeakers:", name: ConversationKit.notifications.loadedKnownSpeakers, object: nil)
 		// Do any additional setup after loading the view, typically from a nib.
 	}
+	
+	func didLoadLocalSpeakers(note: NSNotification) {
+		self.currentConversationalist = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef)
+	}
 
-	func localSpeakerUpdated(note: NSNotification) {
-		self.title = Speaker.localSpeaker.name
+	func updateTitle() {
+		if let speaker = self.currentConversationalist {
+			self.title = "\(Speaker.localSpeaker.name ?? "unnamed") -> \(speaker.name ?? "unnamed")"
+		}  else {
+			self.title = Speaker.localSpeaker.name
+		}
 	}
 	
 	override func didReceiveMemoryWarning() {

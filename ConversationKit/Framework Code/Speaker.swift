@@ -11,6 +11,7 @@ import CoreData
 import CloudKit
 
 public class Speaker: CloudObject {
+	public typealias SpeakerRef = String
 	public var identifier: String? { didSet {
 		if self.identifier != oldValue {
 			self.needsCloudSave = self.isLocalSpeaker
@@ -39,7 +40,16 @@ public class Speaker: CloudObject {
 		
 		message.saveManagedObject()
 		message.saveToCloudKit(completion)
-		
+	}
+	
+	public var speakerRef: SpeakerRef? { return self.identifier }
+	public class func speakerFromSpeakerRef(ref: SpeakerRef?) -> Speaker? {
+		if let reference = ref {
+			for speaker in self.knownSpeakers {
+				if speaker.identifier == reference { return speaker }
+			}
+		}
+		return nil
 	}
 	
 	public func conversationWith(other: Speaker) -> Conversation {
@@ -72,6 +82,7 @@ public class Speaker: CloudObject {
 				self.localSpeaker = speaker
 			}
 			
+			Utilities.postNotification(ConversationKit.notifications.loadedKnownSpeakers)
 			completion()
 		}
 	}
