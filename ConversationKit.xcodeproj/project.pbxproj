@@ -40,6 +40,8 @@
 		B549E3691BF8CBCB0046463A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E3681BF8CBCB0046463A /* CloudKit.framework */; };
 		B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */; };
 		B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397F1BF9F5CC004262BA /* DataStore.swift */; };
+		B5A739821BFF3CFB004262BA /* SelectSpeakerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */; };
+		B5A739841BFF3E86004262BA /* SpeakerQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739831BFF3E86004262BA /* SpeakerQuery.swift */; };
 		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
 /* End PBXBuildFile section */
 
@@ -100,6 +102,8 @@
 		B549E3681BF8CBCB0046463A /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		B5A7397C1BF9F50B004262BA /* ConversationKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ConversationKit.xcdatamodel; sourceTree = "<group>"; };
 		B5A7397F1BF9F5CC004262BA /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataStore.swift; path = Model/DataStore.swift; sourceTree = "<group>"; };
+		B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectSpeakerViewController.swift; sourceTree = "<group>"; };
+		B5A739831BFF3E86004262BA /* SpeakerQuery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpeakerQuery.swift; path = Model/SpeakerQuery.swift; sourceTree = "<group>"; };
 		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -173,8 +177,8 @@
 		B549E3351BF8C8F80046463A /* Framework Code */ = {
 			isa = PBXGroup;
 			children = (
-				B5A739781BF9F4C3004262BA /* iCloud */,
 				B549E3381BF8C8F80046463A /* ConversationKit.swift */,
+				B5A739781BF9F4C3004262BA /* iCloud */,
 				B549E3391BF8C8F80046463A /* ConversationKitUtilities.swift */,
 				B5A7397E1BF9F510004262BA /* Model */,
 			);
@@ -197,6 +201,7 @@
 			children = (
 				B549E3671BF8CBC80046463A /* TestHarness.entitlements */,
 				B549E3531BF8CA4F0046463A /* AppDelegate.swift */,
+				B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */,
 				B549E3551BF8CA4F0046463A /* ViewController.swift */,
 				B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */,
 				B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */,
@@ -212,6 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				B549E3361BF8C8F80046463A /* Cloud.swift */,
+				B5A739831BFF3E86004262BA /* SpeakerQuery.swift */,
 			);
 			name = iCloud;
 			sourceTree = "<group>";
@@ -403,6 +409,7 @@
 				B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */,
 				B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */,
 				B549E3431BF8C8F80046463A /* Message.swift in Sources */,
+				B5A739841BFF3E86004262BA /* SpeakerQuery.swift in Sources */,
 				B549E3441BF8C8F80046463A /* Speaker.swift in Sources */,
 				B549E3401BF8C8F80046463A /* Conversation.swift in Sources */,
 				B549E33F1BF8C8F80046463A /* Cloud.swift in Sources */,
@@ -422,6 +429,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B549E3561BF8CA4F0046463A /* ViewController.swift in Sources */,
+				B5A739821BFF3CFB004262BA /* SelectSpeakerViewController.swift in Sources */,
 				B549E3541BF8CA4F0046463A /* AppDelegate.swift in Sources */,
 				B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */,
 			);

@@ -16,6 +16,7 @@ public class ConversationKit: NSObject {
 		public static let setupComplete = "ConversationKit.setupComplete"
 		public static let updateComplete = "ConversationKit.updateComplete"
 		public static let localSpeakerUpdated = "ConversationKit.localSpeakerUpdated"
+		public static let foundNewSpeaker = "ConversationKit.foundNewSpeaker"
 	}
 	
 	override init() {

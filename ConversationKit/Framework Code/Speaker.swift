@@ -20,6 +20,7 @@ public class Speaker: CloudObject {
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var tags: Set<String> = [] { didSet { if self.tags != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var isLocalSpeaker = false
+	public class func allKnownSpeakers() -> [Speaker] { return Array(self.knownSpeakers) }
 	
 	public static var localSpeaker: Speaker!
 	public class func speakerWithIdentifier(identifier: String, name: String? = nil) -> Speaker {
@@ -47,7 +48,13 @@ public class Speaker: CloudObject {
 	
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
 	
+	static var knownSpeakersLoaded = false
 	class func loadCachedSpeakers(completion: () -> Void) {
+		if self.knownSpeakersLoaded {
+			completion()
+			return
+		}
+		self.knownSpeakersLoaded = true
 		DataStore.instance.importBlock { moc in
 			let speakers: [SpeakerObject] = moc.allObjects()
 			for record in speakers {
@@ -93,6 +100,7 @@ public class Speaker: CloudObject {
 		let speaker = Speaker()
 		speaker.loadWithCloudKitRecord(record)
 		self.addKnownSpeaker(speaker)
+		Utilities.postNotification(ConversationKit.notifications.foundNewSpeaker, object:	speaker)
 		return speaker
 	}
 

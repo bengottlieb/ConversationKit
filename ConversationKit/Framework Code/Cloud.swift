@@ -79,23 +79,6 @@ public class Cloud: NSObject {
 		}
 	}
 	
-	public func findSpeakersWithTag(tag: String, completion: ([Speaker]) -> Void) {
-		let pred = NSPredicate(format: "tags contains %@", tag)
-		let query = CKQuery(recordType: Speaker.recordName, predicate: pred)
-		let queryOperation = CKQueryOperation(query: query)
-		var speakers: [Speaker] = []
-		
-		queryOperation.recordFetchedBlock = { record in
-			speakers.append(Speaker.speakerFromRecord(record))
-		}
-		
-		queryOperation.queryCompletionBlock = { cursor, error in
-			completion(speakers)
-		}
-		
-		self.database.addOperation(queryOperation)
-	}
-	
 	internal func reportError(error: NSError?, note: String) {
 		guard let error = error else { return }
 		
