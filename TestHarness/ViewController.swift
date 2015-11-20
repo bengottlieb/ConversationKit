@@ -19,6 +19,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .Plain, target: self, action: "chooseConverationalist:")
+		
 		
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "localSpeakerUpdated:", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
 		// Do any additional setup after loading the view, typically from a nib.
@@ -61,5 +63,21 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	@IBAction func showSpeakerInfo() {
 		SpeakerInfoViewController.showSpeaker(Speaker.localSpeaker, inController: self)
 	}
+
+	@IBAction func sendMessage() {
+		if let text = self.messageField.text, speaker = self.currentConversationalist where text.characters.count > 0 {
+			speaker.sendMessage(text) { saved in
+				print("message saved: \(saved)")
+			}
+			self.messageField.text = ""
+		}
+	}
+	
+	@IBAction func chooseConverationalist(sender: UIButton?) {
+		Cloud.instance.findSpeakersWithTag("tester") { speakers in
+			print("found \(speakers)")
+		}
+	}
+
 }
 

@@ -29,10 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 					}
 				}
 			}
-//
-//			Cloud.instance.findSpeakersWithTag("tester") { speakers in
-//				print("found \(speakers)")
-//			}
 		}
 		
 		// Override point for customization after application launch.
