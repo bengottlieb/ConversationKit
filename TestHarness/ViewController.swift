@@ -74,8 +74,27 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	}
 	
 	@IBAction func chooseConverationalist(sender: UIButton?) {
+		let spinner = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+		spinner.startAnimating()
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: spinner)
 		Cloud.instance.findSpeakersWithTag("tester") { speakers in
-			print("found \(speakers)")
+			var avail = speakers
+			if let index = avail.indexOf(Speaker.localSpeaker) { avail.removeAtIndex(index) }
+			Utilities.mainThread {
+				if avail.count > 0 {
+					let alert = UIAlertController(title: "Talk to…?", message: nil, preferredStyle: .ActionSheet)
+					avail.forEach {
+						let speaker = $0
+						let action = UIAlertAction(title: $0.name ?? "", style: .Default, handler: { action in
+							self.currentConversationalist = speaker
+						})
+						alert.addAction(action)
+					}
+					
+					self.presentViewController(alert, animated: true, completion: nil)
+				}
+				self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .Plain, target: self, action: "chooseConverationalist:")
+			}
 		}
 	}
 

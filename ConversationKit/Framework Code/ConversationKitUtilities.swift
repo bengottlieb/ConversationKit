@@ -8,14 +8,14 @@
 
 import Foundation
 
-class Utilities {
-	class func postNotification(name: String, object: NSObject? = nil) {
+public class Utilities {
+	public class func postNotification(name: String, object: NSObject? = nil) {
 		Utilities.mainThread {
 			NSNotificationCenter.defaultCenter().postNotificationName(name, object: object)
 		}
 	}
 	
-	class func mainThread(block: () -> Void) {
+	public class func mainThread(block: () -> Void) {
 		dispatch_async(dispatch_get_main_queue(), block)
 	}
 }
