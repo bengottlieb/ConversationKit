@@ -52,7 +52,10 @@ public class ConversationKit: NSObject {
 	public func loadLocalSpeaker(identifier: String?, completion: ((Bool) -> Void)?) {
 		if Cloud.instance.configured {
 			Speaker.localSpeaker.refreshFromCloud() { success in
-				if identifier != nil { Speaker.localSpeaker.identifier = identifier! }
+				if let ident = identifier {
+					Speaker.localSpeaker.identifier = ident
+					Speaker.localSpeaker.refreshFromCloud()
+				}
 				Speaker.localSpeaker.refreshFromCloud { complete in
 					Speaker.localSpeaker.saveToCloudKit { success in
 						if !self.setupComplete {
