@@ -92,7 +92,6 @@ public class Speaker: CloudObject {
 		
 		let speaker = Speaker()
 		speaker.loadWithCloudKitRecord(record)
-		speaker.saveManagedObject()
 		self.addKnownSpeaker(speaker)
 		return speaker
 	}
