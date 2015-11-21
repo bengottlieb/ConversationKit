@@ -117,6 +117,8 @@ internal extension CloudObject {
 
 internal extension CloudObject {
 	func saveManagedObject(inContext ctx: NSManagedObjectContext? = nil, completion: ((Bool) -> Void)? = nil) {
+		let shouldSave = ctx == nil
+		
 		let block = { (moc: NSManagedObjectContext) in
 			let localRecord: ManagedCloudObject?
 			if let recordID = self.recordID {
@@ -131,7 +133,7 @@ internal extension CloudObject {
 			
 			self.writeToManagedObject(record)
 			self.recordID = record.objectID
-			moc.safeSave()
+			if shouldSave { moc.safeSave() }
 			completion?(true)
 		}
 		

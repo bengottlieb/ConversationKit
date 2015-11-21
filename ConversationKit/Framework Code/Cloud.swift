@@ -81,6 +81,10 @@ public class Cloud: NSObject {
 			self.queryOperation!.queryCompletionBlock = { cursor, error in
 				Utilities.postNotification(ConversationKit.notifications.setupComplete)
 				print("message loading complete")
+				let moc = self.parsingContext
+				moc.performBlock {
+					moc.safeSave()
+				}
 				self.queryOperation = nil
 				self.parsingContext = nil
 				ConversationKit.instance.networkActivityUsageCount--
