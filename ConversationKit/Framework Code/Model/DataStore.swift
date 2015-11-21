@@ -43,9 +43,11 @@ class DataStore: NSObject {
 		
 		privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
 		privateContext.persistentStoreCoordinator = persistentStoreCoordinator
+		privateContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 		
 		mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
 		mainThreadContext.parentContext = privateContext
+		mainThreadContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 		
 		super.init()
 	}
@@ -68,6 +70,7 @@ class DataStore: NSObject {
 	func createWorkerContext() -> NSManagedObjectContext {
 		let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
 		context.parentContext = self.mainThreadContext
+		context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 		return context
 	}
 	

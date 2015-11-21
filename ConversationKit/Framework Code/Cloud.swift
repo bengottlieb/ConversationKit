@@ -8,6 +8,7 @@
 
 import Foundation
 import CloudKit
+import CoreData
 
 public class Cloud: NSObject {
 	public static let instance = Cloud()
@@ -44,6 +45,9 @@ public class Cloud: NSObject {
 	
 	let lastPendingFetchedAtKey = "lastFetchedAt"
 	var queryOperation: CKQueryOperation?
+	
+	var parsingContext: NSManagedObjectContext!
+	
 	func pullDownMessages(all: Bool = false) {
 		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
@@ -61,12 +65,13 @@ public class Cloud: NSObject {
 			DataStore.instance[self.lastPendingFetchedAtKey] = NSDate()
 			let query = CKQuery(recordType: Message.recordName, predicate: pred)
 			self.queryOperation = CKQueryOperation(query: query)
+			self.parsingContext = DataStore.instance.createWorkerContext()
 			
 			self.queryOperation!.recordFetchedBlock = { record in
-				let moc = DataStore.instance.privateContext
+				let moc = self.parsingContext
 				moc.performBlock {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
-						message.saveManagedObject()
+						message.saveManagedObject(inContext: moc)
 						print("\(message.content)")
 						Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, fromCache: true)
 					}
@@ -77,6 +82,7 @@ public class Cloud: NSObject {
 				Utilities.postNotification(ConversationKit.notifications.setupComplete)
 				print("message loading complete")
 				self.queryOperation = nil
+				self.parsingContext = nil
 				ConversationKit.instance.networkActivityUsageCount--
 			}
 			

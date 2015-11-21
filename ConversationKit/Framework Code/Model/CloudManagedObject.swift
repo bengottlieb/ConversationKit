@@ -96,7 +96,7 @@ internal extension CloudObject {
 						self.hasSavedToCloud = true
 						self.cloudKitRecordID = saved.recordID
 						self.needsCloudSave = false
-						self.saveManagedObject(completion)
+						self.saveManagedObject(completion: completion)
 					} else {
 						completion?(false)
 					}
@@ -104,7 +104,7 @@ internal extension CloudObject {
 				}
 			} else {
 				self.needsCloudSave = false
-				self.saveManagedObject(completion)
+				self.saveManagedObject(completion: completion)
 			}
 		}
 	}
@@ -116,8 +116,8 @@ internal extension CloudObject {
 }
 
 internal extension CloudObject {
-	func saveManagedObject(completion: ((Bool) -> Void)? = nil) {
-		DataStore.instance.importBlock { moc in
+	func saveManagedObject(inContext ctx: NSManagedObjectContext? = nil, completion: ((Bool) -> Void)? = nil) {
+		let block = { (moc: NSManagedObjectContext) in
 			let localRecord: ManagedCloudObject?
 			if let recordID = self.recordID {
 				localRecord = moc.objectWithID(recordID) as? ManagedCloudObject
@@ -133,6 +133,12 @@ internal extension CloudObject {
 			self.recordID = record.objectID
 			moc.safeSave()
 			completion?(true)
+		}
+		
+		if let moc = ctx {
+			block(moc)
+		} else {
+			DataStore.instance.importBlock(block)
 		}
 	}
 	
