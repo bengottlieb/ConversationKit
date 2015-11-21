@@ -17,7 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		
+		application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
+		application.registerForRemoteNotifications()
+
 		ConversationKit.instance.setup() { setup in
 			ConversationKit.instance.fetchAccountIdentifier { email in
 				if let email = email {
@@ -33,6 +35,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		// Override point for customization after application launch.
 		return true
+	}
+
+	
+	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+		let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject])
+		if ckNotification.notificationType == .Query,
+			let queryNotification = ckNotification as? CKQueryNotification {
+			let recordID = queryNotification.recordID
+			
+			print("Received note: \(recordID)")
+			//...
+		}
 	}
 
 	func applicationWillResignActive(application: UIApplication) {

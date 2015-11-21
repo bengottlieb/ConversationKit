@@ -81,6 +81,28 @@ public class Cloud: NSObject {
 		}
 	}
 	
+	let messageSubscriptionID = "messageSubscriptionID"
+	var subscription: CKSubscription?
+
+	public func setupSubscription() {
+		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
+		
+		if self.subscription == nil {
+			let pred = NSPredicate(format: "speakers contains %@", localUserID)
+			self.subscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messageSubscriptionID, options: .FiresOnRecordCreation)
+			let info = CKNotificationInfo()
+			info.alertBody = "Test Alert"
+			info.alertLocalizationKey = "%1$@ : %2$@"
+			info.shouldSendContentAvailable = true
+			info.alertLocalizationArgs = ["speakerName", "content"]
+			
+			self.subscription?.notificationInfo = info
+			self.database.saveSubscription(self.subscription!, completionHandler: { sub, error in
+				print("Finished Creating Subscription: \(sub): \(error)")
+			})
+		}
+	}
+	
 	internal func reportError(error: NSError?, note: String) {
 		guard let error = error else { return }
 		

@@ -70,6 +70,7 @@ public class Message: CloudObject {
 			
 			record["spokenAt"] = self.spokenAt;
 			record["content"] = self.content
+			record["speakerName"] = self.speaker?.name ?? ""
 			record["speakers"] = [speakerID, listenerID]
 			return true
 		}

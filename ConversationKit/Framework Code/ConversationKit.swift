@@ -72,6 +72,7 @@ public class ConversationKit: NSObject {
 							self.setupComplete = true
 							Utilities.postNotification(ConversationKit.notifications.setupComplete)
 						}
+						Cloud.instance.setupSubscription()
 						Cloud.instance.pullDownMessages()
 						completion?(success)
 					}
