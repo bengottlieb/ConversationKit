@@ -48,6 +48,7 @@ public class Cloud: NSObject {
 		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
 		if self.queryOperation == nil {
+			ConversationKit.instance.networkActivityUsageCount++
 			print("pulling down messages for \(localUserID)")
 			var pred = NSPredicate(format: "speakers contains %@", localUserID)
 			
@@ -73,6 +74,7 @@ public class Cloud: NSObject {
 				Utilities.postNotification(ConversationKit.notifications.setupComplete)
 				print("message loading complete")
 				self.queryOperation = nil
+				ConversationKit.instance.networkActivityUsageCount--
 			}
 			
 			self.database.addOperation(self.queryOperation!)

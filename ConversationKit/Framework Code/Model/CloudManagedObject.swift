@@ -49,10 +49,12 @@ internal extension CloudObject {
 	func refreshFromCloud(completion: ((Bool) -> Void)? = nil) {
 		guard let recordID = self.cloudKitRecordID else { completion?(false); return }
 		
+		ConversationKit.instance.networkActivityUsageCount++
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
 			Cloud.instance.reportError(error, note: "Problem refreshing record \(self)")
 			if let record = record { self.loadWithCloudKitRecord(record) }
 			completion?(record != nil)
+			ConversationKit.instance.networkActivityUsageCount--
 		}
 	}
 	
@@ -86,6 +88,7 @@ internal extension CloudObject {
 			let actual = record ?? self.createNewCloudKitRecord(recordID)
 
 			if self.writeToCloudKitRecord(actual) {
+				ConversationKit.instance.networkActivityUsageCount++
 				Cloud.instance.database.saveRecord(actual) { record, error in
 					Cloud.instance.reportError(error, note: "Problem saving record \(self)")
 					
@@ -97,6 +100,7 @@ internal extension CloudObject {
 					} else {
 						completion?(false)
 					}
+					ConversationKit.instance.networkActivityUsageCount--
 				}
 			} else {
 				self.needsCloudSave = false

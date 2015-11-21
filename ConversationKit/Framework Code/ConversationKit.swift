@@ -7,8 +7,20 @@
 //
 
 import Foundation
+import UIKit
 
 public class ConversationKit: NSObject {
+	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
+		UIApplication.sharedApplication().networkActivityIndicatorVisible = enable
+	}
+	internal var networkActivityUsageCount = 0 { didSet {
+		if self.networkActivityUsageCount == 0 && oldValue != 0 {
+			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(false) }
+		} else if self.networkActivityUsageCount != 0 && oldValue == 0 {
+			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(true) }
+		}
+	}}
+	
 	public static let instance = ConversationKit()
 	public var setupComplete = false
 	
@@ -18,10 +30,6 @@ public class ConversationKit: NSObject {
 		public static let localSpeakerUpdated = "ConversationKit.localSpeakerUpdated"
 		public static let loadedKnownSpeakers = "ConversationKit.loadedKnownSpeakers"
 		public static let foundNewSpeaker = "ConversationKit.foundNewSpeaker"
-	}
-	
-	override init() {
-		super.init()
 	}
 	
 	public func fetchAccountIdentifier(completion: (String?) -> Void) {
