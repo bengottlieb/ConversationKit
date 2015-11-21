@@ -17,9 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		
-		application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
-		application.registerForRemoteNotifications()
+		ConversationKit.instance.setupNotificationSettings(application)
 
 		ConversationKit.instance.setup() { setup in
 			ConversationKit.instance.fetchAccountIdentifier { email in
@@ -38,16 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		return true
 	}
 
-	
-	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
-		let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject])
-		if ckNotification.notificationType == .Query,
-			let queryNotification = ckNotification as? CKQueryNotification {
-			let recordID = queryNotification.recordID
-			
-			print("Received note: \(recordID)")
-			//...
-		}
+	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+		ConversationKit.instance.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
 	}
 
 	func applicationWillResignActive(application: UIApplication) {

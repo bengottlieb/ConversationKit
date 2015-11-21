@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import CloudKit
 
 public class ConversationKit: NSObject {
 	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
@@ -30,6 +31,25 @@ public class ConversationKit: NSObject {
 		public static let localSpeakerUpdated = "ConversationKit.localSpeakerUpdated"
 		public static let loadedKnownSpeakers = "ConversationKit.loadedKnownSpeakers"
 		public static let foundNewSpeaker = "ConversationKit.foundNewSpeaker"
+	}
+	
+	public func setupNotificationSettings(application: UIApplication) {
+		#if (arch(i386) || arch(x86_64)) && os(iOS)
+			print("Push Notifications disabled in the simulator")
+		#else
+			application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
+			application.registerForRemoteNotifications()
+		#endif
+	}
+	
+	public func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
+			let recordID = ckNotification.recordID
+			
+			print("Received note: \(recordID)")
+		}
+
+		completionHandler(.NewData)
 	}
 	
 	public func fetchAccountIdentifier(completion: (String?) -> Void) {
