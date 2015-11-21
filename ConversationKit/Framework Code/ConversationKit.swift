@@ -36,18 +36,12 @@ public class ConversationKit: NSObject {
 		Cloud.instance.setup { configured in
 			guard configured else { completion(nil); return }
 
-			Cloud.instance.container.requestApplicationPermission(.UserDiscoverability) { status, error in
-				Cloud.instance.reportError(error, note: "Problem requesting account permissions")
-				guard status == .Granted else { completion(nil); return }
+			Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
+				Cloud.instance.reportError(error, note: "Problem fetching account info record ID")
+				guard let recordID = recordID else { completion(nil); return }
 				
-				Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
-					Cloud.instance.reportError(error, note: "Problem fetching account info record ID")
-					guard let recordID = recordID else { completion(nil); return }
-					
-					completion("ID:\(recordID.recordName)")
-				}
+				completion("ID:\(recordID.recordName)")
 			}
-
 		}
 	}
 	
