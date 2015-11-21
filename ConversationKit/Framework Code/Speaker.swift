@@ -31,6 +31,7 @@ public class Speaker: CloudObject {
 		newSpeaker.identifier = identifier
 		newSpeaker.name = name
 		self.addKnownSpeaker(newSpeaker)
+		newSpeaker.refreshFromCloud()
 		newSpeaker.saveManagedObject()
 		return newSpeaker
 	}
@@ -105,7 +106,11 @@ public class Speaker: CloudObject {
 	
 	internal class func speakerFromRecord(record: CKRecord) -> Speaker {
 		for speaker in self.knownSpeakers {
-			if speaker.cloudKitRecordID == record.recordID { return speaker }
+			if speaker.cloudKitRecordID == record.recordID {
+				speaker.loadWithCloudKitRecord(record)
+				speaker.saveManagedObject()
+				return speaker
+			}
 		}
 		
 		let speaker = Speaker()
