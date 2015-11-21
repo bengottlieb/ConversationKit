@@ -44,16 +44,18 @@ public class Cloud: NSObject {
 	
 	let lastPendingFetchedAtKey = "lastFetchedAt"
 	var queryOperation: CKQueryOperation?
-	func pullDownMessages() {
+	func pullDownMessages(all: Bool = false) {
 		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
 		if self.queryOperation == nil {
 			ConversationKit.instance.networkActivityUsageCount++
-			print("pulling down messages for \(localUserID)")
 			var pred = NSPredicate(format: "speakers contains %@", localUserID)
 			
-			if let date = DataStore.instance[self.lastPendingFetchedAtKey] as? NSDate {
+			if !all, let date = DataStore.instance[self.lastPendingFetchedAtKey] as? NSDate {
 				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date)])
+				print("pulling down messages for \(localUserID) starting at \(date)")
+			} else {
+				print("pulling all down messages for \(localUserID)")
 			}
 			
 			DataStore.instance[self.lastPendingFetchedAtKey] = NSDate()
@@ -61,10 +63,11 @@ public class Cloud: NSObject {
 			self.queryOperation = CKQueryOperation(query: query)
 			
 			self.queryOperation!.recordFetchedBlock = { record in
-				DataStore.instance.importBlock { moc in
+				let moc = DataStore.instance.privateContext
+				moc.performBlock {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject()
-						print("caching message: \(message.content)")
+						print("\(message.content)")
 						Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, fromCache: true)
 					}
 				}
