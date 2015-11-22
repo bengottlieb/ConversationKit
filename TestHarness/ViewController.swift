@@ -125,7 +125,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	}
 	
 	@IBAction func chooseConverationalist(sender: UIButton?) {
-		if !Cloud.instance.configured { return }
+		if !ConversationKit.cloudAvailable { return }
 		
 		let controller = SelectSpeakerViewController(tag: "tester") { speaker in
 			self.currentConversationalist = speaker

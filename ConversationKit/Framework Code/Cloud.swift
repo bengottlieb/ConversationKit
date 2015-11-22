@@ -13,7 +13,7 @@ import CoreData
 public class Cloud: NSObject {
 	let lastPendingFetchedAtKey = "lastFetchedAt"
 
-	public static let instance = Cloud()
+	static let instance = Cloud()
 	
 	public var configured = false
 	public var setupComplete = false

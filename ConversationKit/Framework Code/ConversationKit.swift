@@ -24,9 +24,11 @@ public class ConversationKit: NSObject {
 			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(true) }
 		}
 	}}
-	
+
+	public static var cloudAvailable: Bool { return Cloud.instance.configured }
+
 	static let instance = ConversationKit()
-	public var setupComplete = false
+	var setupComplete = false
 	
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
