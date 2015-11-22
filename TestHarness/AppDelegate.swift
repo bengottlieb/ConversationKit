@@ -19,15 +19,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		ConversationKit.instance.setupNotificationSettings(application)
 
-		ConversationKit.instance.setup() { setup in
-			ConversationKit.instance.fetchAccountIdentifier { email in
-				if let email = email {
-					ConversationKit.instance.setup(localSpeakerIdentifier: email) { success in
-						Speaker.localSpeaker.tags = ["tester"]
-						Speaker.localSpeaker.save { success in
-							print("saved local speaker \(success)")
-						}
-					}
+		ConversationKit.instance.fetchAccountIdentifier { identifier in
+			guard let ident = identifier else { return }
+			ConversationKit.instance.setup(localSpeakerIdentifier: ident) { setup in
+				Speaker.localSpeaker.tags = ["tester"]
+				Speaker.localSpeaker.save { success in
+					print("saved local speaker \(success)")
 				}
 			}
 		}

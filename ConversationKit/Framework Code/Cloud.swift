@@ -11,6 +11,8 @@ import CloudKit
 import CoreData
 
 public class Cloud: NSObject {
+	let lastPendingFetchedAtKey = "lastFetchedAt"
+
 	public static let instance = Cloud()
 	
 	public var configured = false
@@ -43,7 +45,6 @@ public class Cloud: NSObject {
 		}
 	}
 	
-	let lastPendingFetchedAtKey = "lastFetchedAt"
 	var queryOperation: CKQueryOperation?
 	
 	var parsingContext: NSManagedObjectContext!

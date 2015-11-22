@@ -65,21 +65,30 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public func setup(containerName: String? = nil, localSpeakerIdentifier: String? = nil, completion: ((Bool) -> Void)? = nil) {
+	public func setup(containerName: String? = nil, localSpeakerIdentifier: String, completion: ((Bool) -> Void)? = nil) {
 		Speaker.loadCachedSpeakers {
 			Cloud.instance.setup(containerName) { configured in
 				self.loadLocalSpeaker(localSpeakerIdentifier, completion: completion)
 			}
 		}
 	}
-	
-	public func loadLocalSpeaker(identifier: String?, completion: ((Bool) -> Void)?) {
+
+	let lastSignedInAsKey = "lastSignedInAs"
+
+	public func loadLocalSpeaker(identifier: String, completion: ((Bool) -> Void)?) {
+		let defaults = NSUserDefaults.standardUserDefaults()
+		if let prevLoggedInAs = defaults.stringForKey(self.lastSignedInAsKey) where prevLoggedInAs != identifier {
+			defaults.setObject(identifier, forKey: self.lastSignedInAsKey)
+			defaults.synchronize()
+			self.clearAllCachedDataWithCompletion {
+				self.loadLocalSpeaker(identifier, completion: completion)
+			}
+			return
+		}
+		
 		if Cloud.instance.configured {
 			Speaker.localSpeaker.refreshFromCloud() { success in
-				if let ident = identifier {
-					Speaker.localSpeaker.identifier = ident
-					Speaker.localSpeaker.refreshFromCloud()
-				}
+				Speaker.localSpeaker.identifier = identifier
 				Speaker.localSpeaker.refreshFromCloud { complete in
 					Speaker.localSpeaker.saveToCloudKit { success in
 						if !self.setupComplete {
@@ -95,6 +104,10 @@ public class ConversationKit: NSObject {
 		} else {
 			completion?(false)
 		}
+	}
+	
+	public func clearAllCachedDataWithCompletion(completion: () -> Void) {
+		
 	}
 	internal let queue = dispatch_queue_create("ConversationKitQueue", DISPATCH_QUEUE_SERIAL)
 }
