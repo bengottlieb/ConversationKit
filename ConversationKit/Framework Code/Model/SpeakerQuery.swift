@@ -8,17 +8,20 @@
 
 import Foundation
 import CloudKit
+import CoreData
 
 public class SpeakerQuery: NSObject {
 	let predicate: NSPredicate
 	let query: CKQuery
 	var queryOperation: CKQueryOperation!
+	let importContext: NSManagedObjectContext
 	
 	public var found: [Speaker] = []
 	
 	public init(tag: String) {
 		predicate = NSPredicate(format: "tags contains %@", tag)
 		query = CKQuery(recordType: Speaker.recordName, predicate: predicate)
+		importContext = DataStore.instance.createWorkerContext()
 		super.init()
 	}
 	
@@ -28,10 +31,11 @@ public class SpeakerQuery: NSObject {
 		ConversationKit.instance.networkActivityUsageCount++
 		self.queryOperation = CKQueryOperation(query: query)
 		self.queryOperation.recordFetchedBlock = { record in
-			self.found.append(Speaker.speakerFromRecord(record))
+			self.found.append(Speaker.speakerFromRecord(record, inContext: self.importContext))
 		}
 		
 		self.queryOperation.queryCompletionBlock = { cursor, error in
+			self.importContext.safeSave()
 			completion(self.found)
 			ConversationKit.instance.networkActivityUsageCount--
 		}

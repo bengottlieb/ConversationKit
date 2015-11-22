@@ -19,6 +19,7 @@ public class Conversation: NSObject {
 	public var messages: Set<Message> = []
 	
 	public func addMessage(message: Message, fromCache: Bool) {
+		message.conversation = self
 		dispatch_async(ConversationKit.instance.queue) { self.messages.insert(message) }
 	}
 	
@@ -36,7 +37,19 @@ public class Conversation: NSObject {
 		Conversation.existingConversations.removeAll()
 	}
 	
-	class func conversationWithSpeaker(speaker: Speaker, listener: Speaker) -> Conversation {
+	public class func conversationWithOther(speaker: Speaker) -> Conversation? {
+		let speakers = [speaker, Speaker.localSpeaker!]
+		
+		for conversation in Conversation.existingConversations {
+			if conversation.hasSpeakers(speakers) {
+				return conversation
+			}
+		}
+		
+		return nil
+	}
+	
+	public class func conversationWithSpeaker(speaker: Speaker, listener: Speaker) -> Conversation {
 		let speakers = [speaker, listener]
 		
 		for conversation in Conversation.existingConversations {
@@ -51,6 +64,10 @@ public class Conversation: NSObject {
 		return conversation
 	}
 	
+	public var shortDescription: String {
+		return "\(self.startedBy.name ?? "unnamed") <-> \(self.joinedBy.name ?? "unnamed")"
+	}
+	
 	func loadMessagesFromCoreData() {
 		DataStore.instance.importBlock { moc in
 			if let pred = self.messagePredicateInContext(moc) {
@@ -60,6 +77,8 @@ public class Conversation: NSObject {
 					let message = Message(object: object)
 					self.addMessage(message, fromCache: true)
 				}
+				
+				Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
 			}
 		}
 	}

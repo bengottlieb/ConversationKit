@@ -15,6 +15,7 @@ public class Message: CloudObject {
 	public var speaker: Speaker!
 	public var listener: Speaker!
 	public var spokenAt = NSDate()
+	public var conversation: Conversation?
 	
 	convenience init(speaker: Speaker, listener: Speaker, content: String) {
 		self.init()

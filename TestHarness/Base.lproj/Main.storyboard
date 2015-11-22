@@ -21,6 +21,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="542"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="GBz-DP-qWq"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="uJs-xA-fvt"/>
+                                </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AkQ-gL-8hv">
                                 <rect key="frame" x="0.0" y="550" width="600" height="50"/>

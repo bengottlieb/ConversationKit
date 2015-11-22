@@ -41,6 +41,9 @@ public class Speaker: CloudObject {
 		
 		message.saveManagedObject()
 		message.saveToCloudKit(completion)
+		
+		Conversation.conversationWithOther(self)?.addMessage(message, fromCache: false)
+		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 	}
 	
 	public var speakerRef: SpeakerRef? { return self.identifier }
@@ -104,17 +107,17 @@ public class Speaker: CloudObject {
 		return nil
 	}
 	
-	internal class func speakerFromRecord(record: CKRecord) -> Speaker {
+	internal class func speakerFromRecord(record: CKRecord, inContext moc: NSManagedObjectContext? = nil) -> Speaker {
 		for speaker in self.knownSpeakers {
 			if speaker.cloudKitRecordID == record.recordID {
-				speaker.loadWithCloudKitRecord(record)
-				speaker.saveManagedObject()
+				speaker.loadWithCloudKitRecord(record, inContext: moc)
+				speaker.saveManagedObject(inContext: moc)
 				return speaker
 			}
 		}
 		
 		let speaker = Speaker()
-		speaker.loadWithCloudKitRecord(record)
+		speaker.loadWithCloudKitRecord(record, inContext: moc)
 		self.addKnownSpeaker(speaker)
 		Utilities.postNotification(ConversationKit.notifications.foundNewSpeaker, object:	speaker)
 		return speaker

@@ -15,6 +15,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	@IBOutlet var entryContainer: UIView!
 	@IBOutlet var tableView: UITableView!
 	
+	var messages: [Message] = []
+	
 	let lastConversationalistKey = "lastConversationalist"
 	let speakerIDs = [ "Aurora": "ID:_aceaf3d4cc8dc52f96307ec4374201c5" ]
 	var currentConversationalist: Speaker? { didSet {
@@ -22,8 +24,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
 			let defaults = NSUserDefaults()
 			defaults.setObject(speaker.speakerRef, forKey: self.lastConversationalistKey)
 			defaults.synchronize()
-			self.updateTitle()
+			self.currentConversation = Conversation.conversationWithSpeaker(Speaker.localSpeaker, listener: speaker)
+		} else {
+			self.currentConversation = nil
 		}
+	}}
+	var currentConversation: Conversation? { didSet {
+		self.updateTitle()
+		self.loadConversationTable()
 	}}
 	
 	override func viewDidLoad() {
@@ -36,7 +44,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+		
+		
+		
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.postedNewMessage, object: nil)
 
+		self.tableView.registerNib(UINib(nibName: "MessageTableViewCell", bundle: nil), forCellReuseIdentifier: MessageTableViewCell.identifier)
 	}
 
 	//┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -79,9 +93,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	}
 
 	func updateTitle() {
-		if let speaker = self.currentConversationalist {
-			self.title = "\(Speaker.localSpeaker.name ?? "unnamed") -> \(speaker.name ?? "unnamed")"
-		}  else {
+		if let convo = self.currentConversation {
+			self.title = convo.shortDescription
+		} else {
 			self.title = Speaker.localSpeaker.name
 		}
 	}
@@ -138,3 +152,24 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 }
 
+extension ViewController: UITableViewDataSource {
+	func loadConversationTable() {
+		self.messages = Array(self.currentConversation?.messages ?? [])
+		self.tableView?.reloadData()
+	}
+	
+	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+		return 1
+	}
+	
+	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+		return self.messages.count
+	}
+	
+	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+		let cell = tableView.dequeueReusableCellWithIdentifier(MessageTableViewCell.identifier, forIndexPath: indexPath) as! MessageTableViewCell
+		
+		cell.message = self.messages[indexPath.row]
+		return cell
+	}
+}

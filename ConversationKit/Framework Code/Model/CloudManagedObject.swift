@@ -58,13 +58,13 @@ internal extension CloudObject {
 		}
 	}
 	
-	func loadWithCloudKitRecord(record: CKRecord) {
+	func loadWithCloudKitRecord(record: CKRecord, inContext moc: NSManagedObjectContext? = nil) {
 		let isNew = self.recordID == nil
 		self.cloudKitRecordID = record.recordID
 		self.readFromCloudKitRecord(record)
 		
 		if isNew {
-			self.saveManagedObject()
+			self.saveManagedObject(inContext: moc)
 		}
 	}
 	
