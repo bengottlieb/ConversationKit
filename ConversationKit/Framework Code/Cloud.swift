@@ -60,7 +60,7 @@ public class Cloud: NSObject {
 				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date)])
 				ConversationKit.log("pulling down messages for \(localUserID) starting at \(date)")
 			} else {
-				ConversationKit.log("pulling all down messages for \(localUserID)")
+				ConversationKit.log("pulling all messages down for \(localUserID)")
 			}
 			
 			DataStore.instance[self.lastPendingFetchedAtKey] = NSDate()

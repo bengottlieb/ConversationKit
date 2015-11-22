@@ -184,6 +184,7 @@ public class Speaker: CloudObject {
 	class func clearKnownSpeakers() {
 		self.knownSpeakers.removeAll()
 		self.localSpeaker = nil
+		self.knownSpeakersLoaded = false
 	}
 }
 
