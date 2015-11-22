@@ -79,6 +79,22 @@ public class ConversationKit: NSObject {
 			}
 		}
 	}
+	
+	public class func changeLocalSpeaker(newSpeakerIdentifier: String, completion: (Bool) -> Void) {
+		guard let speaker = Speaker.localSpeaker else {
+			self.setup(localSpeakerIdentifier: newSpeakerIdentifier, completion: completion)
+			return
+		}
+		
+		if speaker.identifier == newSpeakerIdentifier {
+			completion(true)
+			return
+		}
+		
+		self.clearAllCachedDataWithCompletion {
+			self.setup(localSpeakerIdentifier: newSpeakerIdentifier, completion: completion)
+		}
+	}
 
 	let lastSignedInAsKey = "lastSignedInAs"
 
@@ -89,7 +105,7 @@ public class ConversationKit: NSObject {
 			ConversationKit.log("New Local Speaker ID found (was \(prevLoggedInAs)), resetting store.")
 			defaults.setObject(identifier, forKey: self.lastSignedInAsKey)
 			defaults.synchronize()
-			self.clearAllCachedDataWithCompletion {
+			ConversationKit.clearAllCachedDataWithCompletion {
 				self.loadLocalSpeaker(identifier, completion: completion)
 			}
 			return
@@ -118,7 +134,7 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public func clearAllCachedDataWithCompletion(completion: () -> Void) {
+	public class func clearAllCachedDataWithCompletion(completion: () -> Void) {
 		Conversation.clearExistingConversations()
 		Speaker.clearKnownSpeakers()
 		DataStore.instance.clearAllCachedDataWithCompletion {
