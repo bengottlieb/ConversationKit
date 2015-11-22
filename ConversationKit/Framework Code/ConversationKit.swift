@@ -11,7 +11,7 @@ import UIKit
 import CloudKit
 
 public class ConversationKit: NSObject {
-	public enum FeedbackLevel: Int { case Development, Testing, Production }
+	public enum FeedbackLevel: String { case Development, Testing, Production }
 	public static var feedbackLevel = FeedbackLevel.Development
 	
 	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
@@ -71,6 +71,8 @@ public class ConversationKit: NSObject {
 	}
 	
 	public class func setup(containerName: String? = nil, localSpeakerIdentifier: String, completion: ((Bool) -> Void)? = nil) {
+		if ConversationKit.feedbackLevel != .Production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
+		
 		Speaker.loadCachedSpeakers {
 			Cloud.instance.setup(containerName) { configured in
 				ConversationKit.instance.loadLocalSpeaker(localSpeakerIdentifier, completion: completion)
@@ -131,6 +133,8 @@ public class ConversationKit: NSObject {
 
 extension ConversationKit {
 	class func log(message: String) {
-		print("••• \(message)")
+		if ConversationKit.feedbackLevel != .Production {
+			print("••• \(message)")
+		}
 	}
 }
