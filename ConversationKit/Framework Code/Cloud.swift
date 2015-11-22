@@ -31,11 +31,11 @@ public class Cloud: NSObject {
 			
 			self.container.accountStatusWithCompletionHandler { status, error in
 				if let err = error {
-					print("Error while configuring CloudKit: \(err)")
+					ConversationKit.log("Error while configuring CloudKit: \(err)")
 				} else if status != .Available {
-					print("no access to CloudKit account: \(status)")
+					ConversationKit.log("no access to CloudKit account: \(status)")
 				} else {
-					print("CloudKit access secured")
+					ConversationKit.log("CloudKit access secured")
 					self.configured = true
 				}
 				
@@ -58,9 +58,9 @@ public class Cloud: NSObject {
 			
 			if !all, let date = DataStore.instance[self.lastPendingFetchedAtKey] as? NSDate {
 				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date)])
-				print("pulling down messages for \(localUserID) starting at \(date)")
+				ConversationKit.log("pulling down messages for \(localUserID) starting at \(date)")
 			} else {
-				print("pulling all down messages for \(localUserID)")
+				ConversationKit.log("pulling all down messages for \(localUserID)")
 			}
 			
 			DataStore.instance[self.lastPendingFetchedAtKey] = NSDate()
@@ -73,7 +73,7 @@ public class Cloud: NSObject {
 				moc.performBlock {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject(inContext: moc)
-						print("\(message.content)")
+						ConversationKit.log("\(message.content)")
 						Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, fromCache: true)
 					}
 				}
@@ -81,7 +81,7 @@ public class Cloud: NSObject {
 			
 			self.queryOperation!.queryCompletionBlock = { cursor, error in
 				Utilities.postNotification(ConversationKit.notifications.setupComplete)
-				print("message loading complete")
+				ConversationKit.log("message loading complete")
 				let moc = self.parsingContext
 				moc.performBlock {
 					moc.safeSave()
@@ -112,7 +112,7 @@ public class Cloud: NSObject {
 			
 			self.subscription?.notificationInfo = info
 			self.database.saveSubscription(self.subscription!, completionHandler: { sub, error in
-				print("Finished Creating Subscription: \(sub): \(error)")
+				ConversationKit.log("Finished Creating Subscription: \(sub): \(error)")
 			})
 		}
 	}
@@ -120,7 +120,7 @@ public class Cloud: NSObject {
 	internal func reportError(error: NSError?, note: String) {
 		guard let error = error else { return }
 		
-		print("\(note): \(error)")
+		ConversationKit.log("\(note): \(error)")
 	}
 	
 	internal let queue = dispatch_queue_create("ConversationKitCloudQueue", DISPATCH_QUEUE_SERIAL)

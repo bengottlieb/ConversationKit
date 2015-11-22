@@ -32,6 +32,10 @@ public class Conversation: NSObject {
 		super.init()
 	}
 	
+	class func clearExistingConversations() {
+		Conversation.existingConversations.removeAll()
+	}
+	
 	class func conversationWithSpeaker(speaker: Speaker, listener: Speaker) -> Conversation {
 		let speakers = [speaker, listener]
 		

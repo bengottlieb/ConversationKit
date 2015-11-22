@@ -180,6 +180,11 @@ public class Speaker: CloudObject {
 	internal override class var entityName: String { return "Speaker" }
 
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
+	
+	class func clearKnownSpeakers() {
+		self.knownSpeakers.removeAll()
+		self.localSpeaker = nil
+	}
 }
 
 public extension Speaker {

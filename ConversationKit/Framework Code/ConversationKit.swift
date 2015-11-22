@@ -35,7 +35,7 @@ public class ConversationKit: NSObject {
 	
 	public func setupNotificationSettings(application: UIApplication) {
 		#if (arch(i386) || arch(x86_64)) && os(iOS)
-			print("Push Notifications disabled in the simulator")
+			ConversationKit.log("Push Notifications disabled in the simulator")
 		#else
 			application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
 			application.registerForRemoteNotifications()
@@ -46,7 +46,7 @@ public class ConversationKit: NSObject {
 		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
 			let recordID = ckNotification.recordID
 			
-			print("Received note: \(recordID)")
+			ConversationKit.log("Received note: \(recordID)")
 		}
 
 		completionHandler(.NewData)
@@ -107,7 +107,16 @@ public class ConversationKit: NSObject {
 	}
 	
 	public func clearAllCachedDataWithCompletion(completion: () -> Void) {
-		
+		Conversation.clearExistingConversations()
+		Speaker.clearKnownSpeakers()
+		DataStore.instance.clearAllCachedDataWithCompletion(completion)
 	}
+	
 	internal let queue = dispatch_queue_create("ConversationKitQueue", DISPATCH_QUEUE_SERIAL)
+}
+
+extension ConversationKit {
+	class func log(message: String) {
+		print("••• \(message)")
+	}
 }
