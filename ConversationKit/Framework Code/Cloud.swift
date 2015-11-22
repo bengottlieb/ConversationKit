@@ -16,6 +16,7 @@ public class Cloud: NSObject {
 	static let instance = Cloud()
 	
 	public var configured = false
+	public var iCloudAccountIDAvailable = false
 	public var setupComplete = false
 	public var container: CKContainer!
 	public var database: CKDatabase!
@@ -32,11 +33,23 @@ public class Cloud: NSObject {
 			self.container.accountStatusWithCompletionHandler { status, error in
 				if let err = error {
 					ConversationKit.log("Error while configuring CloudKit: \(err)")
-				} else if status != .Available {
-					ConversationKit.log("no access to CloudKit account: \(status)")
 				} else {
-					ConversationKit.log("CloudKit access secured")
-					self.configured = true
+					switch status {
+					case .Available:
+						self.configured = true
+						self.iCloudAccountIDAvailable = true
+
+					case .CouldNotDetermine:
+						ConversationKit.log("Unknown CloudKit status")
+					case .NoAccount:
+						ConversationKit.log("No account set up")
+						self.configured = true
+						self.iCloudAccountIDAvailable = false
+
+					case .Restricted:
+						ConversationKit.log("Restricted: no access to CloudKit account")
+						
+					}
 				}
 				
 				self.setupComplete = true

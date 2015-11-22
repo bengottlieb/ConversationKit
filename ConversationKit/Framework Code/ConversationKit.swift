@@ -59,7 +59,7 @@ public class ConversationKit: NSObject {
 	
 	public class func fetchAccountIdentifier(completion: (String?) -> Void) {
 		Cloud.instance.setup { configured in
-			guard configured else { completion(nil); return }
+			guard configured && Cloud.instance.iCloudAccountIDAvailable else { completion(nil); return }
 
 			Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
 				Cloud.instance.reportError(error, note: "Problem fetching account info record ID")
