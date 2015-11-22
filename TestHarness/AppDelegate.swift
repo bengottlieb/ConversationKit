@@ -17,11 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		ConversationKit.instance.setupNotificationSettings(application)
+		ConversationKit.configureNotifications(application)
 
-		ConversationKit.instance.fetchAccountIdentifier { identifier in
+		ConversationKit.fetchAccountIdentifier { identifier in
 			guard let ident = identifier else { return }
-			ConversationKit.instance.setup(localSpeakerIdentifier: ident) { setup in
+			ConversationKit.setup(localSpeakerIdentifier: ident) { setup in
 				Speaker.localSpeaker.tags = ["tester"]
 				Speaker.localSpeaker.save { success in
 					print("saved local speaker \(success)")
@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 
 	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-		ConversationKit.instance.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
+		ConversationKit.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
 	}
 
 	func applicationWillResignActive(application: UIApplication) {

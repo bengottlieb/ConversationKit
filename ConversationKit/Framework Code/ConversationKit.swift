@@ -11,6 +11,9 @@ import UIKit
 import CloudKit
 
 public class ConversationKit: NSObject {
+	public enum FeedbackLevel: Int { case Development, Testing, Production }
+	public static var feedbackLevel = FeedbackLevel.Development
+	
 	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
 		UIApplication.sharedApplication().networkActivityIndicatorVisible = enable
 	}
@@ -22,7 +25,7 @@ public class ConversationKit: NSObject {
 		}
 	}}
 	
-	public static let instance = ConversationKit()
+	static let instance = ConversationKit()
 	public var setupComplete = false
 	
 	public struct notifications {
@@ -33,7 +36,7 @@ public class ConversationKit: NSObject {
 		public static let foundNewSpeaker = "ConversationKit.foundNewSpeaker"
 	}
 	
-	public func setupNotificationSettings(application: UIApplication) {
+	public class func configureNotifications(application: UIApplication) {
 		#if (arch(i386) || arch(x86_64)) && os(iOS)
 			ConversationKit.log("Push Notifications disabled in the simulator")
 		#else
@@ -42,7 +45,7 @@ public class ConversationKit: NSObject {
 		#endif
 	}
 	
-	public func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+	public class func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
 		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
 			let recordID = ckNotification.recordID
 			
@@ -52,7 +55,7 @@ public class ConversationKit: NSObject {
 		completionHandler(.NewData)
 	}
 	
-	public func fetchAccountIdentifier(completion: (String?) -> Void) {
+	public class func fetchAccountIdentifier(completion: (String?) -> Void) {
 		Cloud.instance.setup { configured in
 			guard configured else { completion(nil); return }
 
@@ -65,17 +68,17 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public func setup(containerName: String? = nil, localSpeakerIdentifier: String, completion: ((Bool) -> Void)? = nil) {
+	public class func setup(containerName: String? = nil, localSpeakerIdentifier: String, completion: ((Bool) -> Void)? = nil) {
 		Speaker.loadCachedSpeakers {
 			Cloud.instance.setup(containerName) { configured in
-				self.loadLocalSpeaker(localSpeakerIdentifier, completion: completion)
+				ConversationKit.instance.loadLocalSpeaker(localSpeakerIdentifier, completion: completion)
 			}
 		}
 	}
 
 	let lastSignedInAsKey = "lastSignedInAs"
 
-	public func loadLocalSpeaker(identifier: String, completion: ((Bool) -> Void)?) {
+	func loadLocalSpeaker(identifier: String, completion: ((Bool) -> Void)?) {
 		ConversationKit.log("Loading local speaker ID: \(identifier)")
 		let defaults = NSUserDefaults.standardUserDefaults()
 		if let prevLoggedInAs = defaults.stringForKey(self.lastSignedInAsKey) where prevLoggedInAs != identifier {
