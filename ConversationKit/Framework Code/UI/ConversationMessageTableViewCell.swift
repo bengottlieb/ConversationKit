@@ -37,5 +37,9 @@ class ConversationMessageTableViewCell: UITableViewCell {
 			self.messageContentLabel?.textAlignment = .Left
 			self.messageSpeakerLabel?.textAlignment = .Left
 		}
-		}}
+	}}
+	
+	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
+		return 35.0
+	}
 }

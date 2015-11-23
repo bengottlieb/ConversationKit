@@ -66,9 +66,21 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 		return self.messages.count
 	}
 	
+	func messageAtIndexPath(path: NSIndexPath) -> Message? {
+		if path.row < self.messages.count { return self.messages[path.row] }
+		return nil
+	}
+	
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier(ConversationMessageTableViewCell.identifier, forIndexPath: indexPath) as! ConversationMessageTableViewCell
-		cell.message = self.messages[indexPath.row]
+		cell.message = self.messageAtIndexPath(indexPath)
 		return cell
+	}
+	
+	public func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+		if let message = self.messageAtIndexPath(indexPath) {
+			return ConversationMessageTableViewCell.heightForMessage(message, inTableWidth: tableView.bounds.width)
+		}
+		return 44.0
 	}
 }
