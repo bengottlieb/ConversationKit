@@ -46,6 +46,7 @@
 		B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */; };
 		B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */; };
 		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
+		B5FEE6A31C03B76E00EA7FCA /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +112,7 @@
 		B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationMessageTableViewCell.swift; path = UI/ConversationMessageTableViewCell.swift; sourceTree = "<group>"; };
 		B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ConversationMessageTableViewCell.xib; path = UI/ConversationMessageTableViewCell.xib; sourceTree = "<group>"; };
 		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
+		B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageBubbleView.swift; path = UI/MessageBubbleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -247,6 +249,7 @@
 			children = (
 				B5A739851C033284004262BA /* ConversationView.swift */,
 				B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */,
+				B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */,
 				B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */,
 			);
 			name = UI;
@@ -429,6 +432,7 @@
 				B549E3411BF8C8F80046463A /* ConversationKit.swift in Sources */,
 				B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */,
 				B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */,
+				B5FEE6A31C03B76E00EA7FCA /* MessageBubbleView.swift in Sources */,
 				B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */,
 				B5A739861C033284004262BA /* ConversationView.swift in Sources */,
 				B549E3431BF8C8F80046463A /* Message.swift in Sources */,

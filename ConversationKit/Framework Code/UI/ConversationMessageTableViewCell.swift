@@ -40,6 +40,6 @@ class ConversationMessageTableViewCell: UITableViewCell {
 	}}
 	
 	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
-		return 35.0
+		return 75.0
 	}
 }

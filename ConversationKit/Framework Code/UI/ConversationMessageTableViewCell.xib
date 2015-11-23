@@ -31,12 +31,21 @@
                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WFs-i0-Spv" customClass="MessageBubbleView" customModule="ConversationKit" customModuleProvider="target">
+                        <rect key="frame" x="8" y="8" width="304" height="27"/>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
                 </subviews>
                 <animations/>
                 <constraints>
                     <constraint firstItem="oMm-ve-JTv" firstAttribute="top" secondItem="WYg-Nq-UzE" secondAttribute="bottom" constant="1" id="7Mk-7Y-xdA"/>
+                    <constraint firstItem="WFs-i0-Spv" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="B7e-lu-9AE"/>
                     <constraint firstItem="WYg-Nq-UzE" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="FVY-Ol-OGf"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="WFs-i0-Spv" secondAttribute="trailing" id="OXx-tO-Vwa"/>
+                    <constraint firstItem="WFs-i0-Spv" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="gu4-TO-DWZ"/>
                     <constraint firstItem="WYg-Nq-UzE" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="jBJ-RU-Yjp"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="WFs-i0-Spv" secondAttribute="bottom" id="n8d-1K-Fx0"/>
                     <constraint firstItem="oMm-ve-JTv" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="rjG-Mf-d8N"/>
                     <constraint firstItem="WYg-Nq-UzE" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="-8" id="uYV-R0-m2H"/>
                     <constraint firstItem="oMm-ve-JTv" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="wLG-Qo-PuM"/>
