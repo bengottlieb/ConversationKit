@@ -131,6 +131,23 @@ public class Cloud: NSObject {
 		}
 	}
 	
+	internal func handleNotificationCloudRecordID(recordID: CKRecordID) {
+		self.database.fetchRecordWithID(recordID) { incoming, error in
+			if let record = incoming {
+				if record.recordType == Message.recordName {
+					
+					DataStore.instance.importBlock { moc in
+						if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
+							message.saveManagedObject(inContext: moc)
+							ConversationKit.log("\(message.content)")
+							Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	internal func reportError(error: NSError?, note: String) {
 		guard let error = error else { return }
 		

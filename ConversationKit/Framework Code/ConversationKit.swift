@@ -17,6 +17,7 @@ public class ConversationKit: NSObject {
 	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
 		UIApplication.sharedApplication().networkActivityIndicatorVisible = enable
 	}
+	
 	internal var networkActivityUsageCount = 0 { didSet {
 		if self.networkActivityUsageCount == 0 && oldValue != 0 {
 			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(false) }
@@ -42,6 +43,15 @@ public class ConversationKit: NSObject {
 		public static let finishedLoadingMessagesOldMessages = "ConversationKit.finishedLoadingMessagesOldMessages"
 	}
 	
+	override init() {
+		super.init()
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidBecomeActive", name: UIApplicationDidBecomeActiveNotification, object: nil)
+	}
+	
+	func applicationDidBecomeActive() {
+		Cloud.instance.pullDownMessages()
+	}
+	
 	public class func configureNotifications(application: UIApplication) {
 		#if (arch(i386) || arch(x86_64)) && os(iOS)
 			ConversationKit.log("Push Notifications disabled in the simulator")
@@ -53,9 +63,9 @@ public class ConversationKit: NSObject {
 	
 	public class func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
 		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
-			let recordID = ckNotification.recordID
-			
-			ConversationKit.log("Received note: \(recordID)")
+			if let recordID = ckNotification.recordID {
+				Cloud.instance.handleNotificationCloudRecordID(recordID)
+			}
 		}
 
 		completionHandler(.NewData)
