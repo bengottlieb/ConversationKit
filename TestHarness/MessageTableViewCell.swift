@@ -11,6 +11,11 @@ import ConversationKit
 
 class MessageTableViewCell: UITableViewCell {
 	static let identifier = "MessageTableViewCell"
+	
+	@IBOutlet var messageContentLabel: UILabel!
+	@IBOutlet var messageSpeakerLabel: UILabel!
+	
+	
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -23,7 +28,16 @@ class MessageTableViewCell: UITableViewCell {
     }
 	
 	var message: Message? { didSet {
-		self.textLabel?.text = self.message?.content
+		self.messageContentLabel?.text = self.message?.content
+		self.messageSpeakerLabel?.text = self.message?.speaker.name
+		
+		if self.message?.speaker.isLocalSpeaker ?? false {
+			self.messageContentLabel?.textAlignment = .Right
+			self.messageSpeakerLabel?.textAlignment = .Right
+		} else {
+			self.messageContentLabel?.textAlignment = .Left
+			self.messageSpeakerLabel?.textAlignment = .Left
+		}
 	}}
     
 }
