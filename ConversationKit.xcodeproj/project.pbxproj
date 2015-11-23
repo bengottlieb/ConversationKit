@@ -23,8 +23,6 @@
 /* Begin PBXBuildFile section */
 		B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */; };
 		B53CFA961BFE04250005120C /* SpeakerInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */; };
-		B53CFA991C0265FC0005120C /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53CFA971C0265FC0005120C /* MessageTableViewCell.swift */; };
-		B53CFA9A1C0265FC0005120C /* MessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B53CFA981C0265FC0005120C /* MessageTableViewCell.xib */; };
 		B549E3261BF8C8460046463A /* ConversationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E31B1BF8C8460046463A /* ConversationKit.framework */; };
 		B549E32B1BF8C8460046463A /* ConversationKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B549E32A1BF8C8460046463A /* ConversationKitTests.swift */; };
 		B549E33F1BF8C8F80046463A /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = B549E3361BF8C8F80046463A /* Cloud.swift */; };
@@ -44,6 +42,9 @@
 		B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397F1BF9F5CC004262BA /* DataStore.swift */; };
 		B5A739821BFF3CFB004262BA /* SelectSpeakerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */; };
 		B5A739841BFF3E86004262BA /* SpeakerQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739831BFF3E86004262BA /* SpeakerQuery.swift */; };
+		B5A739861C033284004262BA /* ConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739851C033284004262BA /* ConversationView.swift */; };
+		B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */; };
+		B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */; };
 		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
 /* End PBXBuildFile section */
 
@@ -80,8 +81,6 @@
 /* Begin PBXFileReference section */
 		B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpeakerInfoViewController.swift; path = "Speaker Info/SpeakerInfoViewController.swift"; sourceTree = "<group>"; };
 		B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SpeakerInfoViewController.xib; path = "Speaker Info/SpeakerInfoViewController.xib"; sourceTree = "<group>"; };
-		B53CFA971C0265FC0005120C /* MessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
-		B53CFA981C0265FC0005120C /* MessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MessageTableViewCell.xib; sourceTree = "<group>"; };
 		B549E31B1BF8C8460046463A /* ConversationKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ConversationKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B549E3251BF8C8460046463A /* ConversationKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConversationKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B549E32A1BF8C8460046463A /* ConversationKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationKitTests.swift; sourceTree = "<group>"; };
@@ -108,6 +107,9 @@
 		B5A7397F1BF9F5CC004262BA /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataStore.swift; path = Model/DataStore.swift; sourceTree = "<group>"; };
 		B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectSpeakerViewController.swift; sourceTree = "<group>"; };
 		B5A739831BFF3E86004262BA /* SpeakerQuery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpeakerQuery.swift; path = Model/SpeakerQuery.swift; sourceTree = "<group>"; };
+		B5A739851C033284004262BA /* ConversationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationView.swift; path = UI/ConversationView.swift; sourceTree = "<group>"; };
+		B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationMessageTableViewCell.swift; path = UI/ConversationMessageTableViewCell.swift; sourceTree = "<group>"; };
+		B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ConversationMessageTableViewCell.xib; path = UI/ConversationMessageTableViewCell.xib; sourceTree = "<group>"; };
 		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -183,6 +185,7 @@
 			children = (
 				B549E3381BF8C8F80046463A /* ConversationKit.swift */,
 				B5A739781BF9F4C3004262BA /* iCloud */,
+				B5A7398B1C0333AD004262BA /* UI */,
 				B5A7397E1BF9F510004262BA /* Model */,
 				B549E3391BF8C8F80046463A /* ConversationKitUtilities.swift */,
 			);
@@ -207,8 +210,6 @@
 				B549E3531BF8CA4F0046463A /* AppDelegate.swift */,
 				B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */,
 				B549E3551BF8CA4F0046463A /* ViewController.swift */,
-				B53CFA971C0265FC0005120C /* MessageTableViewCell.swift */,
-				B53CFA981C0265FC0005120C /* MessageTableViewCell.xib */,
 				B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */,
 				B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */,
 				B549E3571BF8CA4F0046463A /* Main.storyboard */,
@@ -239,6 +240,16 @@
 				B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		B5A7398B1C0333AD004262BA /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				B5A739851C033284004262BA /* ConversationView.swift */,
+				B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */,
+				B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */,
+			);
+			name = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -368,6 +379,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,7 +396,6 @@
 			files = (
 				B53CFA961BFE04250005120C /* SpeakerInfoViewController.xib in Resources */,
 				B549E35E1BF8CA4F0046463A /* LaunchScreen.storyboard in Resources */,
-				B53CFA9A1C0265FC0005120C /* MessageTableViewCell.xib in Resources */,
 				B549E35B1BF8CA4F0046463A /* Assets.xcassets in Resources */,
 				B549E3591BF8CA4F0046463A /* Main.storyboard in Resources */,
 			);
@@ -417,7 +428,9 @@
 				B549E3421BF8C8F80046463A /* ConversationKitUtilities.swift in Sources */,
 				B549E3411BF8C8F80046463A /* ConversationKit.swift in Sources */,
 				B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */,
+				B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */,
 				B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */,
+				B5A739861C033284004262BA /* ConversationView.swift in Sources */,
 				B549E3431BF8C8F80046463A /* Message.swift in Sources */,
 				B5A739841BFF3E86004262BA /* SpeakerQuery.swift in Sources */,
 				B549E3441BF8C8F80046463A /* Speaker.swift in Sources */,
@@ -441,7 +454,6 @@
 				B549E3561BF8CA4F0046463A /* ViewController.swift in Sources */,
 				B5A739821BFF3CFB004262BA /* SelectSpeakerViewController.swift in Sources */,
 				B549E3541BF8CA4F0046463A /* AppDelegate.swift in Sources */,
-				B53CFA991C0265FC0005120C /* MessageTableViewCell.swift in Sources */,
 				B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

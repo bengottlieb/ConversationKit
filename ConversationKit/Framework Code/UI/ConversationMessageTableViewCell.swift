@@ -1,20 +1,18 @@
 //
-//  MessageTableViewCell.swift
+//  ConversationMessageTableViewCell.swift
 //  ConversationKit
 //
-//  Created by Ben Gottlieb on 11/22/15.
+//  Created by Ben Gottlieb on 11/23/15.
 //  Copyright © 2015 Stand Alone, Inc. All rights reserved.
 //
 
 import UIKit
-import ConversationKit
 
-class MessageTableViewCell: UITableViewCell {
-	static let identifier = "MessageTableViewCell"
+class ConversationMessageTableViewCell: UITableViewCell {
+	static let identifier = "ConversationMessageTableViewCell"
 	
 	@IBOutlet var messageContentLabel: UILabel!
 	@IBOutlet var messageSpeakerLabel: UILabel!
-	
 	
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -26,7 +24,8 @@ class MessageTableViewCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
-	
+    
+
 	var message: Message? { didSet {
 		self.messageContentLabel?.text = self.message?.content
 		self.messageSpeakerLabel?.text = self.message?.speaker.name
@@ -38,6 +37,5 @@ class MessageTableViewCell: UITableViewCell {
 			self.messageContentLabel?.textAlignment = .Left
 			self.messageSpeakerLabel?.textAlignment = .Left
 		}
-	}}
-    
+		}}
 }

@@ -13,7 +13,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 	@IBOutlet var messageField: UITextField!
 	@IBOutlet var entryContainer: UIView!
-	@IBOutlet var tableView: UITableView!
+	@IBOutlet var conversationView: ConversationView!
 	
 	var messages: [Message] = []
 	
@@ -31,7 +31,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 	}}
 	var currentConversation: Conversation? { didSet {
 		self.updateTitle()
-		self.loadConversationTable()
+		self.conversationView.conversation = self.currentConversation
 	}}
 	
 	override func viewDidLoad() {
@@ -44,14 +44,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
-		
-		
-		
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.postedNewMessage, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
-
-		self.tableView.registerNib(UINib(nibName: "MessageTableViewCell", bundle: nil), forCellReuseIdentifier: MessageTableViewCell.identifier)
 	}
 
 	//┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -67,12 +59,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
 		let finalFrame = frameHolder.CGRectValue()
 		let localKeyboardFrame = self.view.convertRect(finalFrame, fromView: nil)
 		let heightDelta = self.view.frame.maxY - localKeyboardFrame.origin.y
-		var insets = self.tableView.contentInset
+		var insets = self.conversationView.contentInset
 		insets.bottom += heightDelta
 		
 		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
 			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -heightDelta)
-			self.tableView.contentInset = insets
+			self.conversationView.contentInset = insets
 		}, completion: nil)
 	}
 	
@@ -80,12 +72,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
 		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
 		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
 		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseIn
-		var insets = self.tableView.contentInset
+		var insets = self.conversationView.contentInset
 		insets.bottom = 0
 		
 		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
 			self.entryContainer.transform = CGAffineTransformIdentity
-			self.tableView.contentInset = insets
+			self.conversationView.contentInset = insets
 		}, completion: nil)
 	}
 
@@ -151,26 +143,4 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 	}
 
-}
-
-extension ViewController: UITableViewDataSource {
-	func loadConversationTable() {
-		self.messages = self.currentConversation?.sortedMessages ?? []
-		self.tableView?.reloadData()
-	}
-	
-	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-		return 1
-	}
-	
-	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return self.messages.count
-	}
-	
-	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCellWithIdentifier(MessageTableViewCell.identifier, forIndexPath: indexPath) as! MessageTableViewCell
-		
-		cell.message = self.messages[indexPath.row]
-		return cell
-	}
 }
