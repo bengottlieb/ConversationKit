@@ -18,9 +18,25 @@ public class Conversation: NSObject {
 	public var joinedBy: Speaker
 	public var messages: Set<Message> = []
 	
-	public func addMessage(message: Message, fromCache: Bool) {
+	public var sortedMessages: [Message] {
+		return Array(self.messages ?? []).sort(<)
+	}
+	
+	public var nonLocalSpeaker: Speaker { return self.startedBy.isLocalSpeaker ? self.joinedBy : self.startedBy }
+	
+	enum MessageCacheSource { case New, CoreDataCache, iCloudCache }
+	
+	func addMessage(message: Message, from: MessageCacheSource) {
 		message.conversation = self
-		dispatch_async(ConversationKit.instance.queue) { self.messages.insert(message) }
+		dispatch_async(ConversationKit.instance.queue) {
+			self.messages.insert(message)
+			
+			switch from {
+			case .iCloudCache: Utilities.postNotification(ConversationKit.notifications.downloadedOldMessage, object: message)
+			case .CoreDataCache: break
+			case .New: Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
+			}
+		}
 	}
 	
 	func hasSpeakers(speakers: [Speaker]) -> Bool {
@@ -75,9 +91,8 @@ public class Conversation: NSObject {
 				
 				for object in objects {
 					let message = Message(object: object)
-					self.addMessage(message, fromCache: true)
+					self.addMessage(message, from: .CoreDataCache)
 				}
-				
 				Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
 			}
 		}

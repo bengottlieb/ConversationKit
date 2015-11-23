@@ -183,8 +183,8 @@
 			children = (
 				B549E3381BF8C8F80046463A /* ConversationKit.swift */,
 				B5A739781BF9F4C3004262BA /* iCloud */,
-				B549E3391BF8C8F80046463A /* ConversationKitUtilities.swift */,
 				B5A7397E1BF9F510004262BA /* Model */,
+				B549E3391BF8C8F80046463A /* ConversationKitUtilities.swift */,
 			);
 			name = "Framework Code";
 			path = "ConversationKit/Framework Code";

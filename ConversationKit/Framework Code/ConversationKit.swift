@@ -37,7 +37,9 @@ public class ConversationKit: NSObject {
 		public static let loadedKnownSpeakers = "ConversationKit.loadedKnownSpeakers"
 		public static let foundNewSpeaker = "ConversationKit.foundNewSpeaker"
 		public static let postedNewMessage = "ConversationKit.postedNewMessage"
+		public static let downloadedOldMessage = "ConversationKit.downloadedOldMessage"
 		public static let finishedLoadingMessagesForConversation = "ConversationKit.finishedLoadingMessagesForConversation"
+		public static let finishedLoadingMessagesOldMessages = "ConversationKit.finishedLoadingMessagesOldMessages"
 	}
 	
 	public class func configureNotifications(application: UIApplication) {

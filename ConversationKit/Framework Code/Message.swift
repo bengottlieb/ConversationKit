@@ -95,6 +95,11 @@ public class Message: CloudObject {
 	}
 }
 
+public func <(lhs: Message, rhs: Message) -> Bool {
+	return lhs.spokenAt.timeIntervalSinceReferenceDate < rhs.spokenAt.timeIntervalSinceReferenceDate
+}
+
+
 internal class MessageObject: ManagedCloudObject {
 	@NSManaged var content: String?
 	@NSManaged var speaker: SpeakerObject?

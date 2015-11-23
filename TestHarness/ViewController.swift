@@ -49,6 +49,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 		
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.postedNewMessage, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadConversationTable", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
 
 		self.tableView.registerNib(UINib(nibName: "MessageTableViewCell", bundle: nil), forCellReuseIdentifier: MessageTableViewCell.identifier)
 	}
@@ -94,9 +95,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 	func updateTitle() {
 		if let convo = self.currentConversation {
-			self.title = convo.shortDescription
+			self.title = convo.nonLocalSpeaker.name
 		} else {
-			self.title = Speaker.localSpeaker.name
+			self.title = ""
 		}
 	}
 	
@@ -154,7 +155,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 extension ViewController: UITableViewDataSource {
 	func loadConversationTable() {
-		self.messages = Array(self.currentConversation?.messages ?? [])
+		self.messages = self.currentConversation?.sortedMessages ?? []
 		self.tableView?.reloadData()
 	}
 	

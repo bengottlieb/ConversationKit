@@ -87,21 +87,22 @@ public class Cloud: NSObject {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject(inContext: moc)
 						ConversationKit.log("\(message.content)")
-						Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, fromCache: true)
+						Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
 					}
 				}
 			}
 			
 			self.queryOperation!.queryCompletionBlock = { cursor, error in
-				Utilities.postNotification(ConversationKit.notifications.setupComplete)
-				ConversationKit.log("message loading complete")
 				let moc = self.parsingContext
 				moc.performBlock {
+					ConversationKit.log("message loading complete")
 					moc.safeSave()
+					self.queryOperation = nil
+					self.parsingContext = nil
+					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesOldMessages)
+					Utilities.postNotification(ConversationKit.notifications.setupComplete)
+					ConversationKit.instance.networkActivityUsageCount--
 				}
-				self.queryOperation = nil
-				self.parsingContext = nil
-				ConversationKit.instance.networkActivityUsageCount--
 			}
 			
 			self.database.addOperation(self.queryOperation!)

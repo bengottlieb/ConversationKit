@@ -42,7 +42,7 @@ public class Speaker: CloudObject {
 		message.saveManagedObject()
 		message.saveToCloudKit(completion)
 		
-		Conversation.conversationWithOther(self)?.addMessage(message, fromCache: false)
+		Conversation.conversationWithOther(self)?.addMessage(message, from: .New)
 		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 	}
 	
