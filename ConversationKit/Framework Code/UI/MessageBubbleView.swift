@@ -14,27 +14,40 @@ class MessageBubbleView: UIView {
 	var label: UILabel!
 	
 	var message: Message? { didSet {
+		self.setNeedsLayout()
 		self.updateUI()
 	}}
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.backgroundColor = UIColor.clearColor()
-		self.setNeedsLayout()
 	}
 
 	required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 		self.backgroundColor = UIColor.clearColor()
-		self.setNeedsLayout()
 	}
 	
-	var labelFrame: CGRect {
-		var frame = self.bounds.insetBy(dx: 28, dy: 8)
+	static let horizontalInset: CGFloat = 28.0
+	static let verticalInset: CGFloat = 4.0
+	static let stemWidth: CGFloat = 5.0
+	static var messageFont = UIFont.systemFontOfSize(15.0)
+	
+	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
+		let contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
+		let attr = NSAttributedString(string: message.content, attributes: [NSFontAttributeName: MessageBubbleView.messageFont])
+		let bounding = attr.boundingRectWithSize(CGSize(width: contentWidth, height: 10000.0), options: [.UsesLineFragmentOrigin, .UsesFontLeading, .TruncatesLastVisibleLine], context: nil)
+		
+		return ceil(bounding.height + self.verticalInset * 2)
+	}
+	
+	var labelFrame: CGRect?
+	var fullLabelFrame: CGRect {
+		var frame = self.bounds.insetBy(dx: MessageBubbleView.horizontalInset, dy: MessageBubbleView.verticalInset)
 		if !self.rightHandStem {
-			frame.origin.x += 10
+			frame.origin.x += MessageBubbleView.stemWidth
 		}
-		frame.size.width -= 10
+		frame.size.width -= MessageBubbleView.stemWidth
 		return frame
 	}
 	
@@ -42,13 +55,16 @@ class MessageBubbleView: UIView {
 		super.layoutSubviews()
 		
 		if self.label == nil {
-			self.label = UILabel(frame: self.labelFrame)
+			self.label = UILabel(frame: self.fullLabelFrame)
 			self.label.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
 			self.label.numberOfLines = 0
+			self.label.font = MessageBubbleView.messageFont
 			self.label.lineBreakMode = .ByWordWrapping
 			self.addSubview(self.label)
 			self.label.backgroundColor = UIColor.clearColor()
 			self.updateUI()
+		} else {
+			self.label.frame = self.labelFrame ?? self.fullLabelFrame
 		}
 	}
 	
@@ -57,19 +73,27 @@ class MessageBubbleView: UIView {
 			self.rightHandStem = message.speaker.isLocalSpeaker
 			self.label?.text = message.content
 			self.label?.textAlignment = self.rightHandStem ? .Right : .Left
+			let full = self.fullLabelFrame
+			if let size = self.label?.sizeThatFits(full.size) {
+				self.labelFrame = self.rightHandStem ? CGRect(x: full.maxX - size.width, y: full.origin.y, width: size.width, height: size.height) : CGRect(x: full.origin.x, y: full.origin.y, width: size.width, height: size.height)
+			}
+			self.setNeedsDisplay()
 		}
 	}
 
 	override func drawRect(rect: CGRect) {
-		let bounds = self.bounds
+		let labelFrame = self.labelFrame ?? self.fullLabelFrame
+		let bubbleWidth = labelFrame.width + MessageBubbleView.horizontalInset * 2 + MessageBubbleView.stemWidth
+		let bounds: CGRect
 		let bezier = UIBezierPath()
 		
 		if self.rightHandStem {
-			let x1 = bounds.width * 0.05
-			let x2 = bounds.width * 0.15
-			let x3 = bounds.width * 0.75
-			let x4 = bounds.width * 0.92
-			let x5 = bounds.width * 0.95
+			bounds = CGRect(x: self.bounds.width - bubbleWidth, y: 0, width: bubbleWidth, height: self.bounds.height)
+			let x1 = bounds.width * 0.05 + bounds.origin.x
+			let x2 = bounds.width * 0.15 + bounds.origin.x
+			let x3 = bounds.width * 0.75 + bounds.origin.x
+			let x4 = bounds.width * 0.92 + bounds.origin.x
+			let x5 = bounds.width * 0.95 + bounds.origin.x
 			
 			let y1 = bounds.height * 0.05
 			let y2 = bounds.height * 0.15
@@ -111,11 +135,13 @@ class MessageBubbleView: UIView {
 			
 			bezier.addLineToPoint(a)
 		} else {
-			let x1 = bounds.width * 0.05
-			let x2 = bounds.width * 0.08
-			let x3 = bounds.width * 0.25
-			let x4 = bounds.width * 0.85
-			let x5 = bounds.width * 0.95
+			bounds = CGRect(x: 0, y: 0, width: bubbleWidth, height: self.bounds.height)
+
+			let x1 = bounds.width * 0.05 + bounds.origin.x
+			let x2 = bounds.width * 0.08 + bounds.origin.x
+			let x3 = bounds.width * 0.25 + bounds.origin.x
+			let x4 = bounds.width * 0.85 + bounds.origin.x
+			let x5 = bounds.width * 0.95 + bounds.origin.x
 			
 			let y1 = bounds.height * 0.05
 			let y2 = bounds.height * 0.15

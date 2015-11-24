@@ -10,7 +10,7 @@ import UIKit
 
 public class ConversationView: UIView {
 	public var conversation: Conversation? { didSet {
-		self.updateUI()
+		self.scrollToLast()
 		}
 	}
 	
@@ -25,8 +25,8 @@ public class ConversationView: UIView {
 	}
 	
 	func setup() {
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.postedNewMessage, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "scrollToLast", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "newMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
 	}
 	
@@ -47,6 +47,23 @@ public class ConversationView: UIView {
 		get { return self.tableView?.contentInset ?? UIEdgeInsetsZero }
 		set { self.tableView?.contentInset = newValue }
 	}
+	
+	func newMessage(note: NSNotification) {
+		self.updateUI()
+		
+		self.scrollToMessage(note.object as? Message)
+	}
+	
+	func scrollToMessage(message: Message?) {
+		if let message = message, index = self.messages.indexOf(message) {
+			self.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0), atScrollPosition: .Bottom, animated: true)
+		}
+	}
+	
+	func scrollToLast() {
+		self.updateUI()
+		self.scrollToMessage(self.messages.last)
+	}
 }
 
 extension ConversationView: UITableViewDataSource, UITableViewDelegate {
@@ -58,6 +75,7 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 			self.tableView.dataSource = self
 			self.tableView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight] 
 			self.tableView.registerNib(UINib(nibName: "ConversationMessageTableViewCell", bundle: NSBundle(forClass: self.dynamicType)), forCellReuseIdentifier: ConversationMessageTableViewCell.identifier)
+			self.tableView.separatorStyle = .None
 		}
 	}
 	
