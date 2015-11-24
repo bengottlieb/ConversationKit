@@ -56,19 +56,6 @@ cp -R "${BASE_BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${ConversationKit}${IO
 echo "lipo'ing files"
 lipo -create -output "${UNIVERSAL_OUTPUTFOLDER}/${ConversationKit}${IOS_SUFFIX}.framework/${ConversationKit}${IOS_SUFFIX}" "${BASE_BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${ConversationKit}${IOS_SUFFIX}.framework/${ConversationKit}${IOS_SUFFIX}" "${BASE_BUILD_DIR}/${CONFIGURATION}-iphoneos/${ConversationKit}${IOS_SUFFIX}.framework/${ConversationKit}${IOS_SUFFIX}"
 
-echo "copying to iOS Framework folder"
-# Step 5. Convenience step to copy the framework to the project's directory
-mkdir -p "${PROJECT_DIR}/iOS Framework/"
-rm -rf "${PROJECT_DIR}/iOS Framework/${ConversationKit}${IOS_SUFFIX}.framework"
-cp -R "${UNIVERSAL_OUTPUTFOLDER}/${ConversationKit}${IOS_SUFFIX}.framework" "${PROJECT_DIR}/iOS Framework"
-
-# Step 6. Copy the Mac framework
-#echo "copying to Mac OS Framework folder"
-#mkdir -p "${PROJECT_DIR}/Mac Framework/"
-#rm -rf "${PROJECT_DIR}/Mac Framework/${ConversationKit}.framework"
-#cp -R "${BASE_BUILD_DIR}/${CONFIGURATION}/${ConversationKit}.framework" "${PROJECT_DIR}/Mac Framework"
-
-
 /usr/libexec/PlistBuddy "${MAC_PLIST_PATH}" -c "Delete :branch"
 /usr/libexec/PlistBuddy "${MAC_PLIST_PATH}" -c "Delete :rev"
 /usr/libexec/PlistBuddy "${MAC_PLIST_PATH}" -c "Delete :built"

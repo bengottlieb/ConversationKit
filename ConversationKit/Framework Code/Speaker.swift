@@ -69,7 +69,7 @@ public class Speaker: CloudObject {
 		message.saveManagedObject()
 		message.saveToCloudKit(completion)
 		
-		Conversation.conversationWithOther(self)?.addMessage(message, from: .New)
+		Conversation.existingConversationWith(self)?.addMessage(message, from: .New)
 		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 	}
 	
@@ -84,7 +84,7 @@ public class Speaker: CloudObject {
 	}
 	
 	public func conversationWith(other: Speaker) -> Conversation {
-		return Conversation.conversationWithSpeaker(self, listener: other)
+		return Conversation.conversationWith(self, listener: other)
 	}
 
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }

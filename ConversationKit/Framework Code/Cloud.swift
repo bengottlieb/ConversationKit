@@ -43,7 +43,7 @@ public class Cloud: NSObject {
 						ConversationKit.log("Unknown CloudKit status")
 					case .NoAccount:
 						ConversationKit.log("No account set up")
-						self.configured = true
+						self.configured = false
 						self.iCloudAccountIDAvailable = false
 
 					case .Restricted:
@@ -87,7 +87,7 @@ public class Cloud: NSObject {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject(inContext: moc)
 						ConversationKit.log("\(message.content)")
-						Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
+						Conversation.conversationWith(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
 					}
 				}
 			}
@@ -140,7 +140,7 @@ public class Cloud: NSObject {
 						if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 							message.saveManagedObject(inContext: moc)
 							ConversationKit.log("\(message.content)")
-							Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
+							Conversation.conversationWith(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
 						}
 						completion(true)
 					}

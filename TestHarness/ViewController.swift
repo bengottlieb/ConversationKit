@@ -24,7 +24,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 			let defaults = NSUserDefaults()
 			defaults.setObject(speaker.speakerRef, forKey: self.lastConversationalistKey)
 			defaults.synchronize()
-			self.currentConversation = Conversation.conversationWithSpeaker(Speaker.localSpeaker, listener: speaker)
+			self.currentConversation = Conversation.conversationWith(Speaker.localSpeaker, listener: speaker)
 		} else {
 			self.currentConversation = nil
 		}

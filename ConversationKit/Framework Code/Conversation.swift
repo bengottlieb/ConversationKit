@@ -16,7 +16,7 @@ public class Conversation: NSObject {
 	
 	public var startedBy: Speaker
 	public var joinedBy: Speaker
-	public var messages: Set<Message> = []
+	var messages: Set<Message> = []
 	
 	public var sortedMessages: [Message] {
 		return Array(self.messages ?? []).sort(<)
@@ -59,7 +59,7 @@ public class Conversation: NSObject {
 		Conversation.existingConversations.removeAll()
 	}
 	
-	public class func conversationWithOther(speaker: Speaker) -> Conversation? {
+	public class func existingConversationWith(speaker: Speaker) -> Conversation? {
 		let speakers = [speaker, Speaker.localSpeaker!]
 		
 		for conversation in Conversation.existingConversations {
@@ -71,7 +71,7 @@ public class Conversation: NSObject {
 		return nil
 	}
 	
-	public class func conversationWithSpeaker(speaker: Speaker, listener: Speaker) -> Conversation {
+	public class func conversationWith(speaker: Speaker, listener: Speaker) -> Conversation {
 		let speakers = [speaker, listener]
 		
 		for conversation in Conversation.existingConversations {
