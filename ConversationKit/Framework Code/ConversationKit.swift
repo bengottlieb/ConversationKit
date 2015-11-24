@@ -154,6 +154,10 @@ public class ConversationKit: NSObject {
 	public class func clearAllCachedDataWithCompletion(completion: () -> Void) {
 		Conversation.clearExistingConversations()
 		Speaker.clearKnownSpeakers()
+		do {
+			try NSFileManager.defaultManager().removeItemAtURL(DataStore.instance.imagesCacheURL)
+			try NSFileManager.defaultManager().createDirectoryAtURL(DataStore.instance.imagesCacheURL, withIntermediateDirectories: true, attributes: nil)
+		} catch {}
 		DataStore.instance.clearAllCachedDataWithCompletion {
 			Speaker.loadCachedSpeakers {
 				completion()
