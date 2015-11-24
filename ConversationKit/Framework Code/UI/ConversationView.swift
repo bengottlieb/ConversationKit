@@ -9,10 +9,8 @@
 import UIKit
 
 public class ConversationView: UIView {
-	public var conversation: Conversation? { didSet {
-		self.scrollToLast()
-		}
-	}
+	public var conversation: Conversation? { didSet { self.scrollToLast() } }
+	
 	
 	public override init(frame: CGRect) {
 		super.init(frame: frame)

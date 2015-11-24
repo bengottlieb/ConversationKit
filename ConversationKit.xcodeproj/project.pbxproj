@@ -148,7 +148,6 @@
 				B549E3471BF8C9EE0046463A /* BuildFramework.sh */,
 				B549E3351BF8C8F80046463A /* Framework Code */,
 				B549E33C1BF8C8F80046463A /* iOS */,
-				B549E31D1BF8C8460046463A /* ConversationKit */,
 				B549E3291BF8C8460046463A /* ConversationKitTests */,
 				B549E3521BF8CA4F0046463A /* TestHarness */,
 				B549E31C1BF8C8460046463A /* Products */,
@@ -164,13 +163,6 @@
 				B549E3511BF8CA4F0046463A /* TestHarness.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		B549E31D1BF8C8460046463A /* ConversationKit */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ConversationKit;
 			sourceTree = "<group>";
 		};
 		B549E3291BF8C8460046463A /* ConversationKitTests */ = {

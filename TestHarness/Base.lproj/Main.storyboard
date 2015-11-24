@@ -17,6 +17,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9gq-af-lcj" customClass="ConversationView" customModule="ConversationKit">
+                                <rect key="frame" x="0.0" y="72" width="600" height="481"/>
+                                <animations/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AkQ-gL-8hv">
                                 <rect key="frame" x="0.0" y="550" width="600" height="50"/>
                                 <subviews>
@@ -29,7 +34,7 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                         <connections>
-                                            <outlet property="delegate" destination="BYZ-38-t0r" id="5p5-0w-3cS"/>
+                                            <outlet property="delegate" destination="BYZ-38-t0r" id="zbg-DT-9dO"/>
                                         </connections>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E6M-zM-RhP">
@@ -66,11 +71,6 @@
                                     <constraint firstItem="E6M-zM-RhP" firstAttribute="centerY" secondItem="dYP-ro-7kr" secondAttribute="centerY" id="th4-ky-hHV"/>
                                     <constraint firstItem="uau-6K-WVm" firstAttribute="leading" secondItem="E6M-zM-RhP" secondAttribute="trailing" constant="8" id="wyg-HP-EVJ"/>
                                 </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9gq-af-lcj" customClass="ConversationView" customModule="ConversationKit">
-                                <rect key="frame" x="0.0" y="72" width="600" height="481"/>
-                                <animations/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <animations/>
