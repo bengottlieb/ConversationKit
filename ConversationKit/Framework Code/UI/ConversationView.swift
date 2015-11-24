@@ -9,6 +9,10 @@
 import UIKit
 
 public class ConversationView: UIView {
+	deinit {
+		NSNotificationCenter.defaultCenter().removeObserver(self)
+	}
+
 	public var conversation: Conversation? { didSet { self.scrollToLast() } }
 	public var allowMessageDeletion = true
 	

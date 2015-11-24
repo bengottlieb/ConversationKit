@@ -9,133 +9,47 @@
 import UIKit
 import ConversationKit
 
-class ViewController: UIViewController, UITextFieldDelegate {
-
-	@IBOutlet var messageField: UITextField!
-	@IBOutlet var entryContainer: UIView!
-	@IBOutlet var conversationView: ConversationView!
-	
-	var messages: [Message] = []
-	
+class TestViewController: ConversationViewController {
 	let lastConversationalistKey = "lastConversationalist"
-	let speakerIDs = [ "Aurora": "ID:_aceaf3d4cc8dc52f96307ec4374201c5" ]
-	var currentConversationalist: Speaker? { didSet {
-		if let speaker = self.currentConversationalist {
-			let defaults = NSUserDefaults()
-			defaults.setObject(speaker.speakerRef, forKey: self.lastConversationalistKey)
-			defaults.synchronize()
-			self.currentConversation = Conversation.conversationWith(Speaker.localSpeaker, listener: speaker)
-		} else {
-			self.currentConversation = nil
-		}
-	}}
-	var currentConversation: Conversation? { didSet {
-		self.updateTitle()
-		self.conversationView.conversation = self.currentConversation
-	}}
-	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .Plain, target: self, action: "chooseConverationalist:")
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Info", style: .Plain, target: self, action: "showSpeakerInfo")
 		
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateTitle", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "didLoadLocalSpeakers:", name: ConversationKit.notifications.loadedKnownSpeakers, object: nil)
-
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
 	}
+	
+	override func didChangeConversation() {
+		if let speaker = self.currentConversation?.nonLocalSpeaker {
+			let defaults = NSUserDefaults()
+			defaults.setObject(speaker.speakerRef, forKey: self.lastConversationalistKey)
+			defaults.synchronize()
+		}
+	}
+	
 
 	//┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 	//┃ //MARK: Notifications
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-	
-	func keyboardWillShow(note: NSNotification) {
-		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
-		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
-		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseOut
-		guard let frameHolder = userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue else { return }
-		let finalFrame = frameHolder.CGRectValue()
-		let localKeyboardFrame = self.view.convertRect(finalFrame, fromView: nil)
-		let heightDelta = self.view.frame.maxY - localKeyboardFrame.origin.y
-		var insets = self.conversationView.contentInset
-		insets.bottom += heightDelta
-		
-		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
-			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -heightDelta)
-			self.conversationView.contentInset = insets
-		}, completion: nil)
-	}
-	
-	func keyboardWillHide(note: NSNotification) {
-		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
-		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
-		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseIn
-		var insets = self.conversationView.contentInset
-		insets.bottom = 0
-		
-		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
-			self.entryContainer.transform = CGAffineTransformIdentity
-			self.conversationView.contentInset = insets
-		}, completion: nil)
-	}
-
 	func didLoadLocalSpeakers(note: NSNotification) {
-		self.currentConversationalist = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef)
-	}
-
-	func updateTitle() {
-		if let convo = self.currentConversation {
-			self.title = convo.nonLocalSpeaker.name
-		} else {
-			self.title = ""
+		if let speaker = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef) {
+			self.currentConversation = Conversation.conversationWith(speaker)
 		}
-	}
-	
-	override func didReceiveMemoryWarning() {
-		super.didReceiveMemoryWarning()
-		// Dispose of any resources that can be recreated.
-	}
-
-	@IBAction func buttonTouched(sender: UIButton) {
-		if let name = sender.titleLabel?.text, speakerID = self.speakerIDs[name] {
-			self.currentConversationalist = Speaker.speakerWithIdentifier(speakerID, name: name)
-			
-			sender.backgroundColor = UIColor.blueColor()
-			sender.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-		}
-	}
-	
-	override func viewDidAppear(animated: Bool) {
-		super.viewDidAppear(animated)
-	}
-	
-	func textFieldShouldReturn(textField: UITextField) -> Bool {
-		if textField == self.messageField {
-			textField.resignFirstResponder()
-		}
-		return false
 	}
 	
 	@IBAction func showSpeakerInfo() {
 		SpeakerInfoViewController.showSpeaker(Speaker.localSpeaker, inController: self)
-	}
-
-	@IBAction func sendMessage() {
-		if let text = self.messageField.text, speaker = self.currentConversationalist where text.characters.count > 0 {
-			speaker.sendMessage(text) { saved in
-				print("message saved: \(saved)")
-			}
-			self.messageField.text = ""
-		}
 	}
 	
 	@IBAction func chooseConverationalist(sender: UIButton?) {
 		if !ConversationKit.cloudAvailable { return }
 		
 		let controller = SelectSpeakerViewController(tag: "tester") { speaker in
-			self.currentConversationalist = speaker
+			if let speaker = speaker {
+				self.currentConversation = Conversation.conversationWith(speaker)
+			}
 		}
 		
 		controller.title = "Talk to…?"

@@ -59,7 +59,9 @@ public class Conversation: NSObject {
 		Conversation.existingConversations.removeAll()
 	}
 	
-	public class func existingConversationWith(speaker: Speaker) -> Conversation? {
+	public class func existingConversationWith(speaker: Speaker?) -> Conversation? {
+		guard let speaker = speaker else { return nil }
+		
 		let speakers = [speaker, Speaker.localSpeaker!]
 		
 		for conversation in Conversation.existingConversations {
@@ -71,7 +73,7 @@ public class Conversation: NSObject {
 		return nil
 	}
 	
-	public class func conversationWith(speaker: Speaker, listener: Speaker) -> Conversation {
+	public class func conversationWith(listener: Speaker, speaker: Speaker = Speaker.localSpeaker!) -> Conversation {
 		let speakers = [speaker, listener]
 		
 		for conversation in Conversation.existingConversations {

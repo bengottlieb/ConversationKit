@@ -29,6 +29,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			}
 		}
 		
+		
+		self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+		self.window?.rootViewController = UINavigationController(rootViewController: TestViewController(conversation: nil))
+		
+		self.window?.makeKeyAndVisible()
+		
+		
 		// Override point for customization after application launch.
 		return true
 	}
