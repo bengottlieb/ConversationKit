@@ -33,9 +33,9 @@ public class MessageBubbleView: UIView {
 		self.backgroundColor = UIColor.clearColor()
 	}
 	
-	static let horizontalInset: CGFloat = 20.0
-	static let verticalInset: CGFloat = 4.0
-	static let stemWidth: CGFloat = 15.0
+	static let horizontalInset: CGFloat = 10.0
+	static let verticalInset: CGFloat = 7.0
+	static let stemWidth: CGFloat = 11.0
 	
 	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
 		let contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
@@ -93,19 +93,24 @@ public class MessageBubbleView: UIView {
 		let bounds: CGRect
 		let bezier = UIBezierPath()
 		
+		let horizontalMargin: CGFloat = 5.0
+		let verticalMargin: CGFloat = 5.0
+		let cornerRadius: CGFloat = 10.0
+		let stemWidth: CGFloat = 5.0
+		
 		if self.rightHandStem {
 			bounds = CGRect(x: self.bounds.width - bubbleWidth, y: 0, width: bubbleWidth, height: self.bounds.height)
-			let x1 = bounds.width * 0.05 + bounds.origin.x
-			let x2 = bounds.width * 0.15 + bounds.origin.x
-			let x3 = bounds.width * 0.75 + bounds.origin.x
-			let x4 = bounds.width * 0.92 + bounds.origin.x
-			let x5 = bounds.width * 0.95 + bounds.origin.x
+			let x1 = horizontalMargin + bounds.origin.x
+			let x2 = horizontalMargin + cornerRadius + bounds.origin.x
+			let x3 = bounds.origin.x + bounds.width - (horizontalMargin + cornerRadius + stemWidth)
+			let x4 = bounds.origin.x + bounds.width - (horizontalMargin + stemWidth)
+			let x5 = bounds.origin.x + bounds.width - (horizontalMargin)
 			
-			let y1 = bounds.height * 0.05
-			let y2 = bounds.height * 0.15
-			let y3 = bounds.height * 0.15
-			let y4 = bounds.height * 0.85
-			let y5 = bounds.height * 0.95
+			let y1 = verticalMargin
+			let y2 = verticalMargin + cornerRadius
+			let y3 = verticalMargin + cornerRadius
+			let y4 = bounds.height - (verticalMargin + cornerRadius)
+			let y5 = bounds.height - (verticalMargin)
 			
 			let a = CGPoint(x: x3, y: y5)
 			let b = CGPoint(x: x4, y: y4)
@@ -143,17 +148,17 @@ public class MessageBubbleView: UIView {
 		} else {
 			bounds = CGRect(x: 0, y: 0, width: bubbleWidth, height: self.bounds.height)
 
-			let x1 = bounds.width * 0.05 + bounds.origin.x
-			let x2 = bounds.width * 0.08 + bounds.origin.x
-			let x3 = bounds.width * 0.25 + bounds.origin.x
-			let x4 = bounds.width * 0.85 + bounds.origin.x
-			let x5 = bounds.width * 0.95 + bounds.origin.x
+			let x1 = bounds.origin.x + horizontalMargin
+			let x2 = bounds.origin.x + cornerRadius + horizontalMargin
+			let x3 = bounds.origin.x + horizontalMargin + stemWidth + cornerRadius
+			let x4 = bounds.origin.x + bounds.width - (horizontalMargin + stemWidth)
+			let x5 = bounds.origin.x + bounds.width - (horizontalMargin)
 			
-			let y1 = bounds.height * 0.05
-			let y2 = bounds.height * 0.15
-			let y3 = bounds.height * 0.15
-			let y4 = bounds.height * 0.85
-			let y5 = bounds.height * 0.95
+			let y1 = verticalMargin
+			let y2 = verticalMargin + cornerRadius
+			let y3 = verticalMargin + cornerRadius
+			let y4 = bounds.height - (verticalMargin + cornerRadius)
+			let y5 = bounds.height - (verticalMargin)
 			
 			let a = CGPoint(x: x3, y: y5)
 			let b = CGPoint(x: x2, y: y4)
@@ -188,6 +193,7 @@ public class MessageBubbleView: UIView {
 			bezier.addCurveToPoint(j, controlPoint1: cpI, controlPoint2: cpI)
 			
 			bezier.addLineToPoint(a)
+			print("Drawing at \(bounds)")
 		}
 		
 		MessageBubbleView.messageBackgroundColor.setFill()
