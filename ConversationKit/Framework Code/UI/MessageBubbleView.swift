@@ -8,30 +8,34 @@
 
 import UIKit
 
-class MessageBubbleView: UIView {
+public class MessageBubbleView: UIView {
+	public var rightHandStem = false
+	public static var messageFont = UIFont.systemFontOfSize(15.0)
+	public static var messageBackgroundColor = UIColor.greenColor()
+	public static var messageBorderColor = UIColor.blackColor()
+	public static var messageTextColor = UIColor.blackColor()
+	
+
 	var text: String = ""
-	var rightHandStem = false
 	var label: UILabel!
 	
-	var message: Message? { didSet {
-		self.setNeedsLayout()
+	public var message: Message? { didSet {
 		self.updateUI()
 	}}
 	
-	override init(frame: CGRect) {
+	public override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.backgroundColor = UIColor.clearColor()
 	}
 
-	required init?(coder aDecoder: NSCoder) {
+	public required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 		self.backgroundColor = UIColor.clearColor()
 	}
 	
-	static let horizontalInset: CGFloat = 28.0
+	static let horizontalInset: CGFloat = 20.0
 	static let verticalInset: CGFloat = 4.0
-	static let stemWidth: CGFloat = 5.0
-	static var messageFont = UIFont.systemFontOfSize(15.0)
+	static let stemWidth: CGFloat = 15.0
 	
 	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
 		let contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
@@ -51,13 +55,14 @@ class MessageBubbleView: UIView {
 		return frame
 	}
 	
-	override func layoutSubviews() {
+	public override func layoutSubviews() {
 		super.layoutSubviews()
 		
 		if self.label == nil {
 			self.label = UILabel(frame: self.fullLabelFrame)
 			self.label.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
 			self.label.numberOfLines = 0
+			self.label.textColor = MessageBubbleView.messageTextColor
 			self.label.font = MessageBubbleView.messageFont
 			self.label.lineBreakMode = .ByWordWrapping
 			self.addSubview(self.label)
@@ -78,10 +83,11 @@ class MessageBubbleView: UIView {
 				self.labelFrame = self.rightHandStem ? CGRect(x: full.maxX - size.width, y: full.origin.y, width: size.width, height: size.height) : CGRect(x: full.origin.x, y: full.origin.y, width: size.width, height: size.height)
 			}
 			self.setNeedsDisplay()
+			self.setNeedsLayout()
 		}
 	}
 
-	override func drawRect(rect: CGRect) {
+	public override func drawRect(rect: CGRect) {
 		let labelFrame = self.labelFrame ?? self.fullLabelFrame
 		let bubbleWidth = labelFrame.width + MessageBubbleView.horizontalInset * 2 + MessageBubbleView.stemWidth
 		let bounds: CGRect
@@ -184,8 +190,8 @@ class MessageBubbleView: UIView {
 			bezier.addLineToPoint(a)
 		}
 		
-		UIColor.blueColor().setStroke()
-		UIColor.greenColor().setFill()
+		MessageBubbleView.messageBackgroundColor.setFill()
+		MessageBubbleView.messageBorderColor.setStroke()
 		bezier.fill()
 		bezier.stroke()
 	}
