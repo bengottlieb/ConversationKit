@@ -22,7 +22,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Identifier" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dRj-uC-87Z">
-                    <rect key="frame" x="8" y="87" width="56" height="14"/>
+                    <rect key="frame" x="8" y="85" width="56" height="14"/>
                     <animations/>
                     <constraints>
                         <constraint firstAttribute="width" constant="56" id="ob7-op-4Us"/>
@@ -32,7 +32,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OQy-eS-w4v">
-                    <rect key="frame" x="8" y="124" width="56" height="14"/>
+                    <rect key="frame" x="8" y="122" width="56" height="14"/>
                     <animations/>
                     <constraints>
                         <constraint firstAttribute="width" constant="56" id="KgJ-jA-3Ro"/>
@@ -52,7 +52,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="F7O-zm-pHO">
-                    <rect key="frame" x="84" y="115" width="322" height="30"/>
+                    <rect key="frame" x="84" y="113" width="322" height="30"/>
                     <animations/>
                     <constraints>
                         <constraint firstAttribute="height" constant="30" id="RLs-sf-s7g"/>
@@ -61,7 +61,7 @@
                     <textInputTraits key="textInputTraits"/>
                 </textField>
                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="PeS-Mt-3Ac">
-                    <rect key="frame" x="84" y="158" width="322" height="30"/>
+                    <rect key="frame" x="84" y="156" width="322" height="30"/>
                     <animations/>
                     <constraints>
                         <constraint firstAttribute="height" constant="30" id="4wA-Qc-A50"/>
@@ -70,24 +70,12 @@
                     <textInputTraits key="textInputTraits"/>
                 </textField>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z5w-jk-eZ0">
-                    <rect key="frame" x="84" y="80" width="322" height="22"/>
+                    <rect key="frame" x="84" y="80" width="322" height="20"/>
                     <animations/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fdk-Cd-Qdi">
-                    <rect key="frame" x="84" y="195" width="159" height="159"/>
-                    <animations/>
-                    <constraints>
-                        <constraint firstAttribute="width" secondItem="Fdk-Cd-Qdi" secondAttribute="height" multiplier="1:1" id="EpI-Gf-lHI"/>
-                        <constraint firstAttribute="height" constant="159" id="h4b-zg-a7d"/>
-                    </constraints>
-                    <state key="normal" title="Button"/>
-                    <connections>
-                        <action selector="selectAvatarImage:" destination="-1" eventType="touchUpInside" id="QHy-xn-qdR"/>
-                    </connections>
-                </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Avatar" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TDS-yH-tLd">
                     <rect key="frame" x="15" y="262" width="49" height="21"/>
                     <animations/>
@@ -98,6 +86,20 @@
                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
+                <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fdk-Cd-Qdi">
+                    <rect key="frame" x="84" y="194" width="159" height="159"/>
+                    <animations/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="Fdk-Cd-Qdi" secondAttribute="height" multiplier="1:1" id="EpI-Gf-lHI"/>
+                        <constraint firstAttribute="height" constant="159" id="h4b-zg-a7d"/>
+                    </constraints>
+                    <state key="normal" title="Button">
+                        <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
+                    <connections>
+                        <action selector="selectAvatarImage:" destination="-1" eventType="touchUpInside" id="QHy-xn-qdR"/>
+                    </connections>
+                </button>
             </subviews>
             <animations/>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>

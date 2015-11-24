@@ -10,6 +10,7 @@
         <relationship name="speaker" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Speaker" inverseName="messagesSpoken" inverseEntity="Speaker" syncable="YES"/>
     </entity>
     <entity name="Speaker" representedClassName=".SpeakerObject" syncable="YES">
+        <attribute name="avatarImageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="cloudKitRecordIDName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isLocalSpeaker" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
@@ -21,6 +22,6 @@
     </entity>
     <elements>
         <element name="Message" positionX="-54" positionY="-9" width="128" height="150"/>
-        <element name="Speaker" positionX="-36" positionY="9" width="128" height="165"/>
+        <element name="Speaker" positionX="-36" positionY="9" width="128" height="180"/>
     </elements>
 </model>

@@ -9,7 +9,7 @@
 import UIKit
 import ConversationKit
 
-class SpeakerInfoViewController: UIViewController {
+class SpeakerInfoViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 	let speaker: Speaker
 	
 	@IBOutlet var nameField: UITextField!
@@ -41,10 +41,6 @@ class SpeakerInfoViewController: UIViewController {
 
 	required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 	
-	@IBAction func selectAvatarImage(sender: UIButton?) {
-		
-	}
-	
 	@IBAction func save() {
 		self.speaker.name = self.nameField.text
 		self.speaker.tags = Set(self.tagsField.text?.componentsSeparatedByString(",").map({ $0.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) }) ?? [])
@@ -65,4 +61,19 @@ class SpeakerInfoViewController: UIViewController {
 		self.dismissViewControllerAnimated(true, completion: nil)
 	}
 	
+}
+
+extension SpeakerInfoViewController {
+	@IBAction func selectAvatarImage(sender: UIButton?) {
+		let controller = UIImagePickerController()
+		controller.delegate = self
+		self.presentViewController(controller, animated: true, completion: nil)
+	}
+	
+	func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+		let image = info[UIImagePickerControllerEditedImage] as? UIImage ?? info[UIImagePickerControllerOriginalImage] as? UIImage
+		self.avatarButton.setBackgroundImage(image, forState: .Normal)
+		
+		picker.dismissViewControllerAnimated(true, completion: nil)
+	}
 }
