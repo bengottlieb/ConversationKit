@@ -90,14 +90,14 @@ internal extension CloudObject {
 		ConversationKit.instance.networkActivityUsageCount++
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
 			Cloud.instance.reportError(error, note: "Problem refreshing record \(self)")
-			if let record = record { self.loadWithCloudKitRecord(record) }
+			if let record = record { self.loadWithCloudKitRecord(record, forceSave: true) }
 			completion?(record != nil)
 			ConversationKit.instance.networkActivityUsageCount--
 		}
 	}
 	
-	func loadWithCloudKitRecord(record: CKRecord, inContext moc: NSManagedObjectContext? = nil) {
-		let isNew = self.recordID == nil
+	func loadWithCloudKitRecord(record: CKRecord, forceSave: Bool = false, inContext moc: NSManagedObjectContext? = nil) {
+		let isNew = self.recordID == nil || forceSave
 		self.cloudKitRecordID = record.recordID
 		self.readFromCloudKitRecord(record)
 		

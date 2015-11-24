@@ -17,6 +17,13 @@ public class Message: CloudObject {
 	public var spokenAt = NSDate()
 	public var conversation: Conversation?
 	
+	class func recordExists(record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
+		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
+		let object: MessageObject? = moc.anyObject(pred)
+		
+		return object != nil
+	}
+	
 	convenience init(speaker: Speaker, listener: Speaker, content: String) {
 		self.init()
 		
@@ -26,13 +33,6 @@ public class Message: CloudObject {
 		self.spokenAt = NSDate()
 		self.needsCloudSave = true
 		self.cloudKitRecordID = CKRecordID(recordName: "Message: \(NSUUID().UUIDString)")
-	}
-	
-	class func recordExists(record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
-		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
-		let object: MessageObject? = moc.anyObject(pred)
-		
-		return object != nil
 	}
 	
 	convenience init?(record: CKRecord) {
