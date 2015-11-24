@@ -131,7 +131,7 @@ public class Cloud: NSObject {
 		}
 	}
 	
-	internal func handleNotificationCloudRecordID(recordID: CKRecordID) {
+	internal func handleNotificationCloudRecordID(recordID: CKRecordID, completion: (Bool) -> Void) {
 		self.database.fetchRecordWithID(recordID) { incoming, error in
 			if let record = incoming {
 				if record.recordType == Message.recordName {
@@ -142,9 +142,12 @@ public class Cloud: NSObject {
 							ConversationKit.log("\(message.content)")
 							Conversation.conversationWithSpeaker(message.speaker, listener: message.listener).addMessage(message, from: .iCloudCache)
 						}
+						completion(true)
 					}
+					return
 				}
 			}
+			completion(false)
 		}
 	}
 	

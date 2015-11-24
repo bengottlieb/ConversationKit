@@ -64,7 +64,10 @@ public class ConversationKit: NSObject {
 	public class func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
 		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
 			if let recordID = ckNotification.recordID {
-				Cloud.instance.handleNotificationCloudRecordID(recordID)
+				Cloud.instance.handleNotificationCloudRecordID(recordID) { success in
+					completionHandler(.NewData)
+				}
+				return
 			}
 		}
 
