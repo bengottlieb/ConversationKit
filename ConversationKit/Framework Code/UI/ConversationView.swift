@@ -10,7 +10,7 @@ import UIKit
 
 public class ConversationView: UIView {
 	public var conversation: Conversation? { didSet { self.scrollToLast() } }
-	
+	public var allowMessageDeletion = true
 	
 	public override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -98,5 +98,24 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 			return ConversationMessageTableViewCell.heightForMessage(message, inTableWidth: tableView.bounds.width)
 		}
 		return 44.0
+	}
+	
+	public func tableView(tableView: UITableView, titleForDeleteConfirmationButtonForRowAtIndexPath indexPath: NSIndexPath) -> String? {
+		return self.allowMessageDeletion ? NSLocalizedString("Delete", comment: "Delete") : nil
+	}
+	
+	public func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+		if let message = self.messageAtIndexPath(indexPath) {
+			tableView.beginUpdates()
+			tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+			self.messages.removeAtIndex(indexPath.row)
+			
+			message.delete()
+			tableView.endUpdates()
+		}
+	}
+	
+	public func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+		return self.allowMessageDeletion
 	}
 }

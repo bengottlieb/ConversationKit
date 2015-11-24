@@ -36,13 +36,51 @@ public class CloudObject: NSObject {
 	}
 	
 	func readFromCloudKitRecord(record: CKRecord) {
+		self.cloudKitRecordID = record.recordID
 	}
 	
 	func readFromManagedObject(object: ManagedCloudObject) {
-		
+		self.recordID = object.objectID
+		if let name = object.cloudKitRecordIDName {
+			self.cloudKitRecordID = CKRecordID(recordName: name)
+		}
 	}
 	
 	var canSaveToCloud: Bool { return true }
+	
+	public func delete() {
+		self.deleteFromiCloud()
+		self.deleteFromCoreData()
+	}
+	
+	public func deleteFromCoreData(completion: ((Bool) -> Void)? = nil) {
+		if let recordID = self.recordID {
+			DataStore.instance.importBlock { moc in
+				if let object = try? moc.existingObjectWithID(recordID) {
+					moc.deleteObject(object)
+					moc.safeSave()
+					completion?(true)
+					return
+				}
+			}
+			completion?(false)
+		} else {
+			completion?(false)
+		}
+	}
+	
+	public func deleteFromiCloud(completion: ((Bool) -> Void)? = nil) {
+		if let recordID = self.cloudKitRecordID {
+			Cloud.instance.database.deleteRecordWithID(recordID) { recordID, error in
+				if let error = error {
+					ConversationKit.log("Failed to delete \(self.dynamicType.recordName) \(recordID): \(error)")
+				}
+				completion?(error == nil)
+			}
+		} else {
+			completion?(false)
+		}
+	}
 }
 
 internal extension CloudObject {

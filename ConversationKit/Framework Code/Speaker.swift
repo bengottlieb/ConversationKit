@@ -141,6 +141,7 @@ public class Speaker: CloudObject {
 	}
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
+		super.readFromCloudKitRecord(record)
 		self.identifier = record["identifier"] as? String
 		self.name = record["name"] as? String
 		self.tags = Set(record["tags"] as? [String] ?? [])
@@ -164,7 +165,7 @@ public class Speaker: CloudObject {
 	override func readFromManagedObject(object: ManagedCloudObject) {
 		guard let spkr = object as? SpeakerObject else { return }
 		
-		self.recordID = spkr.objectID
+		super.readFromManagedObject(object)
 		self.identifier = spkr.identifier
 		self.name = spkr.name
 		self.isLocalSpeaker = spkr.isLocalSpeaker

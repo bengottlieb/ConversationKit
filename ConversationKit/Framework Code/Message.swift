@@ -46,17 +46,25 @@ public class Message: CloudObject {
 	convenience init(object: MessageObject) {
 		self.init()
 		
-		self.speaker = object.speaker?.speaker
-		self.listener = object.listener?.speaker
-		self.content = object.content ?? ""
-		self.needsCloudSave = object.needsCloudSave
-		self.spokenAt = object.spokenAt ?? NSDate()
+		self.readFromManagedObject(object)
+	}
+	
+	override func readFromManagedObject(object: ManagedCloudObject) {
+		super.readFromManagedObject(object)
+		if let object = object as? MessageObject {
+			self.speaker = object.speaker?.speaker
+			self.listener = object.listener?.speaker
+			self.content = object.content ?? ""
+			self.needsCloudSave = object.needsCloudSave
+			self.spokenAt = object.spokenAt ?? NSDate()
+		}
 	}
 	
 	override func readFromCloudKitRecord(record: CKRecord) {
+		super.readFromCloudKitRecord(record)
+		
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
-		self.cloudKitRecordID = record.recordID
 		
 		if let speakers = record["speakers"] as? [String] where speakers.count == 2 {
 			let speaker = Speaker.speakerWithIdentifier(speakers[0]), listener = Speaker.speakerWithIdentifier(speakers[1])
@@ -92,6 +100,11 @@ public class Message: CloudObject {
 
 	internal override var canSaveToCloud: Bool {
 		return self.speaker != nil && self.listener != nil
+	}
+	
+	public override func delete() {
+		self.conversation?.removeMessage(self)
+		super.delete()
 	}
 }
 

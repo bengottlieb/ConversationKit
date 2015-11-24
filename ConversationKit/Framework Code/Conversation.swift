@@ -39,6 +39,12 @@ public class Conversation: NSObject {
 		}
 	}
 	
+	func removeMessage(message: Message) {
+		dispatch_async(ConversationKit.instance.queue) {
+			self.messages.remove(message)
+		}
+	}
+	
 	func hasSpeakers(speakers: [Speaker]) -> Bool {
 		return speakers.contains(self.startedBy) && speakers.contains(self.joinedBy)
 	}
