@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 import CloudKit
+import UIKit
 
 public class Speaker: CloudObject {
 	public typealias SpeakerRef = String
@@ -22,6 +23,10 @@ public class Speaker: CloudObject {
 	public var tags: Set<String> = [] { didSet { if self.tags != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var isLocalSpeaker = false
 	public class func allKnownSpeakers() -> [Speaker] { return Array(self.knownSpeakers) }
+	public var avatarImage: UIImage? { didSet {
+		self.needsCloudSave = self.isLocalSpeaker
+	}}
+	public var avatarImageLocalURL: NSURL? { return self.avatarImageFileName.isEmpty ? nil : DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(self.avatarImageFileName) }
 	
 	public static var localSpeaker: Speaker!
 	public class func speakerWithIdentifier(identifier: String, name: String? = nil) -> Speaker {
@@ -59,7 +64,7 @@ public class Speaker: CloudObject {
 	public func conversationWith(other: Speaker) -> Conversation {
 		return Conversation.conversationWithSpeaker(self, listener: other)
 	}
-	
+
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
 	
 	static var knownSpeakersLoaded = false
@@ -140,6 +145,8 @@ public class Speaker: CloudObject {
 		return nil
 	}
 	
+	internal var avatarImageFileName = ""
+	
 	override func readFromCloudKitRecord(record: CKRecord) {
 		super.readFromCloudKitRecord(record)
 		self.identifier = record["identifier"] as? String
@@ -149,16 +156,36 @@ public class Speaker: CloudObject {
 		if self.isLocalSpeaker {
 			Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated)
 		}
+		
+		if let asset = record["avatarImage"] as? CKAsset, data = NSData(contentsOfURL: asset.fileURL) {
+			self.avatarImage = UIImage(data: data)
+			self.avatarImageFileName = asset.fileURL.lastPathComponent!
+			let url = DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(self.avatarImageFileName)
+			data.writeToURL(url, atomically: true)
+		}
 	}
 	
 	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
 		if !self.isLocalSpeaker { return false }
 		let recordTags = Set(record["tags"] as? [String] ?? [])
-		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name && recordTags == self.tags { return self.needsCloudSave }
+		
+		var avatarChanged = false
+		if let recordAvatar = record["avatarImage"] as? CKAsset {
+			avatarChanged = self.avatarImageFileName != recordAvatar.fileURL.lastPathComponent
+		} else {
+			avatarChanged = !self.avatarImageFileName.isEmpty
+		}
+		
+		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name && recordTags == self.tags && !avatarChanged { return self.needsCloudSave }
 		
 		record["identifier"] = self.identifier
 		record["name"] = self.name
 		record["tags"] = self.tags.count > 0 ? Array(self.tags): nil
+		if let url = self.avatarImageLocalURL {
+			record["avatarImage"] = CKAsset(fileURL: url)
+		} else {
+			record["avatarImage"] = nil
+		}
 		return true
 	}
 	
@@ -170,6 +197,14 @@ public class Speaker: CloudObject {
 		self.name = spkr.name
 		self.isLocalSpeaker = spkr.isLocalSpeaker
 		self.tags = Set(spkr.tags ?? [])
+		
+		if let filename = spkr.avatarImageFilename, data = NSData(contentsOfURL: DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(filename)) {
+			self.avatarImage = UIImage(data: data)
+			self.avatarImageFileName = filename
+			self.needsCloudSave = self.cloudKitRecordID == nil && self.isLocalSpeaker
+		} else {
+			self.avatarImageFileName = ""
+		}
 	}
 	
 	override func writeToManagedObject(object: ManagedCloudObject) {
@@ -178,6 +213,19 @@ public class Speaker: CloudObject {
 		speakerObject.identifier = self.identifier
 		speakerObject.isLocalSpeaker = self.isLocalSpeaker
 		speakerObject.tags = self.tags.count > 0 ? Array(self.tags) : nil
+		
+		
+		if let image = self.avatarImage where self.avatarImageFileName.isEmpty, let data = UIImageJPEGRepresentation(image, 0.9) {
+			self.avatarImageFileName = "temp"
+			
+			data.writeToURL(self.avatarImageLocalURL!, atomically: true)
+		}
+		
+		if !self.avatarImageFileName.isEmpty {
+			speakerObject.avatarImageFilename = self.avatarImageFileName
+		} else {
+			speakerObject.avatarImageFilename = nil
+		}
 	}
 
 	internal override class var recordName: String { return "ConversationKitSpeaker" }
@@ -206,6 +254,7 @@ internal class SpeakerObject: ManagedCloudObject {
 	@NSManaged var identifier: String?
 	@NSManaged var name: String?
 	@NSManaged var isLocalSpeaker: Bool
+	@NSManaged var avatarImageFilename: String?
 	@NSManaged var tags: [String]?
 	
 	internal override class var entityName: String { return "Speaker" }

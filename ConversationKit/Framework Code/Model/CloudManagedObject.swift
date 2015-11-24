@@ -188,6 +188,9 @@ internal extension CloudObject {
 	}
 }
 
+extension CloudObject {
+}
+
 class ManagedCloudObject: NSManagedObject {
 	@NSManaged var cloudKitRecordIDName: String?
 	@NSManaged var needsCloudSave: Bool

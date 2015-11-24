@@ -138,7 +138,7 @@ public class ConversationKit: NSObject {
 							Utilities.postNotification(ConversationKit.notifications.setupComplete)
 						}
 						Cloud.instance.setupSubscription()
-						Cloud.instance.pullDownMessages(true)
+						Cloud.instance.pullDownMessages(false)
 						completion?(success)
 					}
 				}

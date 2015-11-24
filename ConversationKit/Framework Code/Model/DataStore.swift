@@ -16,14 +16,18 @@ class DataStore: NSObject {
 	let persistentStoreCoordinator: NSPersistentStoreCoordinator
 	let mainThreadContext: NSManagedObjectContext
 	let privateContext: NSManagedObjectContext
+	let imagesCacheURL: NSURL
 	
 	init(dbName: String) {
 		let modelName = "ConversationKit"
+		let imagesCacheDirectoryName = "Images"
 		let mgr = NSFileManager.defaultManager()
 		let modelURL = NSBundle(forClass: self.dynamicType).URLForResource(modelName, withExtension: "momd")!
 		let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
-		let cachesPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, [.UserDomainMask], true).first!
+		let cachesPath = NSSearchPathForDirectoriesInDomains(.CachesDirectory, [.UserDomainMask], true).first!
 		let storeURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(dbName)
+		imagesCacheURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(imagesCacheDirectoryName)
+		do { try NSFileManager.defaultManager().createDirectoryAtURL(imagesCacheURL, withIntermediateDirectories: true, attributes: nil) } catch {}
 
 		if !NSFileManager.defaultManager().fileExistsAtPath(storeURL.path!) {
 			ConversationKit.log("Creating database at \(storeURL.path!)")

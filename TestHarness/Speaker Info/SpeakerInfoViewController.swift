@@ -37,6 +37,8 @@ class SpeakerInfoViewController: UIViewController, UIImagePickerControllerDelega
 		self.identifierLabel.text = self.speaker.identifier
 		self.nameField.text = self.speaker.name
 		self.tagsField.text = (Array(self.speaker.tags) as NSArray).componentsJoinedByString(", ")
+
+		self.updateAvatarImageButton(self.speaker.avatarImage)
 	}
 
 	required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -64,6 +66,11 @@ class SpeakerInfoViewController: UIViewController, UIImagePickerControllerDelega
 }
 
 extension SpeakerInfoViewController {
+	func updateAvatarImageButton(image: UIImage?) {
+		self.avatarButton.setBackgroundImage(image, forState: .Normal)
+		self.avatarButton.setTitle(image == nil ? "Select Image" : "", forState: .Normal)
+	}
+	
 	@IBAction func selectAvatarImage(sender: UIButton?) {
 		let controller = UIImagePickerController()
 		controller.delegate = self
@@ -72,7 +79,8 @@ extension SpeakerInfoViewController {
 	
 	func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
 		let image = info[UIImagePickerControllerEditedImage] as? UIImage ?? info[UIImagePickerControllerOriginalImage] as? UIImage
-		self.avatarButton.setBackgroundImage(image, forState: .Normal)
+		self.updateAvatarImageButton(image)
+		self.speaker.avatarImage = image
 		
 		picker.dismissViewControllerAnimated(true, completion: nil)
 	}
