@@ -12,6 +12,7 @@ import CloudKit
 import UIKit
 
 public class Speaker: CloudObject {
+	public static var maxImageSize = CGSize(width: 100, height: 100)
 	public typealias SpeakerRef = String
 	public var identifier: String? { didSet {
 		if self.identifier != oldValue {
@@ -27,6 +28,27 @@ public class Speaker: CloudObject {
 		self.needsCloudSave = self.isLocalSpeaker
 	}}
 	public var avatarImageLocalURL: NSURL? { return self.avatarImageFileName.isEmpty ? nil : DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(self.avatarImageFileName) }
+	public func storeAvatarImage(image: UIImage?) {
+		if var newImage = image {
+			if newImage.size.width > Speaker.maxImageSize.width || newImage.size.height > Speaker.maxImageSize.height {
+				let scale = min(Speaker.maxImageSize.width / newImage.size.width, Speaker.maxImageSize.height / newImage.size.height)
+				let bounds = CGRect(x: 0, y: 0, width: newImage.size.width * scale, height: newImage.size.height * scale)
+				UIGraphicsBeginImageContextWithOptions(bounds.size, false, 2.0)
+				newImage.drawInRect(bounds)
+				newImage = UIGraphicsGetImageFromCurrentImageContext()
+				UIGraphicsEndImageContext()
+			}
+			if let data = UIImageJPEGRepresentation(newImage, 0.9) {
+				self.avatarImageFileName = data.sha255Hash + ".jpg"
+				
+				data.writeToURL(self.avatarImageLocalURL!, atomically: true)
+				self.needsCloudSave = true
+				self.avatarImage = newImage
+			}
+		} else {
+			self.avatarImage = nil
+		}
+	}
 	
 	public static var localSpeaker: Speaker!
 	public class func speakerWithIdentifier(identifier: String, name: String? = nil) -> Speaker {
@@ -159,7 +181,7 @@ public class Speaker: CloudObject {
 		
 		if let asset = record["avatarImage"] as? CKAsset, data = NSData(contentsOfURL: asset.fileURL) {
 			self.avatarImage = UIImage(data: data)
-			self.avatarImageFileName = asset.fileURL.lastPathComponent!
+			self.avatarImageFileName = asset.fileURL.lastPathComponent! + ".jpg"
 			let url = DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(self.avatarImageFileName)
 			data.writeToURL(url, atomically: true)
 		}
@@ -213,14 +235,7 @@ public class Speaker: CloudObject {
 		speakerObject.identifier = self.identifier
 		speakerObject.isLocalSpeaker = self.isLocalSpeaker
 		speakerObject.tags = self.tags.count > 0 ? Array(self.tags) : nil
-		
-		
-		if let image = self.avatarImage where self.avatarImageFileName.isEmpty, let data = UIImageJPEGRepresentation(image, 0.9) {
-			self.avatarImageFileName = "temp"
-			
-			data.writeToURL(self.avatarImageLocalURL!, atomically: true)
-		}
-		
+	
 		if !self.avatarImageFileName.isEmpty {
 			speakerObject.avatarImageFilename = self.avatarImageFileName
 		} else {

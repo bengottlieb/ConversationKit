@@ -47,6 +47,7 @@
 		B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */; };
 		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
 		B5FEE6A31C03B76E00EA7FCA /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */; };
+		B5FEE6A51C04F65000EA7FCA /* CommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +114,7 @@
 		B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ConversationMessageTableViewCell.xib; path = UI/ConversationMessageTableViewCell.xib; sourceTree = "<group>"; };
 		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
 		B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageBubbleView.swift; path = UI/MessageBubbleView.swift; sourceTree = "<group>"; };
+		B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CommonCrypto.framework; path = ConversationKit/ExternalFrameworks/CommonCrypto.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5FEE6A51C04F65000EA7FCA /* CommonCrypto.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +148,7 @@
 		B549E3111BF8C8460046463A = {
 			isa = PBXGroup;
 			children = (
+				B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */,
 				B549E3471BF8C9EE0046463A /* BuildFramework.sh */,
 				B549E3351BF8C8F80046463A /* Framework Code */,
 				B549E33C1BF8C8F80046463A /* iOS */,
@@ -338,6 +342,9 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = YY6CWUX533;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
 							com.apple.Push = {
 								enabled = 1;
 							};
@@ -585,6 +592,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ConversationKit/ExternalFrameworks",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/ConversationKit/iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -601,6 +612,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ConversationKit/ExternalFrameworks",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/ConversationKit/iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
