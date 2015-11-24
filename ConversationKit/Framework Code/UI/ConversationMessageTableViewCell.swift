@@ -13,6 +13,7 @@ class ConversationMessageTableViewCell: UITableViewCell {
 	
 	@IBOutlet var messageContentLabel: UILabel!
 	@IBOutlet var messageSpeakerLabel: UILabel!
+	@IBOutlet var bubbleView: MessageBubbleView!
 	
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -27,16 +28,17 @@ class ConversationMessageTableViewCell: UITableViewCell {
     
 
 	var message: Message? { didSet {
-		self.messageContentLabel?.text = self.message?.content
-		self.messageSpeakerLabel?.text = self.message?.speaker.name
-		
-		if self.message?.speaker.isLocalSpeaker ?? false {
-			self.messageContentLabel?.textAlignment = .Right
-			self.messageSpeakerLabel?.textAlignment = .Right
-		} else {
-			self.messageContentLabel?.textAlignment = .Left
-			self.messageSpeakerLabel?.textAlignment = .Left
-		}
+//		self.messageContentLabel?.text = self.message?.content
+//		self.messageSpeakerLabel?.text = self.message?.speaker.name
+//		
+//		if self.message?.speaker.isLocalSpeaker ?? false {
+//			self.messageContentLabel?.textAlignment = .Right
+//			self.messageSpeakerLabel?.textAlignment = .Right
+//		} else {
+//			self.messageContentLabel?.textAlignment = .Left
+//			self.messageSpeakerLabel?.textAlignment = .Left
+//		}
+		self.bubbleView.message = self.message
 	}}
 	
 	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {

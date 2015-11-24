@@ -41,7 +41,7 @@ class SelectSpeakerViewController: UITableViewController {
 	func reloadTable() {
 		var speakers = Speaker.allKnownSpeakers()
 		
-		if !self.includeLocalSpeaker, let index = speakers.indexOf(Speaker.localSpeaker) {
+		if !self.includeLocalSpeaker, let localSpeaker = Speaker.localSpeaker, index = speakers.indexOf(localSpeaker) {
 			speakers.removeAtIndex(index)
 		}
 		self.speakers = speakers.sort { $0.name < $1.name }

@@ -11,26 +11,9 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WYg-Nq-UzE">
-                        <rect key="frame" x="8" y="0.0" width="304" height="21"/>
-                        <animations/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="21" id="K2t-HN-dPE"/>
-                        </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oMm-ve-JTv">
-                        <rect key="frame" x="8" y="22" width="304" height="21"/>
-                        <animations/>
-                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                        <nil key="highlightedColor"/>
-                    </label>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WFs-i0-Spv" customClass="MessageBubbleView" customModule="ConversationKit" customModuleProvider="target">
                         <rect key="frame" x="8" y="8" width="304" height="27"/>
                         <animations/>
@@ -39,23 +22,15 @@
                 </subviews>
                 <animations/>
                 <constraints>
-                    <constraint firstItem="oMm-ve-JTv" firstAttribute="top" secondItem="WYg-Nq-UzE" secondAttribute="bottom" constant="1" id="7Mk-7Y-xdA"/>
                     <constraint firstItem="WFs-i0-Spv" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="B7e-lu-9AE"/>
-                    <constraint firstItem="WYg-Nq-UzE" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="FVY-Ol-OGf"/>
                     <constraint firstAttribute="trailingMargin" secondItem="WFs-i0-Spv" secondAttribute="trailing" id="OXx-tO-Vwa"/>
                     <constraint firstItem="WFs-i0-Spv" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="gu4-TO-DWZ"/>
-                    <constraint firstItem="WYg-Nq-UzE" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="jBJ-RU-Yjp"/>
                     <constraint firstAttribute="bottomMargin" secondItem="WFs-i0-Spv" secondAttribute="bottom" id="n8d-1K-Fx0"/>
-                    <constraint firstItem="oMm-ve-JTv" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="rjG-Mf-d8N"/>
-                    <constraint firstItem="WYg-Nq-UzE" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="-8" id="uYV-R0-m2H"/>
-                    <constraint firstItem="oMm-ve-JTv" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="wLG-Qo-PuM"/>
-                    <constraint firstAttribute="bottomMargin" secondItem="oMm-ve-JTv" secondAttribute="bottom" constant="-8" id="wM1-Be-vlv"/>
                 </constraints>
             </tableViewCellContentView>
             <animations/>
             <connections>
-                <outlet property="messageContentLabel" destination="WYg-Nq-UzE" id="26P-YP-Wo8"/>
-                <outlet property="messageSpeakerLabel" destination="oMm-ve-JTv" id="fCt-4V-eFo"/>
+                <outlet property="bubbleView" destination="WFs-i0-Spv" id="7JK-Uo-2Mv"/>
             </connections>
         </tableViewCell>
     </objects>

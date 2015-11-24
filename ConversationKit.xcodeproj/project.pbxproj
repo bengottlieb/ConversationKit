@@ -248,8 +248,8 @@
 			isa = PBXGroup;
 			children = (
 				B5A739851C033284004262BA /* ConversationView.swift */,
-				B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */,
 				B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */,
+				B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */,
 				B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */,
 			);
 			name = UI;
