@@ -9,15 +9,24 @@
 import UIKit
 
 public class MessageBubbleView: UIView {
-	public var rightHandStem = false
+	public static var showAvatarImage = true
+	public static var roundAvatarImages = true
+	public static var avatarImageSize = CGSize(width: 50, height: 50)
 	public static var messageFont = UIFont.systemFontOfSize(15.0)
-	public static var messageBackgroundColor = UIColor.greenColor()
-	public static var messageBorderColor = UIColor.blackColor()
-	public static var messageTextColor = UIColor.blackColor()
-	
+	public static var localMessageBackgroundColor = UIColor.greenColor()
+	public static var localMessageBorderColor = UIColor.blackColor()
+	public static var localMessageTextColor = UIColor.blackColor()
+
+	public static var otherMessageBackgroundColor = UIColor.blueColor()
+	public static var otherMessageBorderColor = UIColor.blackColor()
+	public static var otherMessageTextColor = UIColor.whiteColor()
+
+
+	public var rightHandStem = false
 
 	var text: String = ""
 	var label: UILabel!
+	var imageView: UIImageView!
 	
 	public var message: Message? { didSet {
 		self.updateUI()
@@ -38,43 +47,74 @@ public class MessageBubbleView: UIView {
 	static let stemWidth: CGFloat = 11.0
 	
 	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
-		let contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
+		var contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
+		if MessageBubbleView.showAvatarImage { contentWidth -= MessageBubbleView.avatarImageSize.width }
 		let attr = NSAttributedString(string: message.content, attributes: [NSFontAttributeName: MessageBubbleView.messageFont])
 		let bounding = attr.boundingRectWithSize(CGSize(width: contentWidth, height: 10000.0), options: [.UsesLineFragmentOrigin, .UsesFontLeading, .TruncatesLastVisibleLine], context: nil)
 		
-		return ceil(bounding.height + self.verticalInset * 2)
+		let height = ceil(bounding.height + self.verticalInset * 2)
+		if MessageBubbleView.showAvatarImage && height < MessageBubbleView.avatarImageSize.height { return MessageBubbleView.avatarImageSize.height }
+		return height
 	}
 	
 	var labelFrame: CGRect?
 	var fullLabelFrame: CGRect {
+		let avatarWidth: CGFloat = MessageBubbleView.showAvatarImage ? MessageBubbleView.avatarImageSize.width : 0
 		var frame = self.bounds.insetBy(dx: MessageBubbleView.horizontalInset, dy: MessageBubbleView.verticalInset)
 		if !self.rightHandStem {
-			frame.origin.x += MessageBubbleView.stemWidth
+			frame.origin.x += MessageBubbleView.stemWidth + avatarWidth
 		}
-		frame.size.width -= MessageBubbleView.stemWidth
+		frame.size.width -= MessageBubbleView.stemWidth + avatarWidth
 		return frame
 	}
 	
 	public override func layoutSubviews() {
 		super.layoutSubviews()
 		
+		var needsUpdate = false
 		if self.label == nil {
 			self.label = UILabel(frame: self.fullLabelFrame)
 			self.label.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
 			self.label.numberOfLines = 0
-			self.label.textColor = MessageBubbleView.messageTextColor
 			self.label.font = MessageBubbleView.messageFont
 			self.label.lineBreakMode = .ByWordWrapping
 			self.addSubview(self.label)
 			self.label.backgroundColor = UIColor.clearColor()
-			self.updateUI()
+			needsUpdate = true
 		} else {
 			self.label.frame = self.labelFrame ?? self.fullLabelFrame
 		}
+
+		if MessageBubbleView.showAvatarImage && self.imageView == nil {
+			self.imageView = UIImageView(frame: self.imageFrame)
+			self.imageView.contentMode = .ScaleAspectFill
+			self.imageView.clipsToBounds = true
+			if MessageBubbleView.roundAvatarImages {
+				self.imageView.layer.cornerRadius = MessageBubbleView.avatarImageSize.width / 2.0
+				self.imageView.layer.masksToBounds = true
+			}
+			self.addSubview(self.imageView)
+			needsUpdate = true
+		} else {
+			self.imageView?.frame = self.imageFrame
+		}
+		
+		if needsUpdate { self.updateUI() }
+	}
+	
+	var imageFrame: CGRect {
+		if self.rightHandStem {
+			return CGRect(x: self.bounds.width - MessageBubbleView.avatarImageSize.width, y: 0, width: MessageBubbleView.avatarImageSize.width, height: MessageBubbleView.avatarImageSize.height)
+		}
+		return CGRect(x: 0, y: 0, width: MessageBubbleView.avatarImageSize.width, height: MessageBubbleView.avatarImageSize.height)
 	}
 	
 	func updateUI() {
 		if let message = self.message {
+			self.setNeedsDisplay()
+			self.setNeedsLayout()
+			self.label?.textColor = message.speaker.isLocalSpeaker ? MessageBubbleView.localMessageTextColor : MessageBubbleView.otherMessageTextColor
+
 			self.rightHandStem = message.speaker.isLocalSpeaker
 			self.label?.text = message.content
 			self.label?.textAlignment = self.rightHandStem ? .Right : .Left
@@ -82,16 +122,17 @@ public class MessageBubbleView: UIView {
 			if let size = self.label?.sizeThatFits(full.size) {
 				self.labelFrame = self.rightHandStem ? CGRect(x: full.maxX - size.width, y: full.origin.y, width: size.width, height: size.height) : CGRect(x: full.origin.x, y: full.origin.y, width: size.width, height: size.height)
 			}
-			self.setNeedsDisplay()
-			self.setNeedsLayout()
+			self.imageView?.image = self.message?.speaker?.avatarImage
 		}
 	}
 
 	public override func drawRect(rect: CGRect) {
 		let labelFrame = self.labelFrame ?? self.fullLabelFrame
+		let bubbleHeight = labelFrame.height + MessageBubbleView.verticalInset * 2
 		let bubbleWidth = labelFrame.width + MessageBubbleView.horizontalInset * 2 + MessageBubbleView.stemWidth
 		let bounds: CGRect
 		let bezier = UIBezierPath()
+		let avatarWidth: CGFloat = MessageBubbleView.showAvatarImage ? MessageBubbleView.avatarImageSize.width : 0
 		
 		let horizontalMargin: CGFloat = 5.0
 		let verticalMargin: CGFloat = 5.0
@@ -99,7 +140,7 @@ public class MessageBubbleView: UIView {
 		let stemWidth: CGFloat = 5.0
 		
 		if self.rightHandStem {
-			bounds = CGRect(x: self.bounds.width - bubbleWidth, y: 0, width: bubbleWidth, height: self.bounds.height)
+			bounds = CGRect(x: self.bounds.width - (bubbleWidth + avatarWidth), y: 0, width: bubbleWidth, height: bubbleHeight)
 			let x1 = horizontalMargin + bounds.origin.x
 			let x2 = horizontalMargin + cornerRadius + bounds.origin.x
 			let x3 = bounds.origin.x + bounds.width - (horizontalMargin + cornerRadius + stemWidth)
@@ -146,7 +187,7 @@ public class MessageBubbleView: UIView {
 			
 			bezier.addLineToPoint(a)
 		} else {
-			bounds = CGRect(x: 0, y: 0, width: bubbleWidth, height: self.bounds.height)
+			bounds = CGRect(x: avatarWidth, y: 0, width: bubbleWidth, height: bubbleHeight)
 
 			let x1 = bounds.origin.x + horizontalMargin
 			let x2 = bounds.origin.x + cornerRadius + horizontalMargin
@@ -196,8 +237,10 @@ public class MessageBubbleView: UIView {
 			print("Drawing at \(bounds)")
 		}
 		
-		MessageBubbleView.messageBackgroundColor.setFill()
-		MessageBubbleView.messageBorderColor.setStroke()
+		if let message = self.message {
+			(message.speaker.isLocalSpeaker ? MessageBubbleView.localMessageBackgroundColor : MessageBubbleView.otherMessageBackgroundColor).setFill()
+			(message.speaker.isLocalSpeaker ? MessageBubbleView.localMessageBorderColor : MessageBubbleView.otherMessageBorderColor).setStroke()
+		}
 		bezier.fill()
 		bezier.stroke()
 	}
