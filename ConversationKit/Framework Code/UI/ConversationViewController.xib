@@ -18,6 +18,11 @@
             <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gaw-s3-Snc" customClass="ConversationView" customModule="ConversationKit">
+                    <rect key="frame" x="0.0" y="0.0" width="600" height="553"/>
+                    <animations/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KQq-PU-HZO">
                     <rect key="frame" x="0.0" y="550" width="600" height="50"/>
                     <subviews>
@@ -40,6 +45,9 @@
                             </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="-1" id="Jis-4U-ZYm"/>
+                            </connections>
                         </textField>
                     </subviews>
                     <animations/>
@@ -53,11 +61,6 @@
                         <constraint firstItem="frL-3g-gka" firstAttribute="leading" secondItem="MNk-pT-dZ5" secondAttribute="trailing" constant="8" id="hnq-EB-ReG"/>
                         <constraint firstAttribute="trailing" secondItem="frL-3g-gka" secondAttribute="trailing" constant="8" id="qMy-Sa-DUE"/>
                     </constraints>
-                </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gaw-s3-Snc" customClass="ConversationView" customModule="ConversationKit">
-                    <rect key="frame" x="0.0" y="0.0" width="600" height="553"/>
-                    <animations/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
             </subviews>
             <animations/>
