@@ -34,15 +34,15 @@ xcodebuild -target "${PROJECT_NAME}" -configuration ${CONFIGURATION} -sdk iphone
 
 # Step 2. Copy the framework structure (from iphoneos build) to the universal folder
 echo "copying device framework"
-cp -R "${BASE_BUILD_DIR}/${CONFIGURATION}-iphoneos/${ConversationKit}${IOS_SUFFIX}.framework" "${UNIVERSAL_OUTPUTFOLDER}/"
+cp -R "${BASE_BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}${IOS_SUFFIX}.framework" "${UNIVERSAL_OUTPUTFOLDER}/"
 
 # Step 3. Copy Swift modules (from iphonesimulator build) to the copied framework directory
 echo "integrating sim framework"
-cp -R "${BASE_BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${ConversationKit}${IOS_SUFFIX}.framework/Modules/${ConversationKit}${IOS_SUFFIX}.swiftmodule/" "${UNIVERSAL_OUTPUTFOLDER}/${ConversationKit}${IOS_SUFFIX}.framework/Modules/${ConversationKit}${IOS_SUFFIX}.swiftmodule/"
+cp -R "${BASE_BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}${IOS_SUFFIX}.framework/Modules/${FRAMEWORK_NAME}${IOS_SUFFIX}.swiftmodule/" "${UNIVERSAL_OUTPUTFOLDER}/${FRAMEWORK_NAME}${IOS_SUFFIX}.framework/Modules/${FRAMEWORK_NAME}${IOS_SUFFIX}.swiftmodule/"
 
 # Step 4. Create universal binary file using lipo and place the combined executable in the copied framework directory
 echo "lipo'ing files"
-lipo -create -output "${UNIVERSAL_OUTPUTFOLDER}/${ConversationKit}${IOS_SUFFIX}.framework/${ConversationKit}${IOS_SUFFIX}" "${BASE_BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${ConversationKit}${IOS_SUFFIX}.framework/${ConversationKit}${IOS_SUFFIX}" "${BASE_BUILD_DIR}/${CONFIGURATION}-iphoneos/${ConversationKit}${IOS_SUFFIX}.framework/${ConversationKit}${IOS_SUFFIX}"
+lipo -create -output "${UNIVERSAL_OUTPUTFOLDER}/${FRAMEWORK_NAME}${IOS_SUFFIX}.framework/${FRAMEWORK_NAME}${IOS_SUFFIX}" "${BASE_BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}${IOS_SUFFIX}.framework/${FRAMEWORK_NAME}${IOS_SUFFIX}" "${BASE_BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}${IOS_SUFFIX}.framework/${FRAMEWORK_NAME}${IOS_SUFFIX}"
 
 /usr/libexec/PlistBuddy "${IOS_PLIST_PATH}" -c "Delete :branch"
 /usr/libexec/PlistBuddy "${IOS_PLIST_PATH}" -c "Delete :rev"
