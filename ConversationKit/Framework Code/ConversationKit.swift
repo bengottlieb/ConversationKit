@@ -87,29 +87,30 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public class func setup(containerName: String? = nil, localSpeakerIdentifier: String, completion: ((Bool) -> Void)? = nil) {
+	public class func setup(containerName: String? = nil, feedbackLevel: FeedbackLevel = .Production, completion: ((Bool) -> Void)? = nil) {
+		ConversationKit.feedbackLevel = feedbackLevel
 		if ConversationKit.feedbackLevel != .Production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
 		
 		Speaker.loadCachedSpeakers {
 			Cloud.instance.setup(containerName) { configured in
-				ConversationKit.instance.loadLocalSpeaker(localSpeakerIdentifier, completion: completion)
+				completion?(configured)
 			}
 		}
 	}
 	
-	public class func changeLocalSpeaker(newSpeakerIdentifier: String, completion: (Bool) -> Void) {
+	public class func setupLocalSpeaker(speakerIdentifier: String, completion: (Bool) -> Void) {
 		guard let speaker = Speaker.localSpeaker else {
-			self.setup(localSpeakerIdentifier: newSpeakerIdentifier, completion: completion)
+			ConversationKit.instance.loadLocalSpeaker(speakerIdentifier, completion: completion)
 			return
 		}
 		
-		if speaker.identifier == newSpeakerIdentifier {
+		if speaker.identifier == speakerIdentifier {
 			completion(true)
 			return
 		}
 		
 		self.clearAllCachedDataWithCompletion {
-			self.setup(localSpeakerIdentifier: newSpeakerIdentifier, completion: completion)
+			ConversationKit.instance.loadLocalSpeaker(speakerIdentifier, completion: completion)
 		}
 	}
 

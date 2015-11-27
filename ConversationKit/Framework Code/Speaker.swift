@@ -96,25 +96,30 @@ public class Speaker: CloudObject {
 			return
 		}
 		self.knownSpeakersLoaded = true
-		DataStore.instance.importBlock { moc in
+		
+		dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers = [] }
+		let moc = DataStore.instance.privateContext
+		moc.performBlock {
 			let speakers: [SpeakerObject] = moc.allObjects()
 			for record in speakers {
 				let speaker = Speaker()
 				speaker.readFromManagedObject(record)
 				if speaker.isLocalSpeaker { self.localSpeaker = speaker }
-				self.knownSpeakers.insert(speaker)
+				self.addKnownSpeaker(speaker)
 			}
 			
-			if self.localSpeaker == nil {
-				let speaker = Speaker()
-				speaker.isLocalSpeaker = true
-				speaker.saveManagedObject()
-				Speaker.addKnownSpeaker(speaker)
-				self.localSpeaker = speaker
+			dispatch_sync(ConversationKit.instance.queue) {
+				if self.localSpeaker == nil {
+					let speaker = Speaker()
+					speaker.isLocalSpeaker = true
+					//speaker.saveManagedObject(inContext: moc)
+					self.knownSpeakers.insert(speaker)
+					self.localSpeaker = speaker
+				}
+				
+				Utilities.postNotification(ConversationKit.notifications.loadedKnownSpeakers)
+				completion()
 			}
-			
-			Utilities.postNotification(ConversationKit.notifications.loadedKnownSpeakers)
-			completion()
 		}
 	}
 	
@@ -249,9 +254,11 @@ public class Speaker: CloudObject {
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
 	
 	class func clearKnownSpeakers() {
-		self.knownSpeakers.removeAll()
-		self.localSpeaker = nil
-		self.knownSpeakersLoaded = false
+		dispatch_sync(ConversationKit.instance.queue) {
+			self.knownSpeakers = Set<Speaker>()
+			self.localSpeaker = nil
+			self.knownSpeakersLoaded = false
+		}
 	}
 }
 

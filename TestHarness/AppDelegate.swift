@@ -21,10 +21,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 		ConversationKit.fetchAccountIdentifier { identifier in
 			guard let ident = identifier else { return }
-			ConversationKit.setup(localSpeakerIdentifier: ident) { setup in
-				Speaker.localSpeaker.tags = ["tester"]
-				Speaker.localSpeaker.save { success in
-					print("saved local speaker \(success)")
+			ConversationKit.setup() { setup in
+				ConversationKit.setupLocalSpeaker(ident) { success in
+					Speaker.localSpeaker.tags = ["tester"]
+					Speaker.localSpeaker.save { success in
+						print("saved local speaker \(success)")
+					}
 				}
 			}
 		}
