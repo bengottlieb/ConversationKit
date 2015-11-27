@@ -13,7 +13,10 @@ public class ConversationView: UIView {
 		NSNotificationCenter.defaultCenter().removeObserver(self)
 	}
 
-	public var conversation: Conversation? { didSet { self.scrollToLast() } }
+	public var conversation: Conversation? { didSet {
+		self.loadTable()
+		self.scrollToLast()
+	}}
 	public var allowMessageDeletion = true
 	
 	public override init(frame: CGRect) {
@@ -58,7 +61,7 @@ public class ConversationView: UIView {
 	
 	func scrollToMessage(message: Message?) {
 		if let message = message, index = self.messages.indexOf(message) {
-			self.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0), atScrollPosition: .Bottom, animated: true)
+			self.tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0), atScrollPosition: .Bottom, animated: true)
 		}
 	}
 	
