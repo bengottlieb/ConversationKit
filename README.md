@@ -35,8 +35,8 @@ Methods:
 * `configureNotifications` called from `didFinishLaunching(…)` to request permission to show notifications
 * `application(application,didReceiveRemoteNotification,fetchCompletionHandler)` called from the identically named Application Delegate method to process incoming notifications
 * `fetchAccountIdentifier(…)` takes a completion block which will be passed the user's CloudKit account identifier.
-* `setup(containerName,localSpeakerIdentifier,completion)` called before accessing most other ConversationKit methods. The containerName is optional, and the completion block will be called with a Bool indicating success
-* `changeLocalSpeaker(identifier, completion)` change the identify of the local speaker. Called whenever the identity of the local speaker changes (new iCloud login, new GameCenter ID, etc). Calling with the existing identitfier does nothing. If necessary, will call `clearAllCachedDataWithCompletion()`
+* `setup(containerName,completion)` called before accessing most other ConversationKit methods. The containerName is optional, and the completion block will be called with a Bool indicating success
+* `setup]LocalSpeaker(identifier, completion)` change the identify of the local speaker. Called whenever the identity of the local speaker changes (new iCloud login, new GameCenter ID, etc). Calling with the existing identitfier does nothing. If necessary, will call `clearAllCachedDataWithCompletion()`
 * `clearAllCachedDataWithCompletion` clears out the CoreData cache and all in-memory caches.
 
 ## Objects
