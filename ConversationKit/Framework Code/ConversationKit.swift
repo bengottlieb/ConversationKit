@@ -93,12 +93,17 @@ public class ConversationKit: NSObject {
 		
 		Speaker.loadCachedSpeakers {
 			Cloud.instance.setup(containerName) { configured in
+				self.instance.setupComplete = true
 				completion?(configured)
 			}
 		}
 	}
 	
 	public class func setupLocalSpeaker(speakerIdentifier: String, completion: (Bool) -> Void) {
+		if !self.instance.setupComplete {
+			self.setup() { success in if (success) { self.setupLocalSpeaker(speakerIdentifier, completion: completion) } }
+			return
+		}
 		guard let speaker = Speaker.localSpeaker else {
 			ConversationKit.instance.loadLocalSpeaker(speakerIdentifier, completion: completion)
 			return
@@ -133,14 +138,10 @@ public class ConversationKit: NSObject {
 		defaults.synchronize()
 
 		if Cloud.instance.configured {
-			Speaker.localSpeaker.refreshFromCloud() { success in
+			Speaker.localSpeaker?.refreshFromCloud() { success in
 				Speaker.localSpeaker.identifier = identifier
 				Speaker.localSpeaker.refreshFromCloud { complete in
 					Speaker.localSpeaker.saveToCloudKit { success in
-						if !self.setupComplete {
-							self.setupComplete = true
-							Utilities.postNotification(ConversationKit.notifications.setupComplete)
-						}
 						Cloud.instance.setupSubscription()
 						Cloud.instance.pullDownMessages(false)
 						completion?(success)
