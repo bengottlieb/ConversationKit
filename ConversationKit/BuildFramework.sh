@@ -7,7 +7,7 @@
 #  Copyright (c) 2015 Stand Alone, Inc. All rights reserved.
 
 BASE_BUILD_DIR=${BUILD_DIR}
-ConversationKit="ConversationKit"
+FRAMEWORK_NAME="ConversationKit"
 IOS_SUFFIX=""
 UNIVERSAL_OUTPUTFOLDER="Build/${CONFIGURATION}-universal"
 
@@ -48,5 +48,11 @@ lipo -create -output "${UNIVERSAL_OUTPUTFOLDER}/${ConversationKit}${IOS_SUFFIX}.
 /usr/libexec/PlistBuddy "${IOS_PLIST_PATH}" -c "Delete :rev"
 /usr/libexec/PlistBuddy "${IOS_PLIST_PATH}" -c "Delete :built"
 
+# Step 5. Convenience step to copy the framework to the project's directory
+mkdir -p "${PROJECT_DIR}/iOS Framework/"
+rm -rf "${PROJECT_DIR}/iOS Framework/${FRAMEWORK_NAME}.framework"
+cp -R "${UNIVERSAL_OUTPUTFOLDER}/${FRAMEWORK_NAME}.framework" "${PROJECT_DIR}/iOS Framework"
+
+
 # Step 7. Convenience step to open the project's directory in Finder
-#open "${PROJECT_DIR}"
+open "${PROJECT_DIR}"

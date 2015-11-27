@@ -16,7 +16,7 @@ Instructions for Use:
   * Turn on "Background Modes" and check the "Remote Notifications" checkbox
 * In your app delegate add `ConversationKit.configureNotifications(_:)` to your `applicationDidFinishLaunching(…)` method
 * Add an `application(application,didReceiveRemoteNotification,fetchCompletionHandler)` method, and call the same method on `ConversationKit.instance`
-* Finally, call `ConversationKit.setup()` with an identifier for the local user.
+* Finally, call `ConversationKit.setupLocalSpeaker()` with an identifier for the local user.
 
 You're now set up. You can easily add a `ConversationView` to a view controller, set its `conversation` property, and you'll receive messages as they come in.
 

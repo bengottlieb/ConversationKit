@@ -117,6 +117,7 @@
 		B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CommonCrypto.framework; path = ConversationKit/ExternalFrameworks/CommonCrypto.framework; sourceTree = "<group>"; };
 		B5FEE6A61C05217500EA7FCA /* ConversationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationViewController.swift; path = UI/ConversationViewController.swift; sourceTree = "<group>"; };
 		B5FEE6A71C05217500EA7FCA /* ConversationViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ConversationViewController.xib; path = UI/ConversationViewController.xib; sourceTree = "<group>"; };
+		B5FEE6BC1C08D40B00EA7FCA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,14 +151,12 @@
 		B549E3111BF8C8460046463A = {
 			isa = PBXGroup;
 			children = (
-				B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */,
-				B549E3471BF8C9EE0046463A /* BuildFramework.sh */,
 				B549E3351BF8C8F80046463A /* Framework Code */,
-				B549E33C1BF8C8F80046463A /* iOS */,
+				B5FEE6BB1C08D3F400EA7FCA /* Misc */,
 				B549E3291BF8C8460046463A /* ConversationKitTests */,
 				B549E3521BF8CA4F0046463A /* TestHarness */,
 				B549E31C1BF8C8460046463A /* Products */,
-				B549E3681BF8CBCB0046463A /* CloudKit.framework */,
+				B5FEE6BA1C08D35500EA7FCA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -252,6 +251,25 @@
 				B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */,
 			);
 			name = UI;
+			sourceTree = "<group>";
+		};
+		B5FEE6BA1C08D35500EA7FCA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */,
+				B549E3681BF8CBCB0046463A /* CloudKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B5FEE6BB1C08D3F400EA7FCA /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				B5FEE6BC1C08D40B00EA7FCA /* README.md */,
+				B549E3471BF8C9EE0046463A /* BuildFramework.sh */,
+				B549E33C1BF8C8F80046463A /* iOS */,
+			);
+			name = Misc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
