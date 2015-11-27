@@ -11,13 +11,14 @@ Instructions for Use:
 * This will generate a ConversationKit.framework
 * Add ConversationKit.framework to your project, and make sure it's copied to your bundle at build time (this may require adding a Run Script step to your Build Phases in your target. See the Test Harness target in the project for an example)
 * On the Apple Developer Portal, ensure that you've got iCloud support with CloudKit (check the "Include CloudKit support (requires Xcode 6)" checkbox)
-* In your app's Capabilities pane in Xcode, turn on "iCloud" and check the "CloudKit" checkbox (use default container is already selected)
-* Also turn on "Background Modes" and check the "Remote Notifications" checbox
-* In your app delegate add `ConversationKit.configureNotifications)` to your applicationDidFinishLaunching(…) method
-* add a `application(application,didReceiveRemoteNotification,fetchCompletionHandler)` method, and call the same method on ConversationKit.instance
+* In your app's Capabilities pane in Xcode…
+  * Turn on "iCloud" and check the "CloudKit" checkbox (use default container is already selected)
+  * Turn on "Background Modes" and check the "Remote Notifications" checkbox
+* In your app delegate add `ConversationKit.configureNotifications(_:)` to your `applicationDidFinishLaunching(…)` method
+* Add an `application(application,didReceiveRemoteNotification,fetchCompletionHandler)` method, and call the same method on `ConversationKit.instance`
 * Finally, call `ConversationKit.setup()` with an identifier for the local user.
 
-You're now set up. You can easily add a ConversationView to a view controller, set its Conversation property, and you'll receive messages as they come in.
+You're now set up. You can easily add a `ConversationView` to a view controller, set its `conversation` property, and you'll receive messages as they come in.
 
 ConversationKit caches all data in a local CoreData database (stored in ~/Library/Caches/Conversations.db by default). It also caches all images (from avatars) in ~/Library/Caches/Images.
 
@@ -32,12 +33,12 @@ Properties:
 
 Methods:
 
-* `configureNotifications` called from `didFinishLaunching(…)` to request permission to show notifications
+* `configureNotifications(…)` is called from `didFinishLaunching(…)` to request permission to show notifications
 * `application(application,didReceiveRemoteNotification,fetchCompletionHandler)` called from the identically named Application Delegate method to process incoming notifications
 * `fetchAccountIdentifier(…)` takes a completion block which will be passed the user's CloudKit account identifier.
 * `setup(containerName,completion)` called before accessing most other ConversationKit methods. The containerName is optional, and the completion block will be called with a Bool indicating success
-* `setup]LocalSpeaker(identifier, completion)` change the identify of the local speaker. Called whenever the identity of the local speaker changes (new iCloud login, new GameCenter ID, etc). Calling with the existing identitfier does nothing. If necessary, will call `clearAllCachedDataWithCompletion()`
-* `clearAllCachedDataWithCompletion` clears out the CoreData cache and all in-memory caches.
+* `setupLocalSpeaker(identifier, completion)` changes the identity of the local speaker. Called whenever the identity of the local speaker changes (new iCloud login, new GameCenter ID, etc). Calling with the existing identitfier does nothing. If necessary, will call `clearAllCachedDataWithCompletion()`
+* `clearAllCachedDataWithCompletion(…)` clears out the CoreData cache and all in-memory caches.
 
 ## Objects
 
@@ -58,7 +59,7 @@ A few useful methods:
 * `sendMessage(content, completion)` send the user a message
 
 
-There are also a few class methids and vars on the Speaker object:
+There are also a few class methods and vars on the Speaker object:
 
 * `allKnownSpeakers` an array of Speakers representing all speakers the local speaker has either had a conversation with or found via a `SpeakerQuery` search
 * `maxImageSize` a CGSize that all avatarImages will be capped to. Defaults to 100x100
