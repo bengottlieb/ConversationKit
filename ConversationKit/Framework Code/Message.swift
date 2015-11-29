@@ -92,7 +92,7 @@ public class Message: CloudObject {
 			record["content"] = self.content
 			record["speakerName"] = self.speaker?.name ?? ""
 			record["speakers"] = [speakerID, listenerID]
-			record["readAt"] = self.readAt
+			if self.readAt != nil { record["readAt"] = self.readAt }
 			return true
 		}
 		return self.needsCloudSave
