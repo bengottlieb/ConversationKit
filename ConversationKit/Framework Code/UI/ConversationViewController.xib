@@ -26,13 +26,16 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KQq-PU-HZO">
                     <rect key="frame" x="0.0" y="550" width="600" height="50"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="frL-3g-gka">
-                            <rect key="frame" x="552" y="10" width="40" height="30"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="frL-3g-gka">
+                            <rect key="frame" x="552" y="11" width="40" height="29"/>
                             <animations/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="40" id="ZDb-eW-GEJ"/>
                             </constraints>
-                            <state key="normal" title="SEND"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <state key="normal" title="SEND">
+                                <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
                             <connections>
                                 <action selector="sendMessage" destination="-1" eventType="touchUpInside" id="5uZ-m8-ukE"/>
                             </connections>
@@ -46,6 +49,7 @@
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <textInputTraits key="textInputTraits"/>
                             <connections>
+                                <action selector="textFieldChanged:" destination="-1" eventType="editingChanged" id="TjR-Yx-Z2R"/>
                                 <outlet property="delegate" destination="-1" id="Jis-4U-ZYm"/>
                             </connections>
                         </textField>
@@ -58,9 +62,15 @@
                         <constraint firstItem="frL-3g-gka" firstAttribute="centerY" secondItem="MNk-pT-dZ5" secondAttribute="centerY" id="L8U-Ks-g3m"/>
                         <constraint firstItem="MNk-pT-dZ5" firstAttribute="leading" secondItem="KQq-PU-HZO" secondAttribute="leading" constant="8" id="RL9-4m-0DE"/>
                         <constraint firstAttribute="height" constant="50" id="ZOd-rv-SFC"/>
+                        <constraint firstAttribute="bottom" secondItem="frL-3g-gka" secondAttribute="bottom" constant="10" id="fBT-wS-abZ"/>
                         <constraint firstItem="frL-3g-gka" firstAttribute="leading" secondItem="MNk-pT-dZ5" secondAttribute="trailing" constant="8" id="hnq-EB-ReG"/>
                         <constraint firstAttribute="trailing" secondItem="frL-3g-gka" secondAttribute="trailing" constant="8" id="qMy-Sa-DUE"/>
                     </constraints>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="L8U-Ks-g3m"/>
+                        </mask>
+                    </variation>
                 </view>
             </subviews>
             <animations/>

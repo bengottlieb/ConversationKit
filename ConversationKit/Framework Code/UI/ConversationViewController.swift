@@ -13,10 +13,13 @@ public class ConversationViewController: UIViewController {
 		NSNotificationCenter.defaultCenter().removeObserver(self)
 	}
 
-	@IBOutlet var messageField: UITextField!
-	@IBOutlet var entryContainer: UIView!
-	@IBOutlet var sendButton: UIButton!
-	@IBOutlet var conversationView: ConversationView!
+	public var sendButtonEnabledColor = UIColor.blueColor()
+	public var sendButtonDisabledColor = UIColor.lightGrayColor()
+	
+	@IBOutlet public var messageField: UITextField!
+	@IBOutlet public var entryContainer: UIView!
+	@IBOutlet public var sendButton: UIButton!
+	@IBOutlet public var conversationView: ConversationView!
 	
 	public var currentConversation: Conversation? {
 		set {
@@ -39,6 +42,9 @@ public class ConversationViewController: UIViewController {
 	
 	public override func viewDidLoad() {
 		super.viewDidLoad()
+		
+		self.sendButton.setTitleColor(self.sendButtonEnabledColor, forState: .Normal)
+		self.sendButton.setTitleColor(self.sendButtonDisabledColor, forState: .Disabled)
 		
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "receivedMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
@@ -74,7 +80,7 @@ public class ConversationViewController: UIViewController {
 		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
 			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -heightDelta)
 			self.conversationView.contentInset = insets
-			}, completion: nil)
+		}, completion: nil)
 	}
 	
 	func keyboardWillHide(note: NSNotification) {
@@ -97,7 +103,7 @@ public class ConversationViewController: UIViewController {
 			self.title = ""
 		}
 		self.messageField?.enabled = self.currentConversation != nil
-		self.sendButton?.enabled = self.currentConversation != nil
+		self.sendButton?.enabled = self.currentConversation != nil && !(self.messageField?.text ?? "").isEmpty
 	}
 	
 	func textFieldShouldReturn(textField: UITextField) -> Bool {
@@ -105,6 +111,10 @@ public class ConversationViewController: UIViewController {
 			textField.resignFirstResponder()
 		}
 		return false
+	}
+	
+	@IBAction func textFieldChanged(field: UITextField?) {
+		self.updateUI()
 	}
 	
 	@IBAction func sendMessage() {
