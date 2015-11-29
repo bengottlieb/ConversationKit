@@ -16,6 +16,7 @@ public class Message: CloudObject {
 	public var listener: Speaker!
 	public var spokenAt = NSDate()
 	public var conversation: Conversation?
+	public var readAt: NSDate?
 	
 	class func recordExists(record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
 		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
@@ -49,6 +50,14 @@ public class Message: CloudObject {
 		self.readFromManagedObject(object)
 	}
 	
+	public func markAsRead() {
+		if self.readAt == nil && !(self.speaker?.isLocalSpeaker ?? true) {
+			self.readAt = NSDate()
+			self.needsCloudSave = true
+			self.save()
+		}
+	}
+	
 	override func readFromManagedObject(object: ManagedCloudObject) {
 		super.readFromManagedObject(object)
 		if let object = object as? MessageObject {
@@ -57,6 +66,7 @@ public class Message: CloudObject {
 			self.content = object.content ?? ""
 			self.needsCloudSave = object.needsCloudSave
 			self.spokenAt = object.spokenAt ?? NSDate()
+			self.readAt = object.readAt
 		}
 	}
 	
@@ -65,6 +75,7 @@ public class Message: CloudObject {
 		
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
+		self.readAt = record["readAt"] as? NSDate
 		
 		if let speakers = record["speakers"] as? [String] where speakers.count == 2 {
 			let speaker = Speaker.speakerWithIdentifier(speakers[0]), listener = Speaker.speakerWithIdentifier(speakers[1])
@@ -81,6 +92,7 @@ public class Message: CloudObject {
 			record["content"] = self.content
 			record["speakerName"] = self.speaker?.name ?? ""
 			record["speakers"] = [speakerID, listenerID]
+			record["readAt"] = self.readAt
 			return true
 		}
 		return self.needsCloudSave
@@ -93,6 +105,7 @@ public class Message: CloudObject {
 		messageObject.speaker = self.speaker?.objectInContext(object.moc!) as? SpeakerObject
 		messageObject.listener = self.listener?.objectInContext(object.moc!) as? SpeakerObject
 		messageObject.spokenAt = self.spokenAt
+		messageObject.readAt = self.readAt
 	}
 	
 	internal override class var recordName: String { return "ConversationKitMessage" }
@@ -118,5 +131,6 @@ internal class MessageObject: ManagedCloudObject {
 	@NSManaged var speaker: SpeakerObject?
 	@NSManaged var listener: SpeakerObject?
 	@NSManaged var spokenAt: NSDate?
+	@NSManaged var readAt: NSDate?
 	internal override class var entityName: String { return "Message" }
 }

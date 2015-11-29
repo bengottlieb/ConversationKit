@@ -97,6 +97,7 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier(ConversationMessageTableViewCell.identifier, forIndexPath: indexPath) as! ConversationMessageTableViewCell
 		cell.message = self.messageAtIndexPath(indexPath)
+		cell.message?.markAsRead()
 		return cell
 	}
 	

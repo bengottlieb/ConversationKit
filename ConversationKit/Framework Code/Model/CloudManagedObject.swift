@@ -14,11 +14,36 @@ public class CloudObject: NSObject {
 	internal var needsCloudSave = false
 	internal var hasSavedToCloud = false
 	
-	public func save(completion: ((Bool) -> Void)? = nil) {
-		self.saveManagedObject { savedToDisk in
-			self.saveToCloudKit { savedToCloud in
-				completion?(savedToCloud && savedToDisk)
+	internal static var saveDispatchQueue = dispatch_queue_create("ConversationKitSaveQueue", DISPATCH_QUEUE_SERIAL)
+	internal static weak var saveTimer: NSTimer?
+	internal static var queuedObjects: Set<CloudObject> = []
+	internal func queueForSaving() {
+		dispatch_async(CloudObject.saveDispatchQueue) {
+			CloudObject.queuedObjects.insert(self)
+			Utilities.mainThread {
+				CloudObject.saveTimer?.invalidate()
+				CloudObject.saveTimer = NSTimer.scheduledTimerWithTimeInterval(0.2, target: CloudObject.self, selector: "saveQueuedObjects:", userInfo: nil, repeats: false)
 			}
+		}
+	}
+	internal static func saveQueuedObjects(timer: NSTimer) {
+		let objects = self.queuedObjects
+		self.saveTimer?.invalidate()
+		self.queuedObjects = []
+		
+		DataStore.instance.importBlock { moc in
+			for object in objects {
+				object.saveManagedObject(inContext: moc)
+			}
+			
+			moc.safeSave()
+		}
+	}
+	
+	public func save(completion: ((Bool) -> Void)? = nil) {
+		self.queueForSaving()
+		self.saveToCloudKit { savedToCloud in
+			completion?(savedToCloud)
 		}
 	}
 	

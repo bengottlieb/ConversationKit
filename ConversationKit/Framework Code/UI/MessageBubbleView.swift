@@ -234,7 +234,6 @@ public class MessageBubbleView: UIView {
 			bezier.addCurveToPoint(j, controlPoint1: cpI, controlPoint2: cpI)
 			
 			bezier.addLineToPoint(a)
-			print("Drawing at \(bounds)")
 		}
 		
 		if let message = self.message {

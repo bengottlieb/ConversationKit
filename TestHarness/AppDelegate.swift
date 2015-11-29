@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		ConversationKit.configureNotifications(application)
 
+		ConversationKit.feedbackLevel = .Development
 		ConversationKit.fetchAccountIdentifier { identifier in
 			guard let ident = identifier else { return }
 			ConversationKit.setupLocalSpeaker(ident) { success in
