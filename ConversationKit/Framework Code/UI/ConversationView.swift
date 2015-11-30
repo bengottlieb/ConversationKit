@@ -48,10 +48,10 @@ public class ConversationView: UIView {
 	}
 	
 	func updateUI() {
-		if !ConversationKit.instance.setupComplete { return }
+		if ConversationKit.state == .NotSetup { return }
 		
 		self.loadTable()
-		if Cloud.instance.signedIntoICloud {
+		if ConversationKit.state == .Authenticated {
 			self.openSettingsButton?.hidden = true
 			self.notSignedInLabel?.hidden = true
 			self.messages = self.conversation?.sortedMessages ?? []

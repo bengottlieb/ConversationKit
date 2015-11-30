@@ -253,11 +253,12 @@ public class Speaker: CloudObject {
 
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
 	
-	class func clearKnownSpeakers() {
-		dispatch_sync(ConversationKit.instance.queue) {
+	class func clearKnownSpeakers(completion: () -> Void) {
+		dispatch_async(ConversationKit.instance.queue) {
 			self.knownSpeakers = Set<Speaker>()
 			self.localSpeaker = nil
 			self.knownSpeakersLoaded = false
+			completion()
 		}
 	}
 }

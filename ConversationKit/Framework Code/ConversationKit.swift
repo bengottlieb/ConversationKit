@@ -11,8 +11,10 @@ import UIKit
 import CloudKit
 
 public class ConversationKit: NSObject {
+	@objc public enum State: Int { case NotSetup, AuthenticatedNoAccount, Authenticated }
 	@objc public enum FeedbackLevel: Int { case Development = 0, Testing = 1, Production = 2 }
 	public static var feedbackLevel = FeedbackLevel.Development
+	public static var state = State.NotSetup
 	
 	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
 		UIApplication.sharedApplication().networkActivityIndicatorVisible = enable
@@ -26,10 +28,9 @@ public class ConversationKit: NSObject {
 		}
 	}}
 
-	public static var cloudAvailable: Bool { return Cloud.instance.configured }
+	public static var cloudAvailable: Bool { return ConversationKit.state != .NotSetup }
 
 	static let instance = ConversationKit()
-	public var setupComplete = false
 	
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
@@ -79,28 +80,21 @@ public class ConversationKit: NSObject {
 		Cloud.instance.fetchAccountIdentifier(completion)
 	}
 	
-	public class func setup(containerName: String? = nil, feedbackLevel: FeedbackLevel = ConversationKit.feedbackLevel, completion: ((Bool) -> Void)? = nil) {
+	public class func setup(feedbackLevel: FeedbackLevel = ConversationKit.feedbackLevel, completion: (() -> Void)? = nil) {
 		ConversationKit.feedbackLevel = feedbackLevel
 		if ConversationKit.feedbackLevel != .Production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
 		
-		if !self.instance.setupComplete {
-			self.instance.reloadFromICloud(containerName, completion: completion)
-		}
-	}
-	
-	func reloadFromICloud(containerName: String? = nil, completion: ((Bool) -> Void)? = nil) {
-		self.setupComplete = false
-		Speaker.loadCachedSpeakers {
-			Cloud.instance.setup(containerName) { configured in
-				self.setupComplete = true
-				completion?(configured)
+		if ConversationKit.state == .NotSetup {
+			Cloud.instance.setup() {
 			}
 		}
 	}
 	
-	public class func setupLocalSpeaker(speakerIdentifier: String, completion: (Bool) -> Void) {
-		if !self.instance.setupComplete {
-			self.setup() { success in if (success) { self.setupLocalSpeaker(speakerIdentifier, completion: completion) } }
+	public class func setupLocalSpeaker(speakerIdentifier: String, completion: () -> Void) {
+		if ConversationKit.state == .NotSetup {
+			self.setup() { if (ConversationKit.state != .NotSetup) {
+				self.setupLocalSpeaker(speakerIdentifier, completion: completion)
+			}}
 			return
 		}
 		guard let speaker = Speaker.localSpeaker else {
@@ -109,7 +103,7 @@ public class ConversationKit: NSObject {
 		}
 		
 		if speaker.identifier == speakerIdentifier {
-			completion(true)
+			completion()
 			return
 		}
 		
@@ -120,7 +114,7 @@ public class ConversationKit: NSObject {
 
 	let lastSignedInAsKey = "lastSignedInAs"
 
-	func loadLocalSpeaker(identifier: String, completion: ((Bool) -> Void)?) {
+	func loadLocalSpeaker(identifier: String, completion: (() -> Void)?) {
 		ConversationKit.log("Loading local speaker ID: \(identifier)")
 		let defaults = NSUserDefaults.standardUserDefaults()
 		if let prevLoggedInAs = defaults.stringForKey(self.lastSignedInAsKey) where prevLoggedInAs != identifier {
@@ -136,32 +130,33 @@ public class ConversationKit: NSObject {
 		defaults.setObject(identifier, forKey: self.lastSignedInAsKey)
 		defaults.synchronize()
 
-		if Cloud.instance.configured {
+		if ConversationKit.state != .NotSetup {
 			Speaker.localSpeaker?.refreshFromCloud() { success in
 				Speaker.localSpeaker.identifier = identifier
 				Speaker.localSpeaker.refreshFromCloud { complete in
 					Speaker.localSpeaker.saveToCloudKit { success in
 						Cloud.instance.setupSubscription()
 						Cloud.instance.pullDownMessages(false)
-						completion?(success)
+						completion?()
 					}
 				}
 			}
 		} else {
-			completion?(false)
+			completion?()
 		}
 	}
 	
 	public class func clearAllCachedDataWithCompletion(completion: () -> Void) {
 		Conversation.clearExistingConversations()
-		Speaker.clearKnownSpeakers()
-		do {
-			try NSFileManager.defaultManager().removeItemAtURL(DataStore.instance.imagesCacheURL)
-			try NSFileManager.defaultManager().createDirectoryAtURL(DataStore.instance.imagesCacheURL, withIntermediateDirectories: true, attributes: nil)
-		} catch {}
-		DataStore.instance.clearAllCachedDataWithCompletion {
-			Speaker.loadCachedSpeakers {
-				completion()
+		Speaker.clearKnownSpeakers {
+			do {
+				try NSFileManager.defaultManager().removeItemAtURL(DataStore.instance.imagesCacheURL)
+				try NSFileManager.defaultManager().createDirectoryAtURL(DataStore.instance.imagesCacheURL, withIntermediateDirectories: true, attributes: nil)
+			} catch {}
+			DataStore.instance.clearAllCachedDataWithCompletion {
+				Speaker.loadCachedSpeakers {
+					completion()
+				}
 			}
 		}
 	}

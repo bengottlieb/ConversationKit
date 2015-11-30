@@ -52,7 +52,7 @@ class TestViewController: ConversationViewController {
 			}
 		}
 		
-		controller.title = "Talk to…?"
+		controller.title = Speaker.localSpeaker.name ?? "Unnamed"
 		self.presentViewController(UINavigationController(rootViewController: controller), animated: true, completion: nil)
 
 	}

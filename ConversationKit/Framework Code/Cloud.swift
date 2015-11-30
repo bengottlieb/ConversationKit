@@ -16,19 +16,17 @@ public class Cloud: NSObject {
 
 	static let instance = Cloud()
 	
-	public var configured = false
-	public var signedIntoICloud = false
-	public var setupComplete = false
+	var containerID: String?
 	public var container: CKContainer!
 	public var database: CKDatabase!
 	
-	public func setup(containerID: String? = nil, completion: (Bool) -> Void) {
+	public func setup(completion: () -> Void) {
 		dispatch_async(self.queue) {
-			if self.setupComplete {
-				completion(self.configured)
+			if ConversationKit.state != .NotSetup {
+				completion()
 				return
 			}
-			self.container = (containerID == nil) ? CKContainer.defaultContainer() : CKContainer(identifier: containerID!)
+			self.container = (self.containerID == nil) ? CKContainer.defaultContainer() : CKContainer(identifier: self.containerID!)
 			self.database = self.container.publicCloudDatabase
 			
 			NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateICloudAccountStatus", name: UIApplicationWillEnterForegroundNotification, object: nil)
@@ -39,24 +37,22 @@ public class Cloud: NSObject {
 				} else {
 					switch status {
 					case .Available:
-						self.configured = true
-						self.setupComplete = true
+						ConversationKit.state = .Authenticated
 						self.fetchAccountIdentifier { identifier in
-							completion(self.configured)
+							Speaker.loadCachedSpeakers { completion() }
 						}
 
 					case .CouldNotDetermine:
-						ConversationKit.log("Unknown CloudKit status")
+						ConversationKit.state = .NotSetup
+
 					case .NoAccount:
-						ConversationKit.log("No account set up")
-						self.configured = true
-						self.setupComplete = true
-						completion(self.configured)
+						ConversationKit.state = .AuthenticatedNoAccount
+						Speaker.loadCachedSpeakers { completion() }
 
 					case .Restricted:
+						ConversationKit.state = .NotSetup
 						ConversationKit.log("Restricted: no access to CloudKit account")
-						self.setupComplete = true
-						completion(self.configured)
+						completion()
 					}
 				}
 				
@@ -81,7 +77,7 @@ public class Cloud: NSObject {
 				completion(ident)
 				return
 			}
-			guard configured else { completion(nil); return }
+			guard ConversationKit.state != .NotSetup else { completion(nil); return }
 			dispatch_async(self.queue) {
 				self.pendingAccountIDClosures.append(completion)
 				
@@ -94,19 +90,19 @@ public class Cloud: NSObject {
 							let original = self.previousICloudAccountID
 							let closures = self.pendingAccountIDClosures
 							self.pendingAccountIDClosures = []
-							self.currentICloudAccountID = recordID?.recordName
-							self.signedIntoICloud = self.currentICloudAccountID != nil
+							self.currentICloudAccountID = recordID == nil ? nil : "ID:\(recordID!.recordName)"
+							ConversationKit.state = self.currentICloudAccountID == nil ? .AuthenticatedNoAccount : .Authenticated
 			
-							if let recordName = recordID?.recordName {
-								for completion in closures {
-									completion("ID:\(recordName)")
-								}
+							for completion in closures {
+								completion(self.currentICloudAccountID)
 							}
+							
 							self.fetchingAccountIdentifer = false
 							self.previousICloudAccountID = nil
 							if original != self.currentICloudAccountID {
-								ConversationKit.instance.reloadFromICloud()
-								Utilities.postNotification(ConversationKit.notifications.iCloudAccountIDChanged)
+								Speaker.loadCachedSpeakers {
+									Utilities.postNotification(ConversationKit.notifications.iCloudAccountIDChanged)
+								}
 							}
 						}
 					}
@@ -120,7 +116,7 @@ public class Cloud: NSObject {
 	var parsingContext: NSManagedObjectContext!
 	
 	func pullDownMessages(all: Bool = false) {
-		guard self.configured, let localUserID = Speaker.localSpeaker?.identifier else { return }
+		guard ConversationKit.state != .NotSetup, let localUserID = Speaker.localSpeaker?.identifier else { return }
 		
 		if self.queryOperation == nil {
 			ConversationKit.instance.networkActivityUsageCount++
@@ -170,7 +166,7 @@ public class Cloud: NSObject {
 	var subscription: CKSubscription?
 
 	public func setupSubscription() {
-		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
+		guard ConversationKit.state != .NotSetup, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
 		if self.subscription == nil {
 			let pred = NSPredicate(format: "speakers contains %@", localUserID)
