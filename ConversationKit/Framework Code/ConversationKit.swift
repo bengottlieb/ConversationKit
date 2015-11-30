@@ -11,7 +11,7 @@ import UIKit
 import CloudKit
 
 public class ConversationKit: NSObject {
-	public enum FeedbackLevel: String { case Development, Testing, Production }
+	@objc public enum FeedbackLevel: Int { case Development = 0, Testing = 1, Production = 2 }
 	public static var feedbackLevel = FeedbackLevel.Development
 	
 	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
@@ -87,7 +87,7 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public class func setup(containerName: String? = nil, feedbackLevel: FeedbackLevel = .Production, completion: ((Bool) -> Void)? = nil) {
+	public class func setup(containerName: String? = nil, feedbackLevel: FeedbackLevel = ConversationKit.feedbackLevel, completion: ((Bool) -> Void)? = nil) {
 		ConversationKit.feedbackLevel = feedbackLevel
 		if ConversationKit.feedbackLevel != .Production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
 		
