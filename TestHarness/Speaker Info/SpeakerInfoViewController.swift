@@ -48,9 +48,9 @@ class SpeakerInfoViewController: UIViewController, UIImagePickerControllerDelega
 		self.speaker.tags = Set(self.tagsField.text?.componentsSeparatedByString(",").map({ $0.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) }) ?? [])
 		self.view.alpha = 0.25
 		self.view.userInteractionEnabled = false
-		self.speaker.save { success in
+		self.speaker.save { error in
 			
-			if success {
+			if error == nil {
 				self.dismissViewControllerAnimated(true, completion: nil)
 			} else {
 				self.view.alpha = 1.0

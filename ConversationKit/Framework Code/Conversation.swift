@@ -19,6 +19,7 @@ public class Conversation: NSObject {
 	var messages: Set<Message> = []
 	
 	public var sortedMessages: [Message] {
+		print("returning \(self.messages.count) messages")
 		return Array(self.messages ?? []).sort(<)
 	}
 	

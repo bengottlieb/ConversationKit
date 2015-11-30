@@ -40,10 +40,10 @@ public class CloudObject: NSObject {
 		}
 	}
 	
-	public func save(completion: ((Bool) -> Void)? = nil) {
+	public func save(completion: ((NSError?) -> Void)? = nil) {
 		self.queueForSaving()
-		self.saveToCloudKit { savedToCloud in
-			completion?(savedToCloud)
+		self.saveToCloudKit { error in
+			completion?(error)
 		}
 	}
 	
@@ -142,9 +142,9 @@ internal extension CloudObject {
 		self.readFromManagedObject(object)	
 	}
 	
-	func saveToCloudKit(completion: ((Bool) -> Void)?) {
-		if !self.canSaveToCloud{ completion?(false); return }
-		if !self.needsCloudSave { completion?(true); return }
+	func saveToCloudKit(completion: ((NSError?) -> Void)?) {
+		if !self.canSaveToCloud{ completion?(NSError(conversationKitError: .CloudSaveNotAllowed)); return }
+		if !self.needsCloudSave { completion?(nil); return }
 		
 		guard let recordID = self.cloudKitRecordID else { fatalError("no cloudkit record id found") }
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
@@ -161,7 +161,7 @@ internal extension CloudObject {
 						self.needsCloudSave = false
 						self.saveManagedObject(completion: completion)
 					} else {
-						completion?(false)
+						completion?(error)
 					}
 					ConversationKit.instance.networkActivityUsageCount--
 				}
@@ -179,7 +179,7 @@ internal extension CloudObject {
 }
 
 internal extension CloudObject {
-	func saveManagedObject(inContext ctx: NSManagedObjectContext? = nil, completion: ((Bool) -> Void)? = nil) {
+	func saveManagedObject(inContext ctx: NSManagedObjectContext? = nil, completion: ((NSError?) -> Void)? = nil) {
 		let shouldSave = ctx == nil
 		
 		let block = { (moc: NSManagedObjectContext) in
@@ -197,7 +197,7 @@ internal extension CloudObject {
 			self.writeToManagedObject(record)
 			self.recordID = record.objectID
 			if shouldSave { moc.safeSave() }
-			completion?(true)
+			completion?(nil)
 		}
 		
 		if let moc = ctx {

@@ -107,8 +107,12 @@ public class ConversationKit: NSObject {
 			return
 		}
 		
-		self.clearAllCachedDataWithCompletion {
+		if speaker.identifier == nil {
 			ConversationKit.instance.loadLocalSpeaker(speakerIdentifier, completion: completion)
+		} else {
+			self.clearAllCachedDataWithCompletion {
+				ConversationKit.instance.loadLocalSpeaker(speakerIdentifier, completion: completion)
+			}
 		}
 	}
 

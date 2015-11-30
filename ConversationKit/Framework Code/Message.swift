@@ -50,11 +50,17 @@ public class Message: CloudObject {
 		self.readFromManagedObject(object)
 	}
 	
+	static var hasRemindedAboutPermissions = false
 	public func markAsRead() {
 		if self.readAt == nil && !(self.speaker?.isLocalSpeaker ?? true) {
 			self.readAt = NSDate()
 			self.needsCloudSave = true
-			self.save()
+			self.save() { error in
+				if let err = error where err.code == 10 && !Message.hasRemindedAboutPermissions && ConversationKit.feedbackLevel != .Production {
+					Message.hasRemindedAboutPermissions = true
+					print("\n\nUnable to mark a message as read. Please make sure you enable Write permissions on the ConversationKitMessage object for all Authenticated users.\n\n")
+				}
+			}
 		}
 	}
 	

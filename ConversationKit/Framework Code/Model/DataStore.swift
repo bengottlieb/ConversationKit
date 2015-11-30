@@ -95,6 +95,8 @@ class DataStore: NSObject {
 	func clearAllCachedDataWithCompletion(completion: () -> Void) {
 		ConversationKit.log("Clearing all data")
 		let moc = self.privateContext
+		self[Cloud.lastPendingFetchedAtKey] = nil
+		
 		moc.performBlock {
 			moc.removeAllObjectsOfType(Message.entityName)
 			moc.removeAllObjectsOfType(Speaker.entityName)

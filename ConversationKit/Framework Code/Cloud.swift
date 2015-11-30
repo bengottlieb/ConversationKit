@@ -12,7 +12,7 @@ import CoreData
 import UIKit
 
 public class Cloud: NSObject {
-	let lastPendingFetchedAtKey = "lastFetchedAt"
+	static let lastPendingFetchedAtKey = "lastFetchedAt"
 
 	static let instance = Cloud()
 	
@@ -122,14 +122,14 @@ public class Cloud: NSObject {
 			ConversationKit.instance.networkActivityUsageCount++
 			var pred = NSPredicate(format: "speakers contains %@", localUserID)
 			
-			if !all, let date = DataStore.instance[self.lastPendingFetchedAtKey] as? NSDate {
+			if !all, let date = DataStore.instance[Cloud.lastPendingFetchedAtKey] as? NSDate {
 				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date)])
 				ConversationKit.log("pulling down messages for \(localUserID) starting at \(date)")
 			} else {
 				ConversationKit.log("pulling all messages down for \(localUserID)")
 			}
 			
-			DataStore.instance[self.lastPendingFetchedAtKey] = NSDate()
+			DataStore.instance[Cloud.lastPendingFetchedAtKey] = NSDate()
 			let query = CKQuery(recordType: Message.recordName, predicate: pred)
 			self.queryOperation = CKQueryOperation(query: query)
 			self.parsingContext = DataStore.instance.createWorkerContext()
@@ -193,7 +193,8 @@ public class Cloud: NSObject {
 						if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 							message.saveManagedObject(inContext: moc)
 							ConversationKit.log("\(message.content)")
-							Conversation.conversationWith(message.listener, speaker: message.speaker).addMessage(message, from: .New)
+							let convo = Conversation.conversationWith(message.listener, speaker: message.speaker)
+							convo.addMessage(message, from: .New)
 						}
 						completion(true)
 					}

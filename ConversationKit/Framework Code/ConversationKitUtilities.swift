@@ -42,3 +42,14 @@ extension NSData {
 	}
 
 }
+
+public let kConversationKitErrorDomain = "ConversationKitError"
+
+extension NSError {
+	
+	@objc public enum ConversationKitError: Int { case CloudSaveNotAllowed }
+	
+	convenience init(conversationKitError: ConversationKitError) {
+		self.init(domain: kConversationKitErrorDomain, code: conversationKitError.rawValue, userInfo: [NSLocalizedDescriptionKey: "\(conversationKitError)"])
+	}
+}

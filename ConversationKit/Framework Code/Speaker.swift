@@ -67,7 +67,9 @@ public class Speaker: CloudObject {
 		let message = Message(speaker: Speaker.localSpeaker, listener: self, content: content)
 		
 		message.saveManagedObject()
-		message.saveToCloudKit(completion)
+		message.saveToCloudKit { error in
+			completion?(error == nil)
+		}
 		
 		Conversation.existingConversationWith(self)?.addMessage(message, from: .New)
 		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
