@@ -65,6 +65,7 @@ class SelectSpeakerViewController: UITableViewController {
 		let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
 		
 		cell.textLabel?.text = self.speakers[indexPath.row].name
+		cell.imageView?.image = self.speakers[indexPath.row].avatarImage
 		return cell
 	}
 	
