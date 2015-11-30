@@ -21,6 +21,7 @@ public class MessageBubbleView: UIView {
 	public static var otherMessageBorderColor = UIColor.blackColor()
 	public static var otherMessageTextColor = UIColor.whiteColor()
 
+	public static var avatarImagePlaceholder = UIImage(named: "speaker_placeholder")
 
 	public var rightHandStem = false
 
@@ -122,7 +123,7 @@ public class MessageBubbleView: UIView {
 			if let size = self.label?.sizeThatFits(full.size) {
 				self.labelFrame = self.rightHandStem ? CGRect(x: full.maxX - size.width, y: full.origin.y, width: size.width, height: size.height) : CGRect(x: full.origin.x, y: full.origin.y, width: size.width, height: size.height)
 			}
-			self.imageView?.image = self.message?.speaker?.avatarImage
+			self.imageView?.image = self.message?.speaker?.avatarImage ?? MessageBubbleView.avatarImagePlaceholder
 		}
 	}
 
