@@ -18,15 +18,18 @@ class DataStore: NSObject {
 	let privateContext: NSManagedObjectContext
 	let imagesCacheURL: NSURL
 	
+	let dbName = "Conversations"
+	let containerName = "ConversationKit"
+	let imagesCacheDirectoryName = "Images"
+	
 	init(dbName: String) {
 		let modelName = "ConversationKit"
-		let imagesCacheDirectoryName = "Images"
 		let mgr = NSFileManager.defaultManager()
 		let modelURL = NSBundle(forClass: self.dynamicType).URLForResource(modelName, withExtension: "momd")!
 		let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
 		let cachesPath = NSSearchPathForDirectoriesInDomains(.CachesDirectory, [.UserDomainMask], true).first!
-		let storeURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(dbName)
-		imagesCacheURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(imagesCacheDirectoryName)
+		let storeURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(self.containerName).URLByAppendingPathComponent(self.dbName)
+		imagesCacheURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(self.containerName).URLByAppendingPathComponent(self.imagesCacheDirectoryName)
 		do { try NSFileManager.defaultManager().createDirectoryAtURL(imagesCacheURL, withIntermediateDirectories: true, attributes: nil) } catch {}
 
 		if !NSFileManager.defaultManager().fileExistsAtPath(storeURL.path!) {
