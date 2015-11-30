@@ -18,6 +18,10 @@ public class ConversationView: UIView {
 		self.scrollToLast()
 	}}
 	public var allowMessageDeletion = true
+	var tableView: UITableView!
+	var messages: [Message] = []
+	var notSignedInLabel: UILabel!
+	var openSettingsButton: UIButton!
 	
 	public override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -33,10 +37,10 @@ public class ConversationView: UIView {
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "scrollToLast", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "newMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.iCloudAccountIDChanged, object: nil)
+		
+		self.updateUI()
 	}
-	
-	var tableView: UITableView!
-	var messages: [Message] = []
 	
 	public override func layoutSubviews() {
 		super.layoutSubviews()
@@ -44,8 +48,46 @@ public class ConversationView: UIView {
 	}
 	
 	func updateUI() {
-		self.messages = self.conversation?.sortedMessages ?? []
-		self.tableView?.reloadData()
+		if !ConversationKit.instance.setupComplete { return }
+		
+		self.loadTable()
+		if Cloud.instance.signedIntoICloud {
+			self.openSettingsButton?.hidden = true
+			self.notSignedInLabel?.hidden = true
+			self.messages = self.conversation?.sortedMessages ?? []
+			self.tableView?.reloadData()
+		} else {
+			if self.notSignedInLabel == nil {
+				var frame = CGRectInset(self.bounds, 20, 20)
+				frame.size.height -= 150
+				self.notSignedInLabel = UILabel(frame: frame)
+				self.addSubview(self.notSignedInLabel)
+				self.notSignedInLabel.text = NSLocalizedString("Not signed in to iCloud.\n\n\nPlease enter your iCloud credentials into System Settings", comment: "Not signed into iCloud message")
+				self.notSignedInLabel.numberOfLines = 0
+				self.notSignedInLabel.textAlignment = .Center
+				self.notSignedInLabel.lineBreakMode = .ByWordWrapping
+				self.notSignedInLabel.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+				self.notSignedInLabel.textColor = UIColor.grayColor()
+			}
+			
+			if self.openSettingsButton == nil {
+				self.openSettingsButton = UIButton(type: .Custom)
+				self.openSettingsButton.setTitle(NSLocalizedString("Open Settings", comment: "Open Settings"), forState: .Normal)
+				self.openSettingsButton.sizeToFit()
+				self.addSubview(self.openSettingsButton)
+				self.openSettingsButton.setTitleColor(UIColor.blueColor(), forState: .Normal)
+				self.openSettingsButton.center = CGPoint(x: self.bounds.midX, y: self.bounds.maxY - 50)
+				self.openSettingsButton.addTarget(self, action: "openSettings", forControlEvents: .TouchUpInside)
+				self.openSettingsButton.autoresizingMask = [.FlexibleTopMargin, .FlexibleLeftMargin, .FlexibleRightMargin]
+			}
+			self.tableView?.hidden = true
+			self.notSignedInLabel?.hidden = false
+			self.openSettingsButton?.hidden = false
+		}
+	}
+	
+	func openSettings() {
+		UIApplication.sharedApplication().openURL(NSURL(string: UIApplicationOpenSettingsURLString)!)
 	}
 	
 	public var contentInset: UIEdgeInsets {

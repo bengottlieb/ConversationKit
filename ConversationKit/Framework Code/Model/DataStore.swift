@@ -18,7 +18,7 @@ class DataStore: NSObject {
 	let privateContext: NSManagedObjectContext
 	let imagesCacheURL: NSURL
 	
-	let dbName = "Conversations"
+	let dbName = "Conversations.db"
 	let containerName = "ConversationKit"
 	let imagesCacheDirectoryName = "Images"
 	
@@ -118,7 +118,7 @@ extension NSManagedObjectContext {
 		do {
 			try self.persistentStoreCoordinator?.executeRequest(deleteAllRequest, withContext: self)
 		} catch let error {
-			ConversationKit.log("Error while removing all \(name) objects", error: error)
+			ConversationKit.log("Error while removing all \(name) objects", error: error as NSError)
 		}
 	}
 	

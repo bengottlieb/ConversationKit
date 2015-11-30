@@ -9,6 +9,7 @@
 import Foundation
 import CloudKit
 import CoreData
+import UIKit
 
 public class Cloud: NSObject {
 	let lastPendingFetchedAtKey = "lastFetchedAt"
@@ -16,7 +17,7 @@ public class Cloud: NSObject {
 	static let instance = Cloud()
 	
 	public var configured = false
-	public var iCloudAccountIDAvailable = false
+	public var signedIntoICloud = false
 	public var setupComplete = false
 	public var container: CKContainer!
 	public var database: CKDatabase!
@@ -30,30 +31,86 @@ public class Cloud: NSObject {
 			self.container = (containerID == nil) ? CKContainer.defaultContainer() : CKContainer(identifier: containerID!)
 			self.database = self.container.publicCloudDatabase
 			
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateICloudAccountStatus", name: UIApplicationWillEnterForegroundNotification, object: nil)
+
 			self.container.accountStatusWithCompletionHandler { status, error in
 				if let err = error {
-					ConversationKit.log("Error while configuring CloudKit", err)
+					ConversationKit.log("Error while configuring CloudKit", error: err)
 				} else {
 					switch status {
 					case .Available:
 						self.configured = true
-						self.iCloudAccountIDAvailable = true
+						self.setupComplete = true
+						self.fetchAccountIdentifier { identifier in
+							completion(self.configured)
+						}
 
 					case .CouldNotDetermine:
 						ConversationKit.log("Unknown CloudKit status")
 					case .NoAccount:
 						ConversationKit.log("No account set up")
-						self.configured = false
-						self.iCloudAccountIDAvailable = false
+						self.configured = true
+						self.setupComplete = true
+						completion(self.configured)
 
 					case .Restricted:
 						ConversationKit.log("Restricted: no access to CloudKit account")
-						
+						self.setupComplete = true
+						completion(self.configured)
 					}
 				}
 				
-				self.setupComplete = true
-				completion(self.configured)
+			}
+		}
+	}
+	
+	var currentICloudAccountID: String?
+	var previousICloudAccountID: String?
+	var fetchingAccountIdentifer = false
+	var pendingAccountIDClosures: [(String?) -> Void] = []
+	
+	func updateICloudAccountStatus() {
+		self.previousICloudAccountID = self.currentICloudAccountID
+		self.currentICloudAccountID = nil
+		self.fetchAccountIdentifier { identifier in }
+	}
+	
+	func fetchAccountIdentifier(completion: (String?) -> Void) {
+		Cloud.instance.setup { configured in
+			if let ident = self.currentICloudAccountID {
+				completion(ident)
+				return
+			}
+			guard configured else { completion(nil); return }
+			dispatch_async(self.queue) {
+				self.pendingAccountIDClosures.append(completion)
+				
+				if !self.fetchingAccountIdentifer {
+					self.fetchingAccountIdentifer = true
+
+					Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
+						if (error != nil) { ConversationKit.log("Problem fetching account info record ID", error: error) }
+						dispatch_async(self.queue) {
+							let original = self.previousICloudAccountID
+							let closures = self.pendingAccountIDClosures
+							self.pendingAccountIDClosures = []
+							self.currentICloudAccountID = recordID?.recordName
+							self.signedIntoICloud = self.currentICloudAccountID != nil
+			
+							if let recordName = recordID?.recordName {
+								for completion in closures {
+									completion("ID:\(recordName)")
+								}
+							}
+							self.fetchingAccountIdentifer = false
+							self.previousICloudAccountID = nil
+							if original != self.currentICloudAccountID {
+								ConversationKit.instance.reloadFromICloud()
+								Utilities.postNotification(ConversationKit.notifications.iCloudAccountIDChanged)
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -63,7 +120,7 @@ public class Cloud: NSObject {
 	var parsingContext: NSManagedObjectContext!
 	
 	func pullDownMessages(all: Bool = false) {
-		guard self.configured, let localUserID = Speaker.localSpeaker.identifier else { return }
+		guard self.configured, let localUserID = Speaker.localSpeaker?.identifier else { return }
 		
 		if self.queryOperation == nil {
 			ConversationKit.instance.networkActivityUsageCount++

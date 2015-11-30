@@ -12,7 +12,7 @@ import CloudKit
 import UIKit
 
 public class Speaker: CloudObject {
-	public static var maxImageSize = CGSize(width: 100, height: 100)
+	public static var maxImageSize = CGSize(width: 120, height: 120)
 	public typealias SpeakerRef = String
 	public var identifier: String? { didSet {
 		if self.identifier != oldValue {

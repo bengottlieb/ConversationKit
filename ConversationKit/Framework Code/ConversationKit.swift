@@ -29,7 +29,7 @@ public class ConversationKit: NSObject {
 	public static var cloudAvailable: Bool { return Cloud.instance.configured }
 
 	static let instance = ConversationKit()
-	var setupComplete = false
+	public var setupComplete = false
 	
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
@@ -41,6 +41,7 @@ public class ConversationKit: NSObject {
 		public static let downloadedOldMessage = "ConversationKit.downloadedOldMessage"
 		public static let finishedLoadingMessagesForConversation = "ConversationKit.finishedLoadingMessagesForConversation"
 		public static let finishedLoadingMessagesOldMessages = "ConversationKit.finishedLoadingMessagesOldMessages"
+		public static let iCloudAccountIDChanged = "ConversationKit.iCloudAccountIDChanged"
 	}
 	
 	override init() {
@@ -75,25 +76,23 @@ public class ConversationKit: NSObject {
 	}
 	
 	public class func fetchAccountIdentifier(completion: (String?) -> Void) {
-		Cloud.instance.setup { configured in
-			guard configured && Cloud.instance.iCloudAccountIDAvailable else { completion(nil); return }
-
-			Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
-				if (error != nil) { ConversationKit.log("Problem fetching account info record ID", error: error) }
-				guard let recordID = recordID else { completion(nil); return }
-				
-				completion("ID:\(recordID.recordName)")
-			}
-		}
+		Cloud.instance.fetchAccountIdentifier(completion)
 	}
 	
 	public class func setup(containerName: String? = nil, feedbackLevel: FeedbackLevel = ConversationKit.feedbackLevel, completion: ((Bool) -> Void)? = nil) {
 		ConversationKit.feedbackLevel = feedbackLevel
 		if ConversationKit.feedbackLevel != .Production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
 		
+		if !self.instance.setupComplete {
+			self.instance.reloadFromICloud(containerName, completion: completion)
+		}
+	}
+	
+	func reloadFromICloud(containerName: String? = nil, completion: ((Bool) -> Void)? = nil) {
+		self.setupComplete = false
 		Speaker.loadCachedSpeakers {
 			Cloud.instance.setup(containerName) { configured in
-				self.instance.setupComplete = true
+				self.setupComplete = true
 				completion?(configured)
 			}
 		}
@@ -171,7 +170,7 @@ public class ConversationKit: NSObject {
 }
 
 extension ConversationKit {
-	class func log(message: String, error: NSError? = nil) {
+	class func log(message: String, error: ErrorType? = nil) {
 		if ConversationKit.feedbackLevel != .Production {
 			print("••• \(message)" + (error != nil ? ": \(error)" : ""))
 		}
