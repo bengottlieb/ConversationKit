@@ -19,7 +19,6 @@ public class Conversation: NSObject {
 	var messages: Set<Message> = []
 	
 	public var sortedMessages: [Message] {
-		print("returning \(self.messages.count) messages")
 		return Array(self.messages ?? []).sort(<)
 	}
 	
@@ -102,7 +101,9 @@ public class Conversation: NSObject {
 					let message = Message(object: object)
 					self.addMessage(message, from: .CoreDataCache)
 				}
-				Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
+				dispatch_async(ConversationKit.instance.queue) {
+					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
+				}
 			}
 		}
 	}
