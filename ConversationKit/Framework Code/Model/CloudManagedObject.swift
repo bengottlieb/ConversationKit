@@ -98,7 +98,7 @@ public class CloudObject: NSObject {
 		if let recordID = self.cloudKitRecordID {
 			Cloud.instance.database.deleteRecordWithID(recordID) { recordID, error in
 				if let error = error {
-					ConversationKit.log("Failed to delete \(self.dynamicType.recordName) \(recordID): \(error)")
+					ConversationKit.log("Failed to delete \(self.dynamicType.recordName) \(recordID)", error: error)
 				}
 				completion?(error == nil)
 			}
@@ -114,7 +114,7 @@ internal extension CloudObject {
 		
 		ConversationKit.instance.networkActivityUsageCount++
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
-			Cloud.instance.reportError(error, note: "Problem refreshing record \(self)")
+			if (error != nil) { ConversationKit.log("Problem refreshing record \(self)", error: error) }
 			if let record = record { self.loadWithCloudKitRecord(record, forceSave: true) }
 			completion?(record != nil)
 			ConversationKit.instance.networkActivityUsageCount--
@@ -153,7 +153,7 @@ internal extension CloudObject {
 			if self.writeToCloudKitRecord(actual) {
 				ConversationKit.instance.networkActivityUsageCount++
 				Cloud.instance.database.saveRecord(actual) { record, error in
-					Cloud.instance.reportError(error, note: "Problem saving record \(self)")
+					if (error != nil) { ConversationKit.log("Problem saving record \(self)", error: error) }
 					
 					if let saved = record {
 						self.hasSavedToCloud = true

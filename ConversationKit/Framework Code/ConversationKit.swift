@@ -79,7 +79,7 @@ public class ConversationKit: NSObject {
 			guard configured && Cloud.instance.iCloudAccountIDAvailable else { completion(nil); return }
 
 			Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
-				Cloud.instance.reportError(error, note: "Problem fetching account info record ID")
+				if (error != nil) { ConversationKit.log("Problem fetching account info record ID", error: error) }
 				guard let recordID = recordID else { completion(nil); return }
 				
 				completion("ID:\(recordID.recordName)")
@@ -171,9 +171,9 @@ public class ConversationKit: NSObject {
 }
 
 extension ConversationKit {
-	class func log(message: String) {
+	class func log(message: String, error: NSError? = nil) {
 		if ConversationKit.feedbackLevel != .Production {
-			print("••• \(message)")
+			print("••• \(message)" + (error != nil ? ": \(error)" : ""))
 		}
 	}
 }

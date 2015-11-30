@@ -164,7 +164,7 @@ public class Speaker: CloudObject {
 				
 				completion?(speaker)
 			} else {
-				Cloud.instance.reportError(error, note: "Problem loading speaker with ID \(recordID)")
+				if (error != nil) { ConversationKit.log("Problem loading speaker with ID \(recordID)", error: error) }
 				completion?(nil)
 			}
 		}

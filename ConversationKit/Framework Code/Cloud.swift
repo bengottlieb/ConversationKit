@@ -32,7 +32,7 @@ public class Cloud: NSObject {
 			
 			self.container.accountStatusWithCompletionHandler { status, error in
 				if let err = error {
-					ConversationKit.log("Error while configuring CloudKit: \(err)")
+					ConversationKit.log("Error while configuring CloudKit", err)
 				} else {
 					switch status {
 					case .Available:
@@ -126,7 +126,7 @@ public class Cloud: NSObject {
 			
 			self.subscription?.notificationInfo = info
 			self.database.saveSubscription(self.subscription!, completionHandler: { sub, error in
-				ConversationKit.log("Finished Creating Subscription: \(sub): \(error)")
+				ConversationKit.log("Finished Creating Subscription: \(sub)", error: error)
 			})
 		}
 	}
@@ -149,12 +149,6 @@ public class Cloud: NSObject {
 			}
 			completion(false)
 		}
-	}
-	
-	internal func reportError(error: NSError?, note: String) {
-		guard let error = error else { return }
-		
-		ConversationKit.log("\(note): \(error)")
 	}
 	
 	internal let queue = dispatch_queue_create("ConversationKitCloudQueue", DISPATCH_QUEUE_SERIAL)

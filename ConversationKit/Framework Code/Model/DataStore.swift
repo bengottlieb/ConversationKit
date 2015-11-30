@@ -118,7 +118,7 @@ extension NSManagedObjectContext {
 		do {
 			try self.persistentStoreCoordinator?.executeRequest(deleteAllRequest, withContext: self)
 		} catch let error {
-			ConversationKit.log("Error while removing all \(name) objects: \(error)")
+			ConversationKit.log("Error while removing all \(name) objects", error: error)
 		}
 	}
 	
@@ -127,7 +127,7 @@ extension NSManagedObjectContext {
 			try self.save()
 			self.parentContext?.safeSave()
 		} catch let error {
-			ConversationKit.log("Error while saving database: \(error)")
+			ConversationKit.log("Error while saving database", error: error)
 		}
 	}
 	
@@ -148,7 +148,7 @@ extension NSManagedObjectContext {
 				return results.count > 0 ? results[0] as? T : nil
 			}
 		} catch let error {
-			ConversationKit.log("Error (\(error) executing fetch request: \(request)")
+			ConversationKit.log("Error executing fetch request: \(request)", error: error)
 		}
 		
 		return nil
@@ -164,7 +164,7 @@ extension NSManagedObjectContext {
 				return results
 			}
 		} catch let error {
-			ConversationKit.log("Error (\(error) executing fetch request: \(request)")
+			ConversationKit.log("Error executing fetch request: \(request)", error: error)
 		}
 		return []
 	}
