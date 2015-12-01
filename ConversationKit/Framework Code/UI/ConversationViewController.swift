@@ -73,12 +73,12 @@ public class ConversationViewController: UIViewController {
 		guard let frameHolder = userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue else { return }
 		let finalFrame = frameHolder.CGRectValue()
 		let localKeyboardFrame = self.view.convertRect(finalFrame, fromView: nil)
-		let heightDelta = self.view.frame.maxY - localKeyboardFrame.origin.y
+		let heightDelta = self.entryContainer.frame.maxY - localKeyboardFrame.origin.y
 		var insets = self.conversationView.contentInset
 		insets.bottom += heightDelta
 		
 		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
-			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -heightDelta)
+			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -(heightDelta - self.entryContainer.transform.ty))
 			self.conversationView.contentInset = insets
 		}, completion: nil)
 	}
