@@ -109,11 +109,19 @@ public class ConversationViewController: UIViewController {
 	func textFieldShouldReturn(textField: UITextField) -> Bool {
 		if textField == self.messageField {
 			textField.resignFirstResponder()
+			if let text = textField.text where !text.isEmpty {
+				self.sendMessage()
+			}
 		}
 		return false
 	}
 	
+	func updatePendingIndicator() {
+		self.currentConversation?.hasPendingMessage = !(self.messageField?.text?.isEmpty ?? true)
+	}
+	
 	@IBAction func textFieldChanged(field: UITextField?) {
+		self.updatePendingIndicator()
 		self.updateUI()
 	}
 	
@@ -123,6 +131,8 @@ public class ConversationViewController: UIViewController {
 				print("message saved: \(saved)")
 			}
 			self.messageField.text = ""
+			self.updatePendingIndicator()
+			self.updateUI()
 		}
 	}
 }

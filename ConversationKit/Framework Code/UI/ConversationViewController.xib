@@ -47,7 +47,7 @@
                                 <constraint firstAttribute="height" constant="30" id="kVm-Cj-8qJ"/>
                             </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                            <textInputTraits key="textInputTraits"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="send"/>
                             <connections>
                                 <action selector="textFieldChanged:" destination="-1" eventType="editingChanged" id="TjR-Yx-Z2R"/>
                                 <outlet property="delegate" destination="-1" id="Jis-4U-ZYm"/>
