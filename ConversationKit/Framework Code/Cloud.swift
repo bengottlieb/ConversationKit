@@ -162,27 +162,53 @@ public class Cloud: NSObject {
 		}
 	}
 	
-	let messageSubscriptionID = "messageSubscriptionID"
-	var subscription: CKSubscription?
+	let messagesSubscriptionID = "messageSubscriptionID"
+	var messagesSubscription: CKSubscription?
 
-	public func setupSubscription() {
+	let pendingSubscriptionID = "pendingbscriptionID"
+	var pendingSubscription: CKSubscription?
+
+	public func discontinueSubscription(identifier: String?) {
+		for sub in [self.messagesSubscription] {
+			guard let sub = sub else { continue }
+			self.database.deleteSubscriptionWithID(sub.subscriptionID, completionHandler: { subID, error in
+				if error != nil { ConversationKit.log("Error deleting subscription", error: error) }
+			})
+		}
+	}
+	
+	func setupSubscription() {
 		guard ConversationKit.state != .NotSetup, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
-		if self.subscription == nil {
+		if self.messagesSubscription == nil {
 			let pred = NSPredicate(format: "speakers contains %@", localUserID)
-			self.subscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messageSubscriptionID, options: .FiresOnRecordCreation)
+			self.messagesSubscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messagesSubscriptionID, options: .FiresOnRecordCreation)
 			let info = CKNotificationInfo()
 			info.alertBody = "Test Alert"
 			info.alertLocalizationKey = "%1$@ : %2$@"
 			info.shouldSendContentAvailable = true
 			info.alertLocalizationArgs = ["speakerName", "content"]
 			
-			self.subscription?.notificationInfo = info
-			self.database.saveSubscription(self.subscription!, completionHandler: { sub, error in
-				ConversationKit.log("Finished Creating Subscription: \(sub)", error: error)
+			self.messagesSubscription?.notificationInfo = info
+			self.database.saveSubscription(self.messagesSubscription!, completionHandler: { sub, error in
+				ConversationKit.log("Finished Creating Message Subscription: \(sub)", error: error)
 			})
 		}
-	}
+
+		if self.pendingSubscription == nil {
+			let pred = NSPredicate(format: "recipient = %@", localUserID)
+			self.pendingSubscription = CKSubscription(recordType: PendingMessage.recordName, predicate: pred, subscriptionID: self.pendingSubscriptionID, options: [.FiresOnRecordCreation, .FiresOnRecordDeletion])
+			let info = CKNotificationInfo()
+			info.alertBody = "Test Alert"
+			info.alertLocalizationKey = "%1$@ : %2$@"
+			info.shouldSendContentAvailable = true
+			
+			self.pendingSubscription?.notificationInfo = info
+			self.database.saveSubscription(self.pendingSubscription!, completionHandler: { sub, error in
+				ConversationKit.log("Finished Creating Pending Subscription: \(sub)", error: error)
+			})
+		}
+}
 	
 	internal func handleNotificationCloudRecordID(recordID: CKRecordID, completion: (Bool) -> Void) {
 		self.database.fetchRecordWithID(recordID) { incoming, error in

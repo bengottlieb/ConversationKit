@@ -14,6 +14,7 @@
         <attribute name="cloudKitRecordIDName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isLocalSpeaker" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="lastPendingAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="needsCloudSave" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
         <attribute name="tags" optional="YES" attributeType="Transformable" syncable="YES"/>
@@ -22,6 +23,6 @@
     </entity>
     <elements>
         <element name="Message" positionX="-54" positionY="-9" width="128" height="150"/>
-        <element name="Speaker" positionX="-36" positionY="9" width="128" height="180"/>
+        <element name="Speaker" positionX="-36" positionY="9" width="128" height="195"/>
     </elements>
 </model>

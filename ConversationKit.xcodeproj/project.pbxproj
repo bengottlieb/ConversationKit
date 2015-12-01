@@ -37,6 +37,7 @@
 		B549E35E1BF8CA4F0046463A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B549E35C1BF8CA4F0046463A /* LaunchScreen.storyboard */; };
 		B549E3661BF8CB750046463A /* ConversationKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B549E31B1BF8C8460046463A /* ConversationKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B549E3691BF8CBCB0046463A /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E3681BF8CBCB0046463A /* CloudKit.framework */; };
+		B59F6FB41C0D1D7B000E0566 /* Pending.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F6FB31C0D1D7A000E0566 /* Pending.swift */; };
 		B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */; };
 		B5A739801BF9F5CC004262BA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A7397F1BF9F5CC004262BA /* DataStore.swift */; };
 		B5A739821BFF3CFB004262BA /* SelectSpeakerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */; };
@@ -106,6 +107,7 @@
 		B549E35F1BF8CA4F0046463A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B549E3671BF8CBC80046463A /* TestHarness.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = TestHarness.entitlements; sourceTree = "<group>"; };
 		B549E3681BF8CBCB0046463A /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		B59F6FB31C0D1D7A000E0566 /* Pending.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Pending.swift; path = Model/Pending.swift; sourceTree = "<group>"; };
 		B5A7397C1BF9F50B004262BA /* ConversationKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ConversationKit.xcdatamodel; sourceTree = "<group>"; };
 		B5A7397F1BF9F5CC004262BA /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataStore.swift; path = Model/DataStore.swift; sourceTree = "<group>"; };
 		B5A739811BFF3CFB004262BA /* SelectSpeakerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectSpeakerViewController.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				B549E3361BF8C8F80046463A /* Cloud.swift */,
+				B59F6FB31C0D1D7A000E0566 /* Pending.swift */,
 				B5A739831BFF3E86004262BA /* SpeakerQuery.swift */,
 			);
 			name = iCloud;
@@ -471,6 +474,7 @@
 				B5A739861C033284004262BA /* ConversationView.swift in Sources */,
 				B549E3431BF8C8F80046463A /* Message.swift in Sources */,
 				B5A739841BFF3E86004262BA /* SpeakerQuery.swift in Sources */,
+				B59F6FB41C0D1D7B000E0566 /* Pending.swift in Sources */,
 				B549E3441BF8C8F80046463A /* Speaker.swift in Sources */,
 				B549E3401BF8C8F80046463A /* Conversation.swift in Sources */,
 				B549E33F1BF8C8F80046463A /* Cloud.swift in Sources */,

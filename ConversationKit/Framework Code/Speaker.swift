@@ -20,6 +20,7 @@ public class Speaker: CloudObject {
 			self.cloudKitRecordID = Speaker.cloudKitRecordIDFromIdentifier(self.identifier)
 		}
 	}}
+	var pending: PendingMessage?
 	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var tags: Set<String> = [] { didSet { if self.tags != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
 	public var isLocalSpeaker = false
@@ -226,6 +227,7 @@ public class Speaker: CloudObject {
 		self.name = spkr.name
 		self.isLocalSpeaker = spkr.isLocalSpeaker
 		self.tags = Set(spkr.tags ?? [])
+		self.pending = PendingMessage(speaker: self, cachedPendingAt: spkr.lastPendingAt)
 		
 		if let filename = spkr.avatarImageFilename, data = NSData(contentsOfURL: DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(filename)) {
 			self.avatarImage = UIImage(data: data)
@@ -241,6 +243,7 @@ public class Speaker: CloudObject {
 		speakerObject.name = self.name
 		speakerObject.identifier = self.identifier
 		speakerObject.isLocalSpeaker = self.isLocalSpeaker
+		speakerObject.lastPendingAt = self.pending?.pendingAt
 		speakerObject.tags = self.tags.count > 0 ? Array(self.tags) : nil
 	
 		if !self.avatarImageFileName.isEmpty {
@@ -281,6 +284,7 @@ internal class SpeakerObject: ManagedCloudObject {
 	@NSManaged var isLocalSpeaker: Bool
 	@NSManaged var avatarImageFilename: String?
 	@NSManaged var tags: [String]?
+	@NSManaged var lastPendingAt: NSDate?
 	
 	internal override class var entityName: String { return "Speaker" }
 	var speaker: Speaker { return Speaker.speakerWithIdentifier(self.identifier!, name: self.name) }
