@@ -117,7 +117,7 @@ public class ConversationViewController: UIViewController {
 	}
 	
 	func updatePendingIndicator() {
-		self.currentConversation?.hasPendingMessage = !(self.messageField?.text?.isEmpty ?? true)
+		self.currentConversation?.hasPendingOutgoingMessage = !(self.messageField?.text?.isEmpty ?? true)
 	}
 	
 	@IBAction func textFieldChanged(field: UITextField?) {

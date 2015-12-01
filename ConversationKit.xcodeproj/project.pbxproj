@@ -227,7 +227,6 @@
 			isa = PBXGroup;
 			children = (
 				B549E3361BF8C8F80046463A /* Cloud.swift */,
-				B59F6FB31C0D1D7A000E0566 /* Pending.swift */,
 				B5A739831BFF3E86004262BA /* SpeakerQuery.swift */,
 			);
 			name = iCloud;
@@ -239,6 +238,7 @@
 				B5A7397F1BF9F5CC004262BA /* DataStore.swift */,
 				B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */,
 				B549E3371BF8C8F80046463A /* Conversation.swift */,
+				B59F6FB31C0D1D7A000E0566 /* Pending.swift */,
 				B549E33A1BF8C8F80046463A /* Message.swift */,
 				B549E33B1BF8C8F80046463A /* Speaker.swift */,
 				B5A7397B1BF9F50B004262BA /* ConversationKit.xcdatamodeld */,

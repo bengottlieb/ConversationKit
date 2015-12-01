@@ -24,6 +24,15 @@ public class Message: CloudObject {
 		
 		return object != nil
 	}
+
+	convenience init?(speaker: Speaker?, content: String) {
+		self.init()
+		
+		if speaker == nil { return nil }
+		
+		self.speaker = speaker
+		self.content = content
+	}
 	
 	convenience init(speaker: Speaker, listener: Speaker, content: String) {
 		self.init()

@@ -197,10 +197,8 @@ public class Cloud: NSObject {
 
 		if self.pendingSubscription == nil {
 			let pred = NSPredicate(format: "recipient = %@", localUserID)
-			self.pendingSubscription = CKSubscription(recordType: PendingMessage.recordName, predicate: pred, subscriptionID: self.pendingSubscriptionID, options: [.FiresOnRecordCreation, .FiresOnRecordDeletion])
+			self.pendingSubscription = CKSubscription(recordType: PendingMessage.recordName, predicate: pred, subscriptionID: self.pendingSubscriptionID, options: [.FiresOnRecordCreation, .FiresOnRecordUpdate])
 			let info = CKNotificationInfo()
-			info.alertBody = "Test Alert"
-			info.alertLocalizationKey = "%1$@ : %2$@"
 			info.shouldSendContentAvailable = true
 			
 			self.pendingSubscription?.notificationInfo = info
@@ -208,9 +206,11 @@ public class Cloud: NSObject {
 				ConversationKit.log("Finished Creating Pending Subscription: \(sub)", error: error)
 			})
 		}
-}
+	}
 	
-	internal func handleNotificationCloudRecordID(recordID: CKRecordID, completion: (Bool) -> Void) {
+	
+	
+	internal func handleNotificationCloudRecordID(recordID: CKRecordID, reason: CKQueryNotificationReason, completion: (Bool) -> Void) {
 		self.database.fetchRecordWithID(recordID) { incoming, error in
 			if let record = incoming {
 				if record.recordType == Message.recordName {
@@ -225,6 +225,10 @@ public class Cloud: NSObject {
 						completion(true)
 					}
 					return
+				} else if record.recordType == PendingMessage.recordName {
+					if let speaker = Speaker.speakerFromIdentifier(record["speaker"] as? String), conversation = Conversation.existingConversationWith(speaker) {
+						conversation.hasPendingIncomingMessage = record["lastPendingAt"] != nil
+					}
 				}
 			}
 			completion(false)

@@ -43,6 +43,7 @@ public class ConversationKit: NSObject {
 		public static let finishedLoadingMessagesForConversation = "ConversationKit.finishedLoadingMessagesForConversation"
 		public static let finishedLoadingMessagesOldMessages = "ConversationKit.finishedLoadingMessagesOldMessages"
 		public static let iCloudAccountIDChanged = "ConversationKit.iCloudAccountIDChanged"
+		public static let incomingPendingMessageChanged = "ConversationKit.incomingPendingMessageChanged"
 	}
 	
 	override init() {
@@ -65,8 +66,9 @@ public class ConversationKit: NSObject {
 	
 	public class func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
 		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
+			print("received notification: \(ckNotification)")
 			if let recordID = ckNotification.recordID {
-				Cloud.instance.handleNotificationCloudRecordID(recordID) { success in
+				Cloud.instance.handleNotificationCloudRecordID(recordID, reason: ckNotification.queryNotificationReason) { success in
 					completionHandler(.NewData)
 				}
 				return
@@ -103,7 +105,7 @@ public class ConversationKit: NSObject {
 		}
 		
 		if speaker.identifier == speakerIdentifier {
-			completion()
+			ConversationKit.instance.loadLocalSpeaker(speakerIdentifier, completion: completion)
 			return
 		}
 		

@@ -18,12 +18,12 @@ class PendingMessage {
 	static var recordName = "ConversationKitPending"
 	
 	let speaker: Speaker!
-	let pendingAt: NSDate!
+	var pendingAt: NSDate?
 	
 	init?(speaker who: Speaker, cachedPendingAt: NSDate?) {
 		speaker = who
 		pendingAt = cachedPendingAt
-		if speaker == nil || pendingAt == nil { return nil }
+		if speaker == nil { return nil }
 	}
 	
 	init(speaker who: Speaker) {
@@ -52,11 +52,17 @@ class PendingMessage {
 		guard let recordID = self.recordID, local = Speaker.localSpeaker else { return }
 		
 		Cloud.instance.database.fetchRecordWithID(recordID) { existing, error in
-			if existing == nil {		//create it
+			if let record = existing {
+				if record["lastPendingAt"] != nil { return }
+				record["lastPendingAt"] = self.pendingAt
+				Cloud.instance.database.saveRecord(record, completionHandler: { record, error in
+					if error != nil { ConversationKit.log("Failed to save pending message", error: error) }
+				})
+			} else {		//create it
 				let record = CKRecord(recordType: PendingMessage.recordName, recordID: recordID)
 				record["recipient"] = self.speaker.identifier
 				record["speaker"] = local.identifier
-				record["lastPendingAt"] = NSDate()
+				record["lastPendingAt"] = self.pendingAt
 				Cloud.instance.database.saveRecord(record, completionHandler: { record, error in
 					if error != nil { ConversationKit.log("Failed to save pending message", error: error) }
 				})
@@ -66,20 +72,20 @@ class PendingMessage {
 }
 
 extension Conversation {
-	public var hasPendingMessage: Bool {
+	public var hasPendingOutgoingMessage: Bool {
 			set {
-				if newValue {
-					if self.nonLocalSpeaker.pending == nil {
-						self.nonLocalSpeaker.pending = PendingMessage(speaker: self.nonLocalSpeaker)
-					}
-				} else {
-					self.nonLocalSpeaker.pending?.delete()
-					self.nonLocalSpeaker.pending = nil
+				if let pending = self.nonLocalSpeaker.pending {
+					if pending.pendingAt == nil && !newValue || pending.pendingAt != nil && newValue { return }
+					pending.pendingAt = newValue ? NSDate() : nil
+					pending.saveToCloud()
+				} else if newValue {
+					self.nonLocalSpeaker.pending = PendingMessage(speaker: self.nonLocalSpeaker, cachedPendingAt: NSDate())
+					self.nonLocalSpeaker.pending?.saveToCloud()
 				}
 			}
 
 			get {
-				return self.nonLocalSpeaker.pending != nil
+				return self.nonLocalSpeaker.pending?.pendingAt != nil
 			}
 		}
 	

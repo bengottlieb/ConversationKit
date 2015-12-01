@@ -158,6 +158,15 @@ public class Speaker: CloudObject {
 		return speaker
 	}
 
+	internal class func speakerFromIdentifier(identifier: String?) -> Speaker? {
+		for speaker in self.knownSpeakers {
+			if speaker.identifier == identifier {
+				return speaker
+			}
+		}
+		return nil
+	}
+	
 	internal class func loadSpeakerFromRecordID(recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
 		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
 			if let record = record {

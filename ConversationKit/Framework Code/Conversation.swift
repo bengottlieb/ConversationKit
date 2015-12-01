@@ -16,6 +16,14 @@ public class Conversation: NSObject {
 	
 	public var startedBy: Speaker
 	public var joinedBy: Speaker
+	public var hasPendingIncomingMessage = false {
+		didSet {
+			if self.hasPendingIncomingMessage != oldValue {
+				Utilities.postNotification(ConversationKit.notifications.incomingPendingMessageChanged, object: self)
+			}
+		}
+	}
+	
 	var messages: Set<Message> = []
 	
 	public var sortedMessages: [Message] {

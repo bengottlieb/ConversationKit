@@ -38,6 +38,7 @@ public class ConversationView: UIView {
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "newMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.iCloudAccountIDChanged, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "pendingStatusChanged:", name: ConversationKit.notifications.incomingPendingMessageChanged, object: nil)
 		
 		self.updateUI()
 	}
@@ -45,6 +46,13 @@ public class ConversationView: UIView {
 	public override func layoutSubviews() {
 		super.layoutSubviews()
 		self.loadTable()
+	}
+	
+	func pendingStatusChanged(note: NSNotification) {
+		self.updateUI()
+		if self.messages.count > 0 {
+			self.tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: self.messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
+		}
 	}
 	
 	func updateUI() {
@@ -128,7 +136,9 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 	
 	public func numberOfSectionsInTableView(tableView: UITableView) -> Int { return 1 }
 	public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return self.messages.count
+		guard let conversation = self.conversation else { return 0 }
+		
+		return self.messages.count + (conversation.hasPendingIncomingMessage ? 1 : 0)
 	}
 	
 	func messageAtIndexPath(path: NSIndexPath) -> Message? {
@@ -138,8 +148,12 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 	
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier(ConversationMessageTableViewCell.identifier, forIndexPath: indexPath) as! ConversationMessageTableViewCell
-		cell.message = self.messageAtIndexPath(indexPath)
-		cell.message?.markAsRead()
+		if let message = self.messageAtIndexPath(indexPath) {
+			cell.message = message
+			message.markAsRead()
+		} else {
+			cell.message = Message(speaker: self.conversation?.nonLocalSpeaker, content: "…")
+		}
 		return cell
 	}
 	
