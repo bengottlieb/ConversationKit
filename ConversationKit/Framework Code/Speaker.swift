@@ -64,7 +64,7 @@ public class Speaker: CloudObject {
 		return newSpeaker
 	}
 	
-	public func sendMessage(content: String, completion: ((Bool) -> Void)?) {
+	public func sendMessage(content: String, completion: ((Bool) -> Void)?) -> Message {
 		let message = Message(speaker: Speaker.localSpeaker, listener: self, content: content)
 		
 		message.saveManagedObject()
@@ -74,6 +74,8 @@ public class Speaker: CloudObject {
 		
 		Conversation.existingConversationWith(self)?.addMessage(message, from: .New)
 		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
+		
+		return message
 	}
 	
 	public var speakerRef: SpeakerRef? { return self.identifier }

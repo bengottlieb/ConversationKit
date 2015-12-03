@@ -168,6 +168,14 @@ public class ConversationKit: NSObject {
 	}
 	
 	internal let queue = dispatch_queue_create("ConversationKitQueue", DISPATCH_QUEUE_SERIAL)
+	
+	public static var messageDisplayWindow: UIWindow?
+	public class func displayIncomingMessage(message: Message) {
+		if let root = ConversationKit.messageDisplayWindow?.rootViewController {
+			let display = MessageReceivedDropDownView(message: message)
+			display.display(root, didHide: { manually in })
+		}
+	}
 }
 
 extension ConversationKit {

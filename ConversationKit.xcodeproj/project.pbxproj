@@ -46,6 +46,7 @@
 		B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */; };
 		B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */; };
 		B5A739921C0C6A19004262BA /* speaker_placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A739911C0C6A19004262BA /* speaker_placeholder.png */; };
+		B5A739941C1069BC004262BA /* MessageReceivedDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739931C1069BC004262BA /* MessageReceivedDropDownView.swift */; };
 		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
 		B5FEE6A31C03B76E00EA7FCA /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */; };
 		B5FEE6A51C04F65000EA7FCA /* CommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -116,6 +117,7 @@
 		B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationMessageTableViewCell.swift; path = UI/ConversationMessageTableViewCell.swift; sourceTree = "<group>"; };
 		B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ConversationMessageTableViewCell.xib; path = UI/ConversationMessageTableViewCell.xib; sourceTree = "<group>"; };
 		B5A739911C0C6A19004262BA /* speaker_placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = speaker_placeholder.png; sourceTree = "<group>"; };
+		B5A739931C1069BC004262BA /* MessageReceivedDropDownView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageReceivedDropDownView.swift; path = UI/MessageReceivedDropDownView.swift; sourceTree = "<group>"; };
 		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
 		B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageBubbleView.swift; path = UI/MessageBubbleView.swift; sourceTree = "<group>"; };
 		B5FEE6A41C04F65000EA7FCA /* CommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CommonCrypto.framework; path = ConversationKit/ExternalFrameworks/CommonCrypto.framework; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 				B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */,
 				B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */,
 				B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */,
+				B5A739931C1069BC004262BA /* MessageReceivedDropDownView.swift */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -463,6 +466,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5A739941C1069BC004262BA /* MessageReceivedDropDownView.swift in Sources */,
 				B5FEE6A81C05217500EA7FCA /* ConversationViewController.swift in Sources */,
 				B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */,
 				B549E3421BF8C8F80046463A /* ConversationKitUtilities.swift in Sources */,
