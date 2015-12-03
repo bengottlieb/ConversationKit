@@ -173,7 +173,9 @@ public class ConversationKit: NSObject {
 	public class func displayIncomingMessage(message: Message) {
 		if let root = ConversationKit.messageDisplayWindow?.rootViewController {
 			let display = MessageReceivedDropDownView(message: message)
-			display.display(root, didHide: { manually in })
+			display.display(root, didHide: { automatically in
+				print("dismissed message")
+			})
 		}
 	}
 }

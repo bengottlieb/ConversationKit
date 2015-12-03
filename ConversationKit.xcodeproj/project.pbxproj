@@ -251,8 +251,8 @@
 		B5A7398B1C0333AD004262BA /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				B5A739851C033284004262BA /* ConversationView.swift */,
 				B5FEE6A61C05217500EA7FCA /* ConversationViewController.swift */,
+				B5A739851C033284004262BA /* ConversationView.swift */,
 				B5FEE6A71C05217500EA7FCA /* ConversationViewController.xib */,
 				B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */,
 				B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */,
