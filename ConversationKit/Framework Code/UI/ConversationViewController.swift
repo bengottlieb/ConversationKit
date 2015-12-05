@@ -23,9 +23,11 @@ public class ConversationViewController: UIViewController {
 	
 	public var currentConversation: Conversation? {
 		set {
+			self.conversationView?.conversation?.isVisible = false
 			self.conversationView?.conversation = newValue
 			self.updateUI()
 			self.didChangeConversation()
+			newValue?.isVisible = true
 		}
 		get { return self.conversationView?.conversation }
 	}

@@ -184,10 +184,10 @@ public class Cloud: NSObject {
 			let pred = NSPredicate(format: "speakers contains %@", localUserID)
 			self.messagesSubscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messagesSubscriptionID, options: .FiresOnRecordCreation)
 			let info = CKNotificationInfo()
-			info.alertBody = "Test Alert"
-			info.alertLocalizationKey = "%1$@ : %2$@"
 			info.shouldSendContentAvailable = true
-			info.alertLocalizationArgs = ["speakerName", "content"]
+//			info.alertBody = "Test Alert"
+//			info.alertLocalizationKey = "%1$@ : %2$@"
+//			info.alertLocalizationArgs = ["speakerName", "content"]
 			
 			self.messagesSubscription?.notificationInfo = info
 			self.database.saveSubscription(self.messagesSubscription!, completionHandler: { sub, error in
@@ -221,6 +221,7 @@ public class Cloud: NSObject {
 							ConversationKit.log("\(message.content)")
 							let convo = Conversation.conversationWith(message.listener, speaker: message.speaker)
 							convo.addMessage(message, from: .New)
+							ConversationKit.displayIncomingMessage(message)
 						}
 						completion(true)
 					}

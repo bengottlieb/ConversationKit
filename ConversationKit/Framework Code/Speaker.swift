@@ -102,7 +102,7 @@ public class Speaker: CloudObject {
 		}
 		self.knownSpeakersLoaded = true
 		
-		dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers = [] }
+		dispatch_sync(ConversationKit.queue) { self.knownSpeakers = [] }
 		let moc = DataStore.instance.privateContext
 		moc.performBlock {
 			let speakers: [SpeakerObject] = moc.allObjects()
@@ -113,7 +113,7 @@ public class Speaker: CloudObject {
 				self.addKnownSpeaker(speaker)
 			}
 			
-			dispatch_sync(ConversationKit.instance.queue) {
+			dispatch_sync(ConversationKit.queue) {
 				if self.localSpeaker == nil {
 					let speaker = Speaker()
 					speaker.isLocalSpeaker = true
@@ -129,7 +129,7 @@ public class Speaker: CloudObject {
 	}
 	
 	static var knownSpeakers = Set<Speaker>()
-	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.instance.queue) { self.knownSpeakers.insert(spkr) } }
+	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.queue) { self.knownSpeakers.insert(spkr) } }
 	class func cloudKitRecordIDFromIdentifier(identifier: String?) -> CKRecordID? {
 		if let ident = identifier {
 			return CKRecordID(recordName: "Speaker: " + ident)
@@ -270,7 +270,7 @@ public class Speaker: CloudObject {
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
 	
 	class func clearKnownSpeakers(completion: () -> Void) {
-		dispatch_async(ConversationKit.instance.queue) {
+		dispatch_async(ConversationKit.queue) {
 			self.knownSpeakers = Set<Speaker>()
 			self.localSpeaker = nil
 			self.knownSpeakersLoaded = false

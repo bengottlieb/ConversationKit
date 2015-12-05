@@ -15,7 +15,7 @@ import UIKit
 	func hide(automatically: Bool)
 }
 
-public class MessageReceivedDropDownView: UIViewController, MessageReceivedDisplay, UIScrollViewDelegate {
+public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, UIScrollViewDelegate {
 	public var message: Message!
 	public var contentLabel: UILabel!
 	public var senderLabel: UILabel!
@@ -47,8 +47,8 @@ public class MessageReceivedDropDownView: UIViewController, MessageReceivedDispl
 		guard let scrollView = self.scrollView else { didHide(true); return }
 		
 		let parentBounds = viewController.view.bounds
-		let maxWidth: CGFloat = 375.0
-		let height: CGFloat = 44
+		let maxWidth: CGFloat = 500.0
+		let height: CGFloat = 64
 		let left: CGFloat = max(0, (parentBounds.width - maxWidth) / 2)
 		let width = min(maxWidth, parentBounds.width)
 		
@@ -66,13 +66,18 @@ public class MessageReceivedDropDownView: UIViewController, MessageReceivedDispl
 		viewController.view.addSubview(self.view)
 		self.didMoveToParentViewController(viewController)
 		
-		self.hideTimer = NSTimer.scheduledTimerWithTimeInterval(10.0, target: self, selector: "autoHide", userInfo: nil, repeats: false)
+		let duration = ConversationKit.feedbackLevel == .Production ? 7.0 : 3.0
+		self.hideTimer = NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: "autoHide", userInfo: nil, repeats: false)
 		scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
 	}
 	
 	func autoHide() {
 		self.hide(true)
 	}
+	
+	var textColor = UIColor.whiteColor()
+	let contentFont = UIFont.systemFontOfSize(16)
+	let senderFont = UIFont.boldSystemFontOfSize(16)
 	
 	public override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
@@ -93,7 +98,13 @@ public class MessageReceivedDropDownView: UIViewController, MessageReceivedDispl
 			self.contentLabel.lineBreakMode = .ByWordWrapping
 		}
 		
-		self.contentLabel.text = self.message?.content
+		if let message = self.message {
+			let speakerAttr = [ NSFontAttributeName: self.senderFont, NSForegroundColorAttributeName: self.textColor.colorWithAlphaComponent(0.75) ]
+			let contentAttr = [ NSFontAttributeName: self.contentFont, NSForegroundColorAttributeName: self.textColor ]
+			let string = NSMutableAttributedString(string: (message.speaker?.name ?? "") + "\n", attributes: speakerAttr)
+			string.appendAttributedString(NSAttributedString(string: message.content ?? "", attributes: contentAttr))
+			self.contentLabel.attributedText = string
+		}
 	}
 	
 	public func hide(automatically: Bool) {
@@ -111,7 +122,7 @@ public class MessageReceivedDropDownView: UIViewController, MessageReceivedDispl
 }
 
 
-extension MessageReceivedDropDownView {
+extension MessageReceivedDropDown {
 	public func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
 		self.checkForHidden()
 	}

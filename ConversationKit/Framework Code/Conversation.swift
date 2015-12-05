@@ -12,7 +12,7 @@ import CloudKit
 
 public class Conversation: NSObject {
 	static var existingConversations: Set<Conversation> = []
-	class func addExistingConversation(convo: Conversation) { dispatch_sync(ConversationKit.instance.queue) { self.existingConversations.insert(convo) } }
+	class func addExistingConversation(convo: Conversation) { dispatch_sync(ConversationKit.queue) { self.existingConversations.insert(convo) } }
 	
 	public var startedBy: Speaker
 	public var joinedBy: Speaker
@@ -20,6 +20,16 @@ public class Conversation: NSObject {
 		didSet {
 			if self.hasPendingIncomingMessage != oldValue {
 				Utilities.postNotification(ConversationKit.notifications.incomingPendingMessageChanged, object: self)
+			}
+		}
+	}
+	
+	public var isVisible: Bool = false {
+		didSet {
+			if self.isVisible {
+				ConversationKit.addVisibleConversation(self)
+			} else {
+				ConversationKit.removeVisibleConversation(self)
 			}
 		}
 	}
@@ -36,7 +46,7 @@ public class Conversation: NSObject {
 	
 	func addMessage(message: Message, from: MessageCacheSource) {
 		message.conversation = self
-		dispatch_async(ConversationKit.instance.queue) {
+		dispatch_async(ConversationKit.queue) {
 			self.messages.insert(message)
 			
 			switch from {
@@ -48,7 +58,7 @@ public class Conversation: NSObject {
 	}
 	
 	func removeMessage(message: Message) {
-		dispatch_async(ConversationKit.instance.queue) {
+		dispatch_async(ConversationKit.queue) {
 			self.messages.remove(message)
 		}
 	}
@@ -109,7 +119,7 @@ public class Conversation: NSObject {
 					let message = Message(object: object)
 					self.addMessage(message, from: .CoreDataCache)
 				}
-				dispatch_async(ConversationKit.instance.queue) {
+				dispatch_async(ConversationKit.queue) {
 					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
 				}
 			}
