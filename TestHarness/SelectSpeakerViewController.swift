@@ -25,6 +25,7 @@ class SelectSpeakerViewController: UITableViewController {
 		
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "cancel")
 		
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "messagesLoaded:", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "reloadTable", name: ConversationKit.notifications.foundNewSpeaker, object: nil)
 		self.query.start { speakers in
 			self.refreshControl?.endRefreshing()
@@ -36,6 +37,15 @@ class SelectSpeakerViewController: UITableViewController {
 		self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
 		
 		self.refreshControl?.beginRefreshing()
+	}
+	
+	func messagesLoaded(note: NSNotification) {
+		if let convo = note.object as? Conversation, index = self.speakers.indexOf(convo.nonLocalSpeaker) {
+			let path = NSIndexPath(forItem: index, inSection: 0)
+			self.tableView.beginUpdates()
+			self.tableView.reloadRowsAtIndexPaths([path], withRowAnimation: .Automatic)
+			self.tableView.endUpdates()
+		}
 	}
 	
 	func reloadTable() {
@@ -63,9 +73,21 @@ class SelectSpeakerViewController: UITableViewController {
 	
 	override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
+		let speaker = self.speakers[indexPath.row]
 		
-		cell.textLabel?.text = self.speakers[indexPath.row].name
-		cell.imageView?.image = self.speakers[indexPath.row].avatarImage
+		cell.textLabel?.text = speaker.name
+		cell.imageView?.image = speaker.avatarImage ?? MessageBubbleView.defaultImagePlaceholder
+		
+		if let messageCount = Conversation.existingConversationWith(speaker)?.sortedMessages.count where messageCount > 0 {
+			let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 30))
+			label.text = "\(messageCount)"
+			label.textColor = UIColor.lightGrayColor()
+			label.sizeToFit()
+			cell.accessoryView = label
+		} else {
+			cell.accessoryView = nil
+		}
+		
 		return cell
 	}
 	
@@ -74,4 +96,22 @@ class SelectSpeakerViewController: UITableViewController {
 		self.completion?(speaker)
 		self.dismissViewControllerAnimated(true, completion: nil)
 	}
+	
+	override func tableView(tableView: UITableView, titleForDeleteConfirmationButtonForRowAtIndexPath indexPath: NSIndexPath) -> String? {
+		return "Delete Conversation"
+	}
+	
+	override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+		let speaker = self.speakers[indexPath.row]
+		if let convo = Conversation.existingConversationWith(speaker) {
+			convo.deleteConversation() {
+				Utilities.mainThread { tableView.reloadData() }
+			}
+		}
+	}
+	override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+		let speaker = self.speakers[indexPath.row]
+		return Conversation.existingConversationWith(speaker)?.sortedMessages.count > 0
+	}
+
 }

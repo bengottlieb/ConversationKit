@@ -39,6 +39,7 @@ public class ConversationView: UIView {
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.iCloudAccountIDChanged, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "pendingStatusChanged:", name: ConversationKit.notifications.incomingPendingMessageChanged, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "conversationWasDeleted:", name: ConversationKit.notifications.conversationDeleted, object: nil)
 		
 		self.updateUI()
 	}
@@ -46,6 +47,12 @@ public class ConversationView: UIView {
 	public override func layoutSubviews() {
 		super.layoutSubviews()
 		self.loadTable()
+	}
+	
+	func conversationWasDeleted(note: NSNotification) {
+		if let convo = note.object as? Conversation, current = self.conversation where convo == current {
+			self.conversation = Conversation.existingConversationWith(current.nonLocalSpeaker)
+		}
 	}
 	
 	func pendingStatusChanged(note: NSNotification) {

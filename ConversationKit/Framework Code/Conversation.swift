@@ -23,6 +23,7 @@ public class Conversation: NSObject {
 		}
 	}
 	
+	public var messagesLoaded = false
 	public var isVisible: Bool = false {
 		didSet {
 			if self.isVisible {
@@ -44,6 +45,7 @@ public class Conversation: NSObject {
 		
 		for conversation in Conversation.existingConversations {
 			if conversation.hasSpeakers(speakers) {
+				conversation.loadMessagesFromCoreData()
 				return conversation
 			}
 		}
@@ -75,6 +77,19 @@ public class Conversation: NSObject {
 		return "\(self.startedBy.name ?? "unnamed") <-> \(self.joinedBy.name ?? "unnamed")"
 	}
 	
+	public func deleteConversation(completion: (() -> Void)? = nil) {
+		dispatch_sync(ConversationKit.queue) { Conversation.existingConversations.remove(self) }
+		DataStore.instance.importBlock { moc in
+			for message in self.messages {
+				if let object = message.objectInContext(moc) { moc.deleteObject(object) }
+				message.deleteFromiCloud()
+			}
+			moc.safeSave()
+			Utilities.postNotification(ConversationKit.notifications.conversationDeleted, object: self)
+			completion?()
+		}
+	}
+	
 	init(starter: Speaker, and other: Speaker) {
 		startedBy = starter
 		joinedBy = other
@@ -86,6 +101,8 @@ public class Conversation: NSObject {
 	}
 	
 	func loadMessagesFromCoreData() {
+		if self.messagesLoaded { return }
+		self.messagesLoaded = true
 		DataStore.instance.importBlock { moc in
 			if let pred = self.messagePredicateInContext(moc) {
 				let objects: [MessageObject] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])

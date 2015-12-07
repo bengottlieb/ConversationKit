@@ -25,7 +25,7 @@ public class MessageBubbleView: UIView {
 
 	public var rightHandStem = false
 
-	static var defaultImagePlaceholder: UIImage = {
+	public static var defaultImagePlaceholder: UIImage = {
 		let path = NSBundle(forClass: MessageBubbleView.self).pathForResource("speaker_placeholder", ofType: "png")
 		return UIImage(contentsOfFile: path!)!
 	}()
