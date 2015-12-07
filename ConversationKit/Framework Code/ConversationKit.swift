@@ -45,6 +45,7 @@ public class ConversationKit: NSObject {
 		public static let iCloudAccountIDChanged = "ConversationKit.iCloudAccountIDChanged"
 		public static let incomingPendingMessageChanged = "ConversationKit.incomingPendingMessageChanged"
 		public static let conversationDeleted = "ConversationKit.conversationDeleted"
+		public static let conversationSelected = "ConversationKit.conversationSelected"
 	}
 	
 	override init() {

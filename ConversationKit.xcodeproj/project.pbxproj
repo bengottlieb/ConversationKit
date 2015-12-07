@@ -709,7 +709,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.standalone.conversationKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "1cd7b42c-e6bf-4c6f-a79b-67dc7a87c71d";
+				PROVISIONING_PROFILE = "e8f1c8bb-a897-4ac8-a047-c355df0c6b5b";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -725,7 +725,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.standalone.conversationKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "1cd7b42c-e6bf-4c6f-a79b-67dc7a87c71d";
+				PROVISIONING_PROFILE = "e8f1c8bb-a897-4ac8-a047-c355df0c6b5b";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

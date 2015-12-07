@@ -50,6 +50,7 @@ public class ConversationViewController: UIViewController {
 		
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "receivedMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: "conversationSelected:", name: ConversationKit.notifications.conversationSelected, object: nil)
 		
 		
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
@@ -61,6 +62,12 @@ public class ConversationViewController: UIViewController {
 	//┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 	//┃ //MARK: Notifications
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+	
+	func conversationSelected(note: NSNotification) {
+		if let convo = note.object as? Conversation, current = self.currentConversation where convo == current {
+			self.currentConversation = convo
+		}
+	}
 	
 	func receivedMessage(note: NSNotification) {
 		if let message = note.object as? Message, convo = message.conversation where self.currentConversation == nil {

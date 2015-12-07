@@ -18,6 +18,7 @@ import UIKit
 public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, UIScrollViewDelegate {
 	public var message: Message!
 	public var contentLabel: UILabel!
+	public var mainButton: UIButton!
 	public var senderLabel: UILabel!
 	public var imageView: UIImageView!
 	public var didHide: ((Bool) -> Void)!
@@ -40,8 +41,6 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 		self.scrollView?.delegate = self
 		self.scrollView?.pagingEnabled = true
 	}
-	
-	
 	
 	public func display(viewController: UIViewController, didHide: (Bool) -> Void) {
 		guard let scrollView = self.scrollView else { didHide(true); return }
@@ -89,6 +88,14 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 		
 		self.contentView.backgroundColor = UIColor(white: 0.1, alpha: 0.9)
 		
+		if self.mainButton == nil {
+			self.mainButton = UIButton(type: .Custom)
+			self.mainButton.frame = self.contentView.bounds
+			self.contentView.addSubview(self.mainButton)
+			self.mainButton.showsTouchWhenHighlighted = true
+			self.mainButton.addTarget(self, action: "mainButtonTapped:", forControlEvents: .TouchUpInside)
+		}
+		
 		if self.contentLabel == nil {
 			self.contentLabel = UILabel(frame: CGRect(x: imageViewWidth + hMargin, y: vMargin, width: bounds.width - (imageViewWidth + hMargin * 2), height: bounds.height - vMargin * 2))
 			self.contentLabel.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
@@ -119,6 +126,11 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 		})
 	}
 	
+	func mainButtonTapped(sender: UIButton?) {
+		if let convo = self.message.conversation {
+			Utilities.postNotification(ConversationKit.notifications.conversationSelected, object: convo)
+		}
+	}
 }
 
 
