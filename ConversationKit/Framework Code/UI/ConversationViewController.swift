@@ -64,7 +64,7 @@ public class ConversationViewController: UIViewController {
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 	
 	func conversationSelected(note: NSNotification) {
-		if let convo = note.object as? Conversation, current = self.currentConversation where convo == current {
+		if let convo = note.object as? Conversation, current = self.currentConversation where convo != current {
 			self.currentConversation = convo
 		}
 	}
