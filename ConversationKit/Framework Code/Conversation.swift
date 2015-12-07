@@ -11,11 +11,10 @@ import CoreData
 import CloudKit
 
 public class Conversation: NSObject {
-	static var existingConversations: Set<Conversation> = []
-	class func addExistingConversation(convo: Conversation) { dispatch_sync(ConversationKit.queue) { self.existingConversations.insert(convo) } }
-	
+	public var sortedMessages: [Message] { return Array(self.messages ?? []).sort(<) }
 	public var startedBy: Speaker
 	public var joinedBy: Speaker
+	public var nonLocalSpeaker: Speaker { return self.startedBy.isLocalSpeaker ? self.joinedBy : self.startedBy }
 	public var hasPendingIncomingMessage = false {
 		didSet {
 			if self.hasPendingIncomingMessage != oldValue {
@@ -35,12 +34,79 @@ public class Conversation: NSObject {
 	}
 	
 	var messages: Set<Message> = []
+	static var existingConversations: Set<Conversation> = []
+	class func addExistingConversation(convo: Conversation) { dispatch_sync(ConversationKit.queue) { self.existingConversations.insert(convo) } }
 	
-	public var sortedMessages: [Message] {
-		return Array(self.messages ?? []).sort(<)
+	public class func existingConversationWith(speaker: Speaker?) -> Conversation? {
+		guard let speaker = speaker else { return nil }
+		
+		let speakers = [speaker, Speaker.localSpeaker!]
+		
+		for conversation in Conversation.existingConversations {
+			if conversation.hasSpeakers(speakers) {
+				return conversation
+			}
+		}
+		
+		return nil
 	}
 	
-	public var nonLocalSpeaker: Speaker { return self.startedBy.isLocalSpeaker ? self.joinedBy : self.startedBy }
+	public class func conversationBetween(speakers: [Speaker]) -> Conversation {
+		let actual: [Speaker]
+		
+		if speakers.count == 1 && speakers[0] != Speaker.localSpeaker {
+			actual = [speakers[0], Speaker.localSpeaker!]
+		} else {
+			actual = speakers
+		}
+		for conversation in Conversation.existingConversations {
+			if conversation.hasSpeakers(actual) {
+				return conversation
+			}
+		}
+		
+		let conversation = Conversation(starter: actual[0], and: actual[1])
+		self.addExistingConversation(conversation)
+		conversation.loadMessagesFromCoreData()
+		return conversation
+	}
+	
+	public var shortDescription: String {
+		return "\(self.startedBy.name ?? "unnamed") <-> \(self.joinedBy.name ?? "unnamed")"
+	}
+	
+	init(starter: Speaker, and other: Speaker) {
+		startedBy = starter
+		joinedBy = other
+		super.init()
+	}
+	
+	class func clearExistingConversations() {
+		Conversation.existingConversations.removeAll()
+	}
+	
+	func loadMessagesFromCoreData() {
+		DataStore.instance.importBlock { moc in
+			if let pred = self.messagePredicateInContext(moc) {
+				let objects: [MessageObject] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])
+				
+				for object in objects {
+					let message = Message(object: object)
+					self.addMessage(message, from: .CoreDataCache)
+				}
+				dispatch_async(ConversationKit.queue) {
+					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
+				}
+			}
+		}
+	}
+	
+	func messagePredicateInContext(moc: NSManagedObjectContext) -> NSPredicate? {
+		if let speaker = self.startedBy.objectInContext(moc), other = self.joinedBy.objectInContext(moc) {
+			return NSPredicate(format: "(speaker == %@ || listener == %@) && (speaker == %@ || listener == %@)", speaker, speaker, other, other)
+		}
+		return nil
+	}
 	
 	enum MessageCacheSource { case New, CoreDataCache, iCloudCache }
 	
@@ -65,72 +131,6 @@ public class Conversation: NSObject {
 	
 	func hasSpeakers(speakers: [Speaker]) -> Bool {
 		return speakers.contains(self.startedBy) && speakers.contains(self.joinedBy)
-	}
-	
-	init(starter: Speaker, and other: Speaker) {
-		startedBy = starter
-		joinedBy = other
-		super.init()
-	}
-	
-	class func clearExistingConversations() {
-		Conversation.existingConversations.removeAll()
-	}
-	
-	public class func existingConversationWith(speaker: Speaker?) -> Conversation? {
-		guard let speaker = speaker else { return nil }
-		
-		let speakers = [speaker, Speaker.localSpeaker!]
-		
-		for conversation in Conversation.existingConversations {
-			if conversation.hasSpeakers(speakers) {
-				return conversation
-			}
-		}
-		
-		return nil
-	}
-	
-	public class func conversationWith(listener: Speaker, speaker: Speaker = Speaker.localSpeaker!) -> Conversation {
-		let speakers = [speaker, listener]
-		
-		for conversation in Conversation.existingConversations {
-			if conversation.hasSpeakers(speakers) {
-				return conversation
-			}
-		}
-		
-		let conversation = Conversation(starter: speaker, and: listener)
-		self.addExistingConversation(conversation)
-		conversation.loadMessagesFromCoreData()
-		return conversation
-	}
-	
-	public var shortDescription: String {
-		return "\(self.startedBy.name ?? "unnamed") <-> \(self.joinedBy.name ?? "unnamed")"
-	}
-	
-	func loadMessagesFromCoreData() {
-		DataStore.instance.importBlock { moc in
-			if let pred = self.messagePredicateInContext(moc) {
-				let objects: [MessageObject] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])
-				
-				for object in objects {
-					let message = Message(object: object)
-					self.addMessage(message, from: .CoreDataCache)
-				}
-				dispatch_async(ConversationKit.queue) {
-					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
-				}
-			}
-		}
-	}
-	
-	func messagePredicateInContext(moc: NSManagedObjectContext) -> NSPredicate? {
-		if let speaker = self.startedBy.objectInContext(moc), other = self.joinedBy.objectInContext(moc) {
-			return NSPredicate(format: "(speaker == %@ || listener == %@) && (speaker == %@ || listener == %@)", speaker, speaker, other, other)
-		}
-		return nil
 	}
 	
 }

@@ -140,7 +140,7 @@ public class Cloud: NSObject {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject(inContext: moc)
 						ConversationKit.log("\(message.content)")
-						Conversation.conversationWith(message.listener, speaker: message.speaker).addMessage(message, from: .iCloudCache)
+						Conversation.conversationBetween([message.listener, message.speaker]).addMessage(message, from: .iCloudCache)
 					}
 				}
 			}
@@ -219,7 +219,7 @@ public class Cloud: NSObject {
 						if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 							message.saveManagedObject(inContext: moc)
 							ConversationKit.log("\(message.content)")
-							let convo = Conversation.conversationWith(message.listener, speaker: message.speaker)
+							let convo = Conversation.conversationBetween([message.listener, message.speaker])
 							convo.addMessage(message, from: .New)
 							ConversationKit.displayIncomingMessage(message)
 						}

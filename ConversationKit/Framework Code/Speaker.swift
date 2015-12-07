@@ -89,7 +89,7 @@ public class Speaker: CloudObject {
 	}
 	
 	public func conversationWith(other: Speaker) -> Conversation {
-		return Conversation.conversationWith(other, speaker: self)
+		return Conversation.conversationBetween([other, self])
 	}
 
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }

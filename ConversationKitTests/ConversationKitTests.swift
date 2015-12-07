@@ -28,7 +28,7 @@ class ConversationKitTests: XCTestCase {
 		moc.performBlock {
 			let speaker1: Speaker = moc.speakerWithIdentifier("1")
 			let speaker2: Speaker = moc.localSpeaker
-			let convo = Conversation.conversationBetween(speaker1, and: speaker2)
+			let convo = Conversation.conversationBetween([speaker1, speaker2])
 			
 			convo.createNewMessage("Hello")
 			

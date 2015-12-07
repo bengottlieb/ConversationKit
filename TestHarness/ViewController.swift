@@ -34,8 +34,8 @@ class TestViewController: ConversationViewController {
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 	func didLoadLocalSpeakers(note: NSNotification) {
-		if let speaker = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef) {
-			self.currentConversation = Conversation.conversationWith(speaker)
+		if let speaker = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef), localSpeaker = Speaker.localSpeaker {
+			self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
 		}
 	}
 	
@@ -47,8 +47,8 @@ class TestViewController: ConversationViewController {
 		if !ConversationKit.cloudAvailable { return }
 		
 		let controller = SelectSpeakerViewController(tag: "tester") { speaker in
-			if let speaker = speaker {
-				self.currentConversation = Conversation.conversationWith(speaker)
+			if let speaker = speaker, localSpeaker = Speaker.localSpeaker {
+				self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
 			}
 		}
 		
