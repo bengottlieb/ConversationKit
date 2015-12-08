@@ -61,20 +61,26 @@ public class ConversationKit: NSObject {
 	static let MessageCategory = "MessageCategory"
 
 	public class func configureNotifications(application: UIApplication) {
-		let replyAction = UIMutableUserNotificationAction()
-		replyAction.identifier = self.MessageReplyAction
-		replyAction.behavior = .TextInput
-		replyAction.activationMode = .Background
-		replyAction.destructive = false
-		replyAction.authenticationRequired = false
-		replyAction.title = NSLocalizedString("Reply", comment: "Reply to message option")
-
-		let category = UIMutableUserNotificationCategory()
-		category.identifier = self.MessageCategory
-		category.setActions([replyAction], forContext: .Default)
-		category.setActions([replyAction], forContext: .Minimal)
+		let categories: Set<UIMutableUserNotificationCategory>
 		
-		let categories: Set = [category]
+		if UIApplication.sharedApplication().delegate!.respondsToSelector("application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:") {
+			let replyAction = UIMutableUserNotificationAction()
+			replyAction.identifier = self.MessageReplyAction
+			replyAction.behavior = .TextInput
+			replyAction.activationMode = .Background
+			replyAction.destructive = false
+			replyAction.authenticationRequired = false
+			replyAction.title = NSLocalizedString("Reply", comment: "Reply to message option")
+
+			let category = UIMutableUserNotificationCategory()
+			category.identifier = self.MessageCategory
+			category.setActions([replyAction], forContext: .Default)
+			category.setActions([replyAction], forContext: .Minimal)
+			
+			categories = [category]
+		} else {
+			categories = []
+		}
 		
 		let settings = UIUserNotificationSettings(forTypes: [.Alert, .Sound], categories: categories)
 
