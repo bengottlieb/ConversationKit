@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 extension ConversationKit {
-	public class func displayIncomingMessage(message: Message) {
-		if UIApplication.sharedApplication().applicationState == .Active {
+	public class func displayIncomingMessage(message: Message, when: NSDate? = nil) {
+		if UIApplication.sharedApplication().applicationState == .Active && when == nil {
 			guard let convo = message.conversation else { return }
 			guard !self.visibleConversations.contains(convo) else { return }
 			
@@ -23,7 +23,9 @@ extension ConversationKit {
 			let note = UILocalNotification()
 			
 			note.alertBody = message.speaker.name == nil ? message.content : "\(message.speaker.name!): \(message.content)"
-			note.fireDate = NSDate(timeIntervalSinceNow: 0.1)
+			note.fireDate = when ?? NSDate(timeIntervalSinceNow: 0.001)
+			note.category = ConversationKit.MessageCategory
+			note.userInfo = ["speaker": message.conversation?.nonLocalSpeaker.speakerRef ?? ""]
 			UIApplication.sharedApplication().scheduleLocalNotification(note)
 		}
 	}

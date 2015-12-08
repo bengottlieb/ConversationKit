@@ -57,13 +57,29 @@ public class ConversationKit: NSObject {
 		Cloud.instance.pullDownMessages()
 	}
 	
+	static let MessageReplyAction = "MessageReplyAction"
+	static let MessageCategory = "MessageCategory"
+
 	public class func configureNotifications(application: UIApplication) {
-		#if (arch(i386) || arch(x86_64)) && os(iOS)
-			ConversationKit.log("Push Notifications disabled in the simulator")
-		#else
-			application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
-			application.registerForRemoteNotifications()
-		#endif
+		let replyAction = UIMutableUserNotificationAction()
+		replyAction.identifier = self.MessageReplyAction
+		replyAction.behavior = .TextInput
+		replyAction.activationMode = .Background
+		replyAction.destructive = false
+		replyAction.authenticationRequired = false
+		replyAction.title = NSLocalizedString("Reply", comment: "Reply to message option")
+
+		let category = UIMutableUserNotificationCategory()
+		category.identifier = self.MessageCategory
+		category.setActions([replyAction], forContext: .Default)
+		category.setActions([replyAction], forContext: .Minimal)
+		
+		let categories: Set = [category]
+		
+		let settings = UIUserNotificationSettings(forTypes: [.Alert, .Sound], categories: categories)
+
+		application.registerUserNotificationSettings(settings)
+		application.registerForRemoteNotifications()
 	}
 	
 	public class func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
@@ -79,6 +95,21 @@ public class ConversationKit: NSObject {
 
 		completionHandler(.NewData)
 	}
+	
+	public class func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+		
+		Cloud.instance.setup {
+			if let text = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String, speakerRef = notification.userInfo?["speaker"] as? String, speaker = Speaker.speakerFromIdentifier(speakerRef) {
+				speaker.sendMessage(text) { success in
+					completionHandler()
+				}
+				return
+			}
+			
+			completionHandler()
+		}
+	}
+
 	
 	public class func fetchAccountIdentifier(completion: (String?) -> Void) {
 		Cloud.instance.fetchAccountIdentifier(completion)
