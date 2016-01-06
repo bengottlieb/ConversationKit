@@ -149,12 +149,12 @@ public class ConversationViewController: UIViewController {
 	
 	@IBAction func sendMessage() {
 		if let text = self.messageField.text, speaker = self.currentConversation?.nonLocalSpeaker where text.characters.count > 0 {
+			self.currentConversation?.hasPendingOutgoingMessage = false
 			speaker.sendMessage(text) { saved in
 				print("message saved: \(saved)")
 			}
 			
 			self.messageField.text = ""
-			self.updatePendingIndicator()
 			self.updateUI()
 		}
 	}
