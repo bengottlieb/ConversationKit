@@ -111,6 +111,19 @@ public class ConversationViewController: UIViewController {
 		} else {
 			self.title = ""
 		}
+		
+		let returnKeyType: UIReturnKeyType
+		if let text = self.messageField?.text where !text.isEmpty {
+			returnKeyType = .Send
+		} else {
+			returnKeyType = .Done
+		}
+		
+		if self.messageField.returnKeyType != returnKeyType {
+			self.messageField.returnKeyType = returnKeyType
+			self.messageField.reloadInputViews()
+		}
+		
 		self.messageField?.enabled = self.currentConversation != nil
 		self.sendButton?.enabled = self.currentConversation != nil && !(self.messageField?.text ?? "").isEmpty
 	}
