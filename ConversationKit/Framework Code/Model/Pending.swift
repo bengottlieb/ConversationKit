@@ -34,8 +34,11 @@ class PendingMessage {
 	}
 	
 	var recordIDName: String? {
-		guard let local = Speaker.localSpeaker else { return nil }
-		return "\(local.identifier) -> \(self.speaker.identifier)"
+		guard let local = Speaker.localSpeaker, localIdent = local.identifier, remoteIdent = self.speaker.identifier else {
+			ConversationKit.log("Missing local speaker ID or remote speaker ID")
+			return nil
+		}
+		return "\(localIdent) -> \(remoteIdent)"
 	}
 	
 	var recordID: CKRecordID? { if let name = self.recordIDName { return CKRecordID(recordName: name) }; return nil }
