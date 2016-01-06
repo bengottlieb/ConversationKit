@@ -2,7 +2,7 @@
 
 ### Quickly add CloudKit-based chats to any iOS app
 
-copyright 2015, Stand Alone, Inc. & Ben Gottlieb
+copyright 2015-16, Stand Alone, Inc. & Ben Gottlieb
 
 Instructions for Use:
 
