@@ -127,11 +127,15 @@ public class ConversationKit: NSObject {
 		
 		if ConversationKit.state == .NotSetup {
 			Cloud.instance.setup() {
+				completion?()
 			}
+		} else {
+			completion?()
 		}
 	}
 	
 	public class func setupLocalSpeaker(speakerIdentifier: String, completion: () -> Void) {
+		ConversationKit.log("Setting up local speaker, identifier \(speakerIdentifier)")
 		if ConversationKit.state == .NotSetup {
 			self.setup() { if (ConversationKit.state != .NotSetup) {
 				self.setupLocalSpeaker(speakerIdentifier, completion: completion)
