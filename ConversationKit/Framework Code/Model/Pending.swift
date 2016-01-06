@@ -56,7 +56,7 @@ class PendingMessage {
 		
 		Cloud.instance.database.fetchRecordWithID(recordID) { existing, error in
 			if let record = existing {
-				if record["lastPendingAt"] != nil { return }
+				if (record["lastPendingAt"] != nil && self.pendingAt != nil) || (record["lastPendingAt"] == nil && self.pendingAt == nil) { return }
 				record["lastPendingAt"] = self.pendingAt
 				Cloud.instance.database.saveRecord(record, completionHandler: { record, error in
 					if error != nil { ConversationKit.log("Failed to save pending message", error: error) }
