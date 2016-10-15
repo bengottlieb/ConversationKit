@@ -8,20 +8,20 @@
 
 import UIKit
 
-public class ConversationViewController: UIViewController {
+open class ConversationViewController: UIViewController {
 	deinit {
-		NSNotificationCenter.defaultCenter().removeObserver(self)
+		NotificationCenter.default.removeObserver(self)
 	}
 
-	public var sendButtonEnabledColor = UIColor.blueColor()
-	public var sendButtonDisabledColor = UIColor.lightGrayColor()
+	open var sendButtonEnabledColor = UIColor.blue
+	open var sendButtonDisabledColor = UIColor.lightGray
 	
-	@IBOutlet public var messageField: UITextField!
-	@IBOutlet public var entryContainer: UIView!
-	@IBOutlet public var sendButton: UIButton!
-	@IBOutlet public var conversationView: ConversationView!
+	@IBOutlet open var messageField: UITextField!
+	@IBOutlet open var entryContainer: UIView!
+	@IBOutlet open var sendButton: UIButton!
+	@IBOutlet open var conversationView: ConversationView!
 	
-	public var currentConversation: Conversation? {
+	open var currentConversation: Conversation? {
 		set {
 			self.conversationView?.conversation?.isVisible = false
 			self.conversationView?.conversation = newValue
@@ -33,8 +33,8 @@ public class ConversationViewController: UIViewController {
 	}
 	
 	public convenience init(conversation: Conversation?) {
-		self.init(nibName: "ConversationViewController", bundle: NSBundle(forClass: ConversationKit.self))
-		self.edgesForExtendedLayout  = .None
+		self.init(nibName: "ConversationViewController", bundle: Bundle(for: ConversationKit.self))
+		self.edgesForExtendedLayout  = UIRectEdge()
 		self.loadViewIfNeeded()
 		if let convo = conversation {
 			self.conversationView.conversation = convo
@@ -42,65 +42,65 @@ public class ConversationViewController: UIViewController {
 		self.updateUI()
 	}
 	
-	public override func viewDidLoad() {
+	open override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		self.sendButton.setTitleColor(self.sendButtonEnabledColor, forState: .Normal)
-		self.sendButton.setTitleColor(self.sendButtonDisabledColor, forState: .Disabled)
+		self.sendButton.setTitleColor(self.sendButtonEnabledColor, for: UIControlState())
+		self.sendButton.setTitleColor(self.sendButtonDisabledColor, for: .disabled)
 		
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "receivedMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "conversationSelected:", name: ConversationKit.notifications.conversationSelected, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.updateUI), name: NSNotification.Name(rawValue: ConversationKit.notifications.localSpeakerUpdated), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.receivedMessage(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.postedNewMessage), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.conversationSelected(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.conversationSelected), object: nil)
 		
 		
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
 	}
 	
-	public func didChangeConversation() {}
+	open func didChangeConversation() {}
 	
 	//┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 	//┃ //MARK: Notifications
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 	
-	func conversationSelected(note: NSNotification) {
-		if let convo = note.object as? Conversation, current = self.currentConversation where convo != current {
+	func conversationSelected(_ note: Notification) {
+		if let convo = note.object as? Conversation, let current = self.currentConversation , convo != current {
 			self.currentConversation = convo
 		}
 	}
 	
-	func receivedMessage(note: NSNotification) {
-		if let message = note.object as? Message, convo = message.conversation where self.currentConversation == nil {
+	func receivedMessage(_ note: Notification) {
+		if let message = note.object as? Message, let convo = message.conversation , self.currentConversation == nil {
 			self.currentConversation = convo
 		}
 	}
 	
-	func keyboardWillShow(note: NSNotification) {
-		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
-		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
-		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseOut
+	func keyboardWillShow(_ note: Notification) {
+		guard let userInfo = (note as NSNotification).userInfo as? [String: AnyObject] else { return }
+		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.2
+		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .curveEaseOut
 		guard let frameHolder = userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue else { return }
-		let finalFrame = frameHolder.CGRectValue()
-		let localKeyboardFrame = self.view.convertRect(finalFrame, fromView: nil)
+		let finalFrame = frameHolder.cgRectValue
+		let localKeyboardFrame = self.view.convert(finalFrame, from: nil)
 		let heightDelta = self.entryContainer.frame.maxY - localKeyboardFrame.origin.y
 		var insets = self.conversationView.contentInset
 		insets.bottom += heightDelta
 		
-		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
-			self.entryContainer.transform = CGAffineTransformMakeTranslation(0, -(heightDelta - self.entryContainer.transform.ty))
+		UIView.animate(withDuration: duration, delay: 0.0, options: [.beginFromCurrentState, curve], animations: {
+			self.entryContainer.transform = CGAffineTransform(translationX: 0, y: -(heightDelta - self.entryContainer.transform.ty))
 			self.conversationView.contentInset = insets
 		}, completion: nil)
 	}
 	
-	func keyboardWillHide(note: NSNotification) {
-		guard let userInfo = note.userInfo as? [String: AnyObject] else { return }
-		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSTimeInterval ?? 0.2
-		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .CurveEaseIn
+	func keyboardWillHide(_ note: Notification) {
+		guard let userInfo = (note as NSNotification).userInfo as? [String: AnyObject] else { return }
+		let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.2
+		let curve: UIViewAnimationOptions = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationOptions ?? .curveEaseIn
 		var insets = self.conversationView.contentInset
 		insets.bottom = 0
 		
-		UIView.animateWithDuration(duration, delay: 0.0, options: [.BeginFromCurrentState, curve], animations: {
-			self.entryContainer.transform = CGAffineTransformIdentity
+		UIView.animate(withDuration: duration, delay: 0.0, options: [.beginFromCurrentState, curve], animations: {
+			self.entryContainer.transform = CGAffineTransform.identity
 			self.conversationView.contentInset = insets
 			}, completion: nil)
 	}
@@ -113,10 +113,10 @@ public class ConversationViewController: UIViewController {
 		}
 		
 		let returnKeyType: UIReturnKeyType
-		if let text = self.messageField?.text where !text.isEmpty {
-			returnKeyType = .Send
+		if let text = self.messageField?.text , !text.isEmpty {
+			returnKeyType = .send
 		} else {
-			returnKeyType = .Done
+			returnKeyType = .done
 		}
 		
 		if self.messageField.returnKeyType != returnKeyType {
@@ -124,14 +124,14 @@ public class ConversationViewController: UIViewController {
 			self.messageField.reloadInputViews()
 		}
 		
-		self.messageField?.enabled = self.currentConversation != nil
-		self.sendButton?.enabled = self.currentConversation != nil && !(self.messageField?.text ?? "").isEmpty
+		self.messageField?.isEnabled = self.currentConversation != nil
+		self.sendButton?.isEnabled = self.currentConversation != nil && !(self.messageField?.text ?? "").isEmpty
 	}
 	
-	func textFieldShouldReturn(textField: UITextField) -> Bool {
+	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 		if textField == self.messageField {
 			textField.resignFirstResponder()
-			if let text = textField.text where !text.isEmpty {
+			if let text = textField.text , !text.isEmpty {
 				self.sendMessage()
 			}
 		}
@@ -142,13 +142,13 @@ public class ConversationViewController: UIViewController {
 		self.currentConversation?.hasPendingOutgoingMessage = !(self.messageField?.text?.isEmpty ?? true)
 	}
 	
-	@IBAction func textFieldChanged(field: UITextField?) {
+	@IBAction func textFieldChanged(_ field: UITextField?) {
 		self.updatePendingIndicator()
 		self.updateUI()
 	}
 	
 	@IBAction func sendMessage() {
-		if let text = self.messageField.text, speaker = self.currentConversation?.nonLocalSpeaker where text.characters.count > 0 {
+		if let text = self.messageField.text, let speaker = self.currentConversation?.nonLocalSpeaker , text.characters.count > 0 {
 			self.currentConversation?.hasPendingOutgoingMessage = false
 			speaker.sendMessage(text) { saved in
 				print("message saved: \(saved)")

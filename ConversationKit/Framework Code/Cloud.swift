@@ -11,46 +11,46 @@ import CloudKit
 import CoreData
 import UIKit
 
-public class Cloud: NSObject {
+open class Cloud: NSObject {
 	static let lastPendingFetchedAtKey = "lastFetchedAt"
 
 	static let instance = Cloud()
 	
 	var containerID: String?
-	public var container: CKContainer!
-	public var database: CKDatabase!
+	open var container: CKContainer!
+	open var database: CKDatabase!
 	
-	public func setup(completion: () -> Void) {
-		dispatch_async(self.queue) {
-			if ConversationKit.state != .NotSetup {
+	open func setup(_ completion: @escaping () -> Void) {
+		self.queue.async {
+			if ConversationKit.state != .notSetup {
 				completion()
 				return
 			}
-			self.container = (self.containerID == nil) ? CKContainer.defaultContainer() : CKContainer(identifier: self.containerID!)
+			self.container = (self.containerID == nil) ? CKContainer.default() : CKContainer(identifier: self.containerID!)
 			self.database = self.container.publicCloudDatabase
 			
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateICloudAccountStatus", name: UIApplicationWillEnterForegroundNotification, object: nil)
+			NotificationCenter.default.addObserver(self, selector: #selector(Cloud.updateICloudAccountStatus), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
 
-			self.container.accountStatusWithCompletionHandler { status, error in
+			self.container.accountStatus { status, error in
 				if let err = error {
 					ConversationKit.log("Error while configuring CloudKit", error: err)
 				} else {
 					switch status {
-					case .Available:
-						ConversationKit.state = .Authenticated
+					case .available:
+						ConversationKit.state = .authenticated
 						self.fetchAccountIdentifier { identifier in
 							Speaker.loadCachedSpeakers { completion() }
 						}
 
-					case .CouldNotDetermine:
-						ConversationKit.state = .NotSetup
+					case .couldNotDetermine:
+						ConversationKit.state = .notSetup
 
-					case .NoAccount:
-						ConversationKit.state = .AuthenticatedNoAccount
+					case .noAccount:
+						ConversationKit.state = .authenticatedNoAccount
 						Speaker.loadCachedSpeakers { completion() }
 
-					case .Restricted:
-						ConversationKit.state = .NotSetup
+					case .restricted:
+						ConversationKit.state = .notSetup
 						ConversationKit.log("Restricted: no access to CloudKit account")
 						completion()
 					}
@@ -71,27 +71,27 @@ public class Cloud: NSObject {
 		self.fetchAccountIdentifier { identifier in }
 	}
 	
-	func fetchAccountIdentifier(completion: (String?) -> Void) {
+	func fetchAccountIdentifier(_ completion: @escaping (String?) -> Void) {
 		Cloud.instance.setup { configured in
 			if let ident = self.currentICloudAccountID {
 				completion(ident)
 				return
 			}
-			guard ConversationKit.state != .NotSetup else { completion(nil); return }
-			dispatch_async(self.queue) {
+			guard ConversationKit.state != .notSetup else { completion(nil); return }
+			self.queue.async {
 				self.pendingAccountIDClosures.append(completion)
 				
 				if !self.fetchingAccountIdentifer {
 					self.fetchingAccountIdentifer = true
 
-					Cloud.instance.container.fetchUserRecordIDWithCompletionHandler { recordID, error in
+					Cloud.instance.container.fetchUserRecordID { recordID, error in
 						if (error != nil) { ConversationKit.log("Problem fetching account info record ID", error: error) }
-						dispatch_async(self.queue) {
+						self.queue.async {
 							let original = self.previousICloudAccountID
 							let closures = self.pendingAccountIDClosures
 							self.pendingAccountIDClosures = []
 							self.currentICloudAccountID = recordID == nil ? nil : "ID:\(recordID!.recordName)"
-							ConversationKit.state = self.currentICloudAccountID == nil ? .AuthenticatedNoAccount : .Authenticated
+							ConversationKit.state = self.currentICloudAccountID == nil ? .authenticatedNoAccount : .authenticated
 			
 							for completion in closures {
 								completion(self.currentICloudAccountID)
@@ -115,28 +115,28 @@ public class Cloud: NSObject {
 	
 	var parsingContext: NSManagedObjectContext!
 	
-	func pullDownMessages(all: Bool = false) {
-		guard ConversationKit.state != .NotSetup, let localUserID = Speaker.localSpeaker?.identifier else { return }
+	func pullDownMessages(_ all: Bool = false) {
+		guard ConversationKit.state != .notSetup, let localUserID = Speaker.localSpeaker?.identifier else { return }
 		
 		if self.queryOperation == nil {
-			ConversationKit.instance.networkActivityUsageCount++
+			ConversationKit.instance.networkActivityUsageCount += 1
 			var pred = NSPredicate(format: "speakers contains %@", localUserID)
 			
-			if !all, let date = DataStore.instance[Cloud.lastPendingFetchedAtKey] as? NSDate {
-				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date)])
+			if !all, let date = DataStore.instance[Cloud.lastPendingFetchedAtKey] as? Date {
+				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date as CVarArg)])
 				ConversationKit.log("pulling down messages for \(localUserID) starting at \(date)")
 			} else {
 				ConversationKit.log("pulling all messages down for \(localUserID)")
 			}
 			
-			DataStore.instance[Cloud.lastPendingFetchedAtKey] = NSDate()
+			DataStore.instance[Cloud.lastPendingFetchedAtKey] = Date() as AnyObject?
 			let query = CKQuery(recordType: Message.recordName, predicate: pred)
 			self.queryOperation = CKQueryOperation(query: query)
 			self.parsingContext = DataStore.instance.createWorkerContext()
 			
 			self.queryOperation!.recordFetchedBlock = { record in
-				let moc = self.parsingContext
-				moc.performBlock {
+				guard let moc = self.parsingContext else { return }
+				moc.perform {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject(inContext: moc)
 						ConversationKit.log("\(message.content)")
@@ -147,18 +147,18 @@ public class Cloud: NSObject {
 			
 			self.queryOperation!.queryCompletionBlock = { cursor, error in
 				let moc = self.parsingContext
-				moc.performBlock {
+				moc?.perform {
 					ConversationKit.log("message loading complete")
-					moc.safeSave()
+					moc?.safeSave()
 					self.queryOperation = nil
 					self.parsingContext = nil
 					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesOldMessages)
 					Utilities.postNotification(ConversationKit.notifications.setupComplete)
-					ConversationKit.instance.networkActivityUsageCount--
+					ConversationKit.instance.networkActivityUsageCount -= 1
 				}
 			}
 			
-			self.database.addOperation(self.queryOperation!)
+			self.database.add(self.queryOperation!)
 		}
 	}
 	
@@ -168,21 +168,21 @@ public class Cloud: NSObject {
 	let pendingSubscriptionID = "pendingbscriptionID"
 	var pendingSubscription: CKSubscription?
 
-	public func discontinueSubscription(identifier: String?) {
+	open func discontinueSubscription(_ identifier: String?) {
 		for sub in [self.messagesSubscription] {
 			guard let sub = sub else { continue }
-			self.database.deleteSubscriptionWithID(sub.subscriptionID, completionHandler: { subID, error in
+			self.database.delete(withSubscriptionID: sub.subscriptionID, completionHandler: { subID, error in
 				if error != nil { ConversationKit.log("Error deleting subscription", error: error) }
 			})
 		}
 	}
 	
 	func setupSubscription() {
-		guard ConversationKit.state != .NotSetup, let localUserID = Speaker.localSpeaker.identifier else { return }
+		guard ConversationKit.state != .notSetup, let localUserID = Speaker.localSpeaker.identifier else { return }
 		
 		if self.messagesSubscription == nil {
 			let pred = NSPredicate(format: "speakers contains %@", localUserID)
-			self.messagesSubscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messagesSubscriptionID, options: .FiresOnRecordCreation)
+			self.messagesSubscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messagesSubscriptionID, options: .firesOnRecordCreation)
 			let info = CKNotificationInfo()
 			info.shouldSendContentAvailable = true
 //			info.alertBody = "Test Alert"
@@ -190,19 +190,19 @@ public class Cloud: NSObject {
 //			info.alertLocalizationArgs = ["speakerName", "content"]
 			
 			self.messagesSubscription?.notificationInfo = info
-			self.database.saveSubscription(self.messagesSubscription!, completionHandler: { sub, error in
+			self.database.save(self.messagesSubscription!, completionHandler: { sub, error in
 				ConversationKit.log("Finished Creating Message Subscription: \(sub)", error: error)
 			})
 		}
 
 		if self.pendingSubscription == nil {
 			let pred = NSPredicate(format: "recipient = %@", localUserID)
-			self.pendingSubscription = CKSubscription(recordType: PendingMessage.recordName, predicate: pred, subscriptionID: self.pendingSubscriptionID, options: [.FiresOnRecordCreation, .FiresOnRecordUpdate])
+			self.pendingSubscription = CKSubscription(recordType: PendingMessage.recordName, predicate: pred, subscriptionID: self.pendingSubscriptionID, options: [.firesOnRecordCreation, .firesOnRecordUpdate])
 			let info = CKNotificationInfo()
 			info.shouldSendContentAvailable = true
 			
 			self.pendingSubscription?.notificationInfo = info
-			self.database.saveSubscription(self.pendingSubscription!, completionHandler: { sub, error in
+			self.database.save(self.pendingSubscription!, completionHandler: { sub, error in
 				ConversationKit.log("Finished Creating Pending Subscription: \(sub)", error: error)
 			})
 		}
@@ -210,8 +210,8 @@ public class Cloud: NSObject {
 	
 	
 	
-	internal func handleNotificationCloudRecordID(recordID: CKRecordID, reason: CKQueryNotificationReason, completion: (Bool) -> Void) {
-		self.database.fetchRecordWithID(recordID) { incoming, error in
+	internal func handleNotificationCloudRecordID(_ recordID: CKRecordID, reason: CKQueryNotificationReason, completion: @escaping (Bool) -> Void) {
+		self.database.fetch(withRecordID: recordID) { incoming, error in
 			if let record = incoming {
 				if record.recordType == Message.recordName {
 					
@@ -220,14 +220,14 @@ public class Cloud: NSObject {
 							message.saveManagedObject(inContext: moc)
 							ConversationKit.log("\(message.content)")
 							let convo = Conversation.conversationBetween([message.listener, message.speaker])
-							convo.addMessage(message, from: .New)
+							convo.addMessage(message, from: .new)
 							ConversationKit.displayIncomingMessage(message)
 						}
 						completion(true)
 					}
 					return
 				} else if record.recordType == PendingMessage.recordName {
-					if let speaker = Speaker.speakerFromIdentifier(record["speaker"] as? String), conversation = Conversation.existingConversationWith(speaker) {
+					if let speaker = Speaker.speakerFromIdentifier(record["speaker"] as? String), let conversation = Conversation.existingConversationWith(speaker) {
 						conversation.hasPendingIncomingMessage = record["lastPendingAt"] != nil
 					}
 				}
@@ -236,5 +236,5 @@ public class Cloud: NSObject {
 		}
 	}
 	
-	internal let queue = dispatch_queue_create("ConversationKitCloudQueue", DISPATCH_QUEUE_SERIAL)
+	internal let queue = DispatchQueue(label: "ConversationKitCloudQueue", attributes: [])
 }

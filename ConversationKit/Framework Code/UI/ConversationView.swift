@@ -8,16 +8,16 @@
 
 import UIKit
 
-public class ConversationView: UIView {
+open class ConversationView: UIView {
 	deinit {
-		NSNotificationCenter.defaultCenter().removeObserver(self)
+		NotificationCenter.default.removeObserver(self)
 	}
 
-	public var conversation: Conversation? { didSet {
+	open var conversation: Conversation? { didSet {
 		self.loadTable()
 		self.scrollToLast()
 	}}
-	public var allowMessageDeletion = true
+	open var allowMessageDeletion = true
 	var tableView: UITableView!
 	var messages: [Message] = []
 	var notSignedInLabel: UILabel!
@@ -34,91 +34,91 @@ public class ConversationView: UIView {
 	}
 	
 	func setup() {
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "scrollToLast", name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "newMessage:", name: ConversationKit.notifications.postedNewMessage, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.downloadedOldMessage, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: ConversationKit.notifications.iCloudAccountIDChanged, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "pendingStatusChanged:", name: ConversationKit.notifications.incomingPendingMessageChanged, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "conversationWasDeleted:", name: ConversationKit.notifications.conversationDeleted, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.scrollToLast), name: NSNotification.Name(rawValue: ConversationKit.notifications.finishedLoadingMessagesForConversation), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.newMessage(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.postedNewMessage), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.updateUI), name: NSNotification.Name(rawValue: ConversationKit.notifications.downloadedOldMessage), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.updateUI), name: NSNotification.Name(rawValue: ConversationKit.notifications.iCloudAccountIDChanged), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.pendingStatusChanged(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.incomingPendingMessageChanged), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.conversationWasDeleted(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.conversationDeleted), object: nil)
 		
 		self.updateUI()
 	}
 	
-	public override func layoutSubviews() {
+	open override func layoutSubviews() {
 		super.layoutSubviews()
 		self.loadTable()
 	}
 	
-	func conversationWasDeleted(note: NSNotification) {
-		if let convo = note.object as? Conversation, current = self.conversation where convo == current {
+	func conversationWasDeleted(_ note: Notification) {
+		if let convo = note.object as? Conversation, let current = self.conversation , convo == current {
 			self.conversation = Conversation.existingConversationWith(current.nonLocalSpeaker)
 		}
 	}
 	
-	func pendingStatusChanged(note: NSNotification) {
+	func pendingStatusChanged(_ note: Notification) {
 		self.updateUI()
 		if self.messages.count > 0 {
-			self.tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: self.messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
+			self.tableView?.scrollToRow(at: IndexPath(row: self.messages.count - 1, section: 0), at: .bottom, animated: true)
 		}
 	}
 	
 	func updateUI() {
-		if ConversationKit.state == .NotSetup { return }
+		if ConversationKit.state == .notSetup { return }
 		
 		self.loadTable()
-		if ConversationKit.state == .Authenticated {
-			self.openSettingsButton?.hidden = true
-			self.notSignedInLabel?.hidden = true
+		if ConversationKit.state == .authenticated {
+			self.openSettingsButton?.isHidden = true
+			self.notSignedInLabel?.isHidden = true
 			self.messages = self.conversation?.sortedMessages ?? []
 			self.tableView?.reloadData()
 		} else {
 			if self.notSignedInLabel == nil {
-				var frame = CGRectInset(self.bounds, 20, 20)
+				var frame = self.bounds.insetBy(dx: 20, dy: 20)
 				frame.size.height -= 150
 				self.notSignedInLabel = UILabel(frame: frame)
 				self.addSubview(self.notSignedInLabel)
 				self.notSignedInLabel.text = NSLocalizedString("Not signed in to iCloud.\n\n\nPlease enter your iCloud credentials into System Settings", comment: "Not signed into iCloud message")
 				self.notSignedInLabel.numberOfLines = 0
-				self.notSignedInLabel.textAlignment = .Center
-				self.notSignedInLabel.lineBreakMode = .ByWordWrapping
-				self.notSignedInLabel.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
-				self.notSignedInLabel.textColor = UIColor.grayColor()
+				self.notSignedInLabel.textAlignment = .center
+				self.notSignedInLabel.lineBreakMode = .byWordWrapping
+				self.notSignedInLabel.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+				self.notSignedInLabel.textColor = UIColor.gray
 			}
 			
 			if self.openSettingsButton == nil {
-				self.openSettingsButton = UIButton(type: .Custom)
-				self.openSettingsButton.setTitle(NSLocalizedString("Open Settings", comment: "Open Settings"), forState: .Normal)
+				self.openSettingsButton = UIButton(type: .custom)
+				self.openSettingsButton.setTitle(NSLocalizedString("Open Settings", comment: "Open Settings"), for: UIControlState())
 				self.openSettingsButton.sizeToFit()
 				self.addSubview(self.openSettingsButton)
-				self.openSettingsButton.setTitleColor(UIColor.blueColor(), forState: .Normal)
+				self.openSettingsButton.setTitleColor(UIColor.blue, for: UIControlState())
 				self.openSettingsButton.center = CGPoint(x: self.bounds.midX, y: self.bounds.maxY - 50)
-				self.openSettingsButton.addTarget(self, action: "openSettings", forControlEvents: .TouchUpInside)
-				self.openSettingsButton.autoresizingMask = [.FlexibleTopMargin, .FlexibleLeftMargin, .FlexibleRightMargin]
+				self.openSettingsButton.addTarget(self, action: #selector(ConversationView.openSettings), for: .touchUpInside)
+				self.openSettingsButton.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin]
 			}
-			self.tableView?.hidden = true
-			self.notSignedInLabel?.hidden = false
-			self.openSettingsButton?.hidden = false
+			self.tableView?.isHidden = true
+			self.notSignedInLabel?.isHidden = false
+			self.openSettingsButton?.isHidden = false
 		}
 	}
 	
 	func openSettings() {
-		UIApplication.sharedApplication().openURL(NSURL(string: UIApplicationOpenSettingsURLString)!)
+		UIApplication.shared.openURL(URL(string: UIApplicationOpenSettingsURLString)!)
 	}
 	
-	public var contentInset: UIEdgeInsets {
-		get { return self.tableView?.contentInset ?? UIEdgeInsetsZero }
+	open var contentInset: UIEdgeInsets {
+		get { return self.tableView?.contentInset ?? UIEdgeInsets.zero }
 		set { self.tableView?.contentInset = newValue }
 	}
 	
-	func newMessage(note: NSNotification) {
+	func newMessage(_ note: Notification) {
 		self.updateUI()
 		
 		self.scrollToMessage(note.object as? Message)
 	}
 	
-	func scrollToMessage(message: Message?) {
-		if let message = message, index = self.messages.indexOf(message) {
-			self.tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0), atScrollPosition: .Bottom, animated: true)
+	func scrollToMessage(_ message: Message?) {
+		if let message = message, let index = self.messages.index(of: message) {
+			self.tableView?.scrollToRow(at: IndexPath(row: index, section: 0), at: .bottom, animated: true)
 		}
 	}
 	
@@ -131,30 +131,30 @@ public class ConversationView: UIView {
 extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 	func loadTable() {
 		if self.tableView == nil {
-			self.tableView = UITableView(frame: self.bounds, style: .Plain)
+			self.tableView = UITableView(frame: self.bounds, style: .plain)
 			self.addSubview(self.tableView)
 			self.tableView.delegate = self
 			self.tableView.dataSource = self
-			self.tableView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight] 
-			self.tableView.registerNib(UINib(nibName: "ConversationMessageTableViewCell", bundle: NSBundle(forClass: self.dynamicType)), forCellReuseIdentifier: ConversationMessageTableViewCell.identifier)
-			self.tableView.separatorStyle = .None
+			self.tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight] 
+			self.tableView.register(UINib(nibName: "ConversationMessageTableViewCell", bundle: Bundle(for: type(of: self))), forCellReuseIdentifier: ConversationMessageTableViewCell.identifier)
+			self.tableView.separatorStyle = .none
 		}
 	}
 	
-	public func numberOfSectionsInTableView(tableView: UITableView) -> Int { return 1 }
-	public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	public func numberOfSections(in tableView: UITableView) -> Int { return 1 }
+	public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		guard let conversation = self.conversation else { return 0 }
 		
 		return self.messages.count + (conversation.hasPendingIncomingMessage ? 1 : 0)
 	}
 	
-	func messageAtIndexPath(path: NSIndexPath) -> Message? {
-		if path.row < self.messages.count { return self.messages[path.row] }
+	func messageAtIndexPath(_ path: IndexPath) -> Message? {
+		if (path as NSIndexPath).row < self.messages.count { return self.messages[(path as NSIndexPath).row] }
 		return nil
 	}
 	
-	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCellWithIdentifier(ConversationMessageTableViewCell.identifier, forIndexPath: indexPath) as! ConversationMessageTableViewCell
+	public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+		let cell = tableView.dequeueReusableCell(withIdentifier: ConversationMessageTableViewCell.identifier, for: indexPath) as! ConversationMessageTableViewCell
 		if let message = self.messageAtIndexPath(indexPath) {
 			cell.message = message
 			message.markAsRead()
@@ -164,29 +164,29 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 		return cell
 	}
 	
-	public func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+	public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 		if let message = self.messageAtIndexPath(indexPath) {
 			return ConversationMessageTableViewCell.heightForMessage(message, inTableWidth: tableView.bounds.width)
 		}
 		return 44.0
 	}
 	
-	public func tableView(tableView: UITableView, titleForDeleteConfirmationButtonForRowAtIndexPath indexPath: NSIndexPath) -> String? {
+	public func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
 		return self.allowMessageDeletion ? NSLocalizedString("Delete", comment: "Delete") : nil
 	}
 	
-	public func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+	public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
 		if let message = self.messageAtIndexPath(indexPath) {
 			tableView.beginUpdates()
-			tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-			self.messages.removeAtIndex(indexPath.row)
+			tableView.deleteRows(at: [indexPath], with: .automatic)
+			self.messages.remove(at: (indexPath as NSIndexPath).row)
 			
 			message.delete()
 			tableView.endUpdates()
 		}
 	}
 	
-	public func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+	public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
 		return self.allowMessageDeletion
 	}
 }

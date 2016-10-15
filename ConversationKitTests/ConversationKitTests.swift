@@ -25,9 +25,9 @@ class ConversationKitTests: XCTestCase {
 	func testCreateConversation() {
 		let moc = self.store.createWorkerContext()
 		
-		moc.performBlock {
-			let speaker1: Speaker = moc.speakerWithIdentifier("1")
-			let speaker2: Speaker = moc.localSpeaker
+		moc.perform {
+			let speaker1: Speaker = Speaker.speaker(withIdentifier: "1")
+			let speaker2: Speaker = Speaker.localSpeaker
 			let convo = Conversation.conversationBetween([speaker1, speaker2])
 			
 			convo.createNewMessage("Hello")
@@ -44,7 +44,7 @@ class ConversationKitTests: XCTestCase {
     
     func testxPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }

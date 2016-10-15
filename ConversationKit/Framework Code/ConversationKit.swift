@@ -10,14 +10,14 @@ import Foundation
 import UIKit
 import CloudKit
 
-public class ConversationKit: NSObject {
-	@objc public enum State: Int { case NotSetup, AuthenticatedNoAccount, Authenticated }
-	@objc public enum FeedbackLevel: Int { case Development = 0, Testing = 1, Production = 2 }
-	public static var feedbackLevel = FeedbackLevel.Development
-	public static var state = State.NotSetup
+open class ConversationKit: NSObject {
+	@objc public enum State: Int { case notSetup, authenticatedNoAccount, authenticated }
+	@objc public enum FeedbackLevel: Int { case development = 0, testing = 1, production = 2 }
+	open static var feedbackLevel = FeedbackLevel.development
+	open static var state = State.notSetup
 	
-	public var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
-		UIApplication.sharedApplication().networkActivityIndicatorVisible = enable
+	open var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
+		UIApplication.shared.isNetworkActivityIndicatorVisible = enable
 	}
 	
 	internal var networkActivityUsageCount = 0 { didSet {
@@ -28,7 +28,7 @@ public class ConversationKit: NSObject {
 		}
 	}}
 
-	public static var cloudAvailable: Bool { return ConversationKit.state != .NotSetup }
+	open static var cloudAvailable: Bool { return ConversationKit.state != .notSetup }
 
 	static let instance = ConversationKit()
 	
@@ -50,7 +50,7 @@ public class ConversationKit: NSObject {
 	
 	override init() {
 		super.init()
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidBecomeActive", name: UIApplicationDidBecomeActiveNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationKit.applicationDidBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
 	}
 	
 	func applicationDidBecomeActive() {
@@ -60,52 +60,52 @@ public class ConversationKit: NSObject {
 	static let MessageReplyAction = "MessageReplyAction"
 	static let MessageCategory = "MessageCategory"
 
-	public class func configureNotifications(application: UIApplication) {
+	open class func configureNotifications(_ application: UIApplication) {
 		let categories: Set<UIMutableUserNotificationCategory>
 		
-		if UIApplication.sharedApplication().delegate!.respondsToSelector("application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:") {
+		if UIApplication.shared.delegate!.responds(to: #selector(UIApplicationDelegate.application(_:handleActionWithIdentifier:for:withResponseInfo:completionHandler:))) {
 			let replyAction = UIMutableUserNotificationAction()
 			replyAction.identifier = self.MessageReplyAction
-			replyAction.behavior = .TextInput
-			replyAction.activationMode = .Background
-			replyAction.destructive = false
-			replyAction.authenticationRequired = false
+			replyAction.behavior = .textInput
+			replyAction.activationMode = .background
+			replyAction.isDestructive = false
+			replyAction.isAuthenticationRequired = false
 			replyAction.title = NSLocalizedString("Reply", comment: "Reply to message option")
 
 			let category = UIMutableUserNotificationCategory()
 			category.identifier = self.MessageCategory
-			category.setActions([replyAction], forContext: .Default)
-			category.setActions([replyAction], forContext: .Minimal)
+			category.setActions([replyAction], for: .default)
+			category.setActions([replyAction], for: .minimal)
 			
 			categories = [category]
 		} else {
 			categories = []
 		}
 		
-		let settings = UIUserNotificationSettings(forTypes: [.Alert, .Sound], categories: categories)
+		let settings = UIUserNotificationSettings(types: [.alert, .sound], categories: categories)
 
 		application.registerUserNotificationSettings(settings)
 		application.registerForRemoteNotifications()
 	}
 	
-	public class func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification where ckNotification.notificationType == .Query {
+	open class func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification , ckNotification.notificationType == .query {
 			print("received notification: \(ckNotification)")
 			if let recordID = ckNotification.recordID {
 				Cloud.instance.handleNotificationCloudRecordID(recordID, reason: ckNotification.queryNotificationReason) { success in
-					completionHandler(.NewData)
+					completionHandler(.newData)
 				}
 				return
 			}
 		}
 
-		completionHandler(.NewData)
+		completionHandler(.newData)
 	}
 	
-	public class func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+	open class func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) {
 		
 		Cloud.instance.setup {
-			if let text = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String, speakerRef = notification.userInfo?["speaker"] as? String, speaker = Speaker.speakerFromIdentifier(speakerRef) {
+			if let text = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String, let speakerRef = notification.userInfo?["speaker"] as? String, let speaker = Speaker.speakerFromIdentifier(speakerRef) {
 				speaker.sendMessage(text) { success in
 					completionHandler()
 				}
@@ -117,15 +117,15 @@ public class ConversationKit: NSObject {
 	}
 
 	
-	public class func fetchAccountIdentifier(completion: (String?) -> Void) {
+	open class func fetchAccountIdentifier(_ completion: @escaping (String?) -> Void) {
 		Cloud.instance.fetchAccountIdentifier(completion)
 	}
 	
-	public class func setup(feedbackLevel: FeedbackLevel = ConversationKit.feedbackLevel, completion: (() -> Void)? = nil) {
+	open class func setup(_ feedbackLevel: FeedbackLevel = ConversationKit.feedbackLevel, completion: (() -> Void)? = nil) {
 		ConversationKit.feedbackLevel = feedbackLevel
-		if ConversationKit.feedbackLevel != .Production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
+		if ConversationKit.feedbackLevel != .production { self.log("Setting up ConversationKit, feedback level: \(ConversationKit.feedbackLevel.rawValue)") }
 		
-		if ConversationKit.state == .NotSetup {
+		if ConversationKit.state == .notSetup {
 			Cloud.instance.setup() {
 				completion?()
 			}
@@ -134,10 +134,10 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public class func setupLocalSpeaker(speakerIdentifier: String, completion: () -> Void) {
+	open class func setupLocalSpeaker(_ speakerIdentifier: String, completion: @escaping () -> Void) {
 		ConversationKit.log("Setting up local speaker, identifier \(speakerIdentifier)")
-		if ConversationKit.state == .NotSetup {
-			self.setup() { if (ConversationKit.state != .NotSetup) {
+		if ConversationKit.state == .notSetup {
+			self.setup() { if (ConversationKit.state != .notSetup) {
 				self.setupLocalSpeaker(speakerIdentifier, completion: completion)
 			}}
 			return
@@ -163,12 +163,12 @@ public class ConversationKit: NSObject {
 
 	let lastSignedInAsKey = "lastSignedInAs"
 
-	func loadLocalSpeaker(identifier: String, completion: (() -> Void)?) {
+	func loadLocalSpeaker(_ identifier: String, completion: (() -> Void)?) {
 		ConversationKit.log("Loading local speaker ID: \(identifier)")
-		let defaults = NSUserDefaults.standardUserDefaults()
-		if let prevLoggedInAs = defaults.stringForKey(self.lastSignedInAsKey) where prevLoggedInAs != identifier {
+		let defaults = UserDefaults.standard
+		if let prevLoggedInAs = defaults.string(forKey: self.lastSignedInAsKey) , prevLoggedInAs != identifier {
 			ConversationKit.log("New Local Speaker ID found (was \(prevLoggedInAs)), resetting store.")
-			defaults.setObject(identifier, forKey: self.lastSignedInAsKey)
+			defaults.set(identifier, forKey: self.lastSignedInAsKey)
 			defaults.synchronize()
 			ConversationKit.clearAllCachedDataWithCompletion {
 				self.loadLocalSpeaker(identifier, completion: completion)
@@ -176,10 +176,10 @@ public class ConversationKit: NSObject {
 			return
 		}
 		
-		defaults.setObject(identifier, forKey: self.lastSignedInAsKey)
+		defaults.set(identifier, forKey: self.lastSignedInAsKey)
 		defaults.synchronize()
 
-		if ConversationKit.state != .NotSetup {
+		if ConversationKit.state != .notSetup {
 			Speaker.localSpeaker?.refreshFromCloud() { success in
 				Speaker.localSpeaker.identifier = identifier
 				Speaker.localSpeaker.refreshFromCloud { complete in
@@ -195,12 +195,12 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	public class func clearAllCachedDataWithCompletion(completion: () -> Void) {
+	open class func clearAllCachedDataWithCompletion(_ completion: @escaping () -> Void) {
 		Conversation.clearExistingConversations()
 		Speaker.clearKnownSpeakers {
 			do {
-				try NSFileManager.defaultManager().removeItemAtURL(DataStore.instance.imagesCacheURL)
-				try NSFileManager.defaultManager().createDirectoryAtURL(DataStore.instance.imagesCacheURL, withIntermediateDirectories: true, attributes: nil)
+				try FileManager.default.removeItem(at: DataStore.instance.imagesCacheURL as URL)
+				try FileManager.default.createDirectory(at: DataStore.instance.imagesCacheURL as URL, withIntermediateDirectories: true, attributes: nil)
 			} catch {}
 			DataStore.instance.clearAllCachedDataWithCompletion {
 				Speaker.loadCachedSpeakers {
@@ -210,19 +210,19 @@ public class ConversationKit: NSObject {
 		}
 	}
 	
-	internal static let queue = dispatch_queue_create("ConversationKitQueue", DISPATCH_QUEUE_SERIAL)
+	internal static let queue = DispatchQueue(label: "ConversationKitQueue", attributes: [])
 	internal static var pendingMessageDisplays: [Message] = []
 	
 	static var visibleConversations: Set<Conversation> = []
-	public static var messageDisplayWindow: UIWindow?
+	open static var messageDisplayWindow: UIWindow?
 	var currentDisplayedMessage: MessageReceivedDropDown?
 
 
 }
 
 extension ConversationKit {
-	class func log(message: String, error: ErrorType? = nil) {
-		if ConversationKit.feedbackLevel != .Production {
+	class func log(_ message: String, error: Error? = nil) {
+		if ConversationKit.feedbackLevel != .production {
 			print("••• \(message)" + (error != nil ? ": \(error)" : ""))
 		}
 	}

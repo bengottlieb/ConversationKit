@@ -14,16 +14,16 @@ class TestViewController: ConversationViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .Plain, target: self, action: "chooseConverationalist:")
-		self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Info", style: .Plain, target: self, action: "showSpeakerInfo")
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .plain, target: self, action: #selector(TestViewController.chooseConverationalist(_:)))
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Info", style: .plain, target: self, action: #selector(TestViewController.showSpeakerInfo))
 		
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: "didLoadLocalSpeakers:", name: ConversationKit.notifications.loadedKnownSpeakers, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(TestViewController.didLoadLocalSpeakers(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.loadedKnownSpeakers), object: nil)
 	}
 	
 	override func didChangeConversation() {
 		if let speaker = self.currentConversation?.nonLocalSpeaker {
-			let defaults = NSUserDefaults()
-			defaults.setObject(speaker.speakerRef, forKey: self.lastConversationalistKey)
+			let defaults = UserDefaults()
+			defaults.set(speaker.speakerRef, forKey: self.lastConversationalistKey)
 			defaults.synchronize()
 		}
 	}
@@ -33,8 +33,8 @@ class TestViewController: ConversationViewController {
 	//┃ //MARK: Notifications
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-	func didLoadLocalSpeakers(note: NSNotification) {
-		if let speaker = Speaker.speakerFromSpeakerRef(NSUserDefaults.standardUserDefaults().objectForKey(self.lastConversationalistKey) as? Speaker.SpeakerRef), localSpeaker = Speaker.localSpeaker {
+	func didLoadLocalSpeakers(_ note: Notification) {
+		if let speaker = Speaker.speakerFromSpeakerRef(UserDefaults.standard.object(forKey: self.lastConversationalistKey) as? Speaker.SpeakerRef), let localSpeaker = Speaker.localSpeaker {
 			self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
 		}
 	}
@@ -43,17 +43,17 @@ class TestViewController: ConversationViewController {
 		SpeakerInfoViewController.showSpeaker(Speaker.localSpeaker, inController: self)
 	}
 	
-	@IBAction func chooseConverationalist(sender: UIButton?) {
+	@IBAction func chooseConverationalist(_ sender: UIButton?) {
 		if !ConversationKit.cloudAvailable { return }
 		
 		let controller = SelectSpeakerViewController(tag: "tester") { speaker in
-			if let speaker = speaker, localSpeaker = Speaker.localSpeaker {
+			if let speaker = speaker, let localSpeaker = Speaker.localSpeaker {
 				self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
 			}
 		}
 		
 		controller.title = Speaker.localSpeaker.name ?? "Unnamed"
-		self.presentViewController(UINavigationController(rootViewController: controller), animated: true, completion: nil)
+		self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
 
 	}
 

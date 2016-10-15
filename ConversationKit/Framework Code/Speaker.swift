@@ -11,38 +11,38 @@ import CoreData
 import CloudKit
 import UIKit
 
-public class Speaker: CloudObject {
-	public static var maxImageSize = CGSize(width: 120, height: 120)
+open class Speaker: CloudObject {
+	open static var maxImageSize = CGSize(width: 120, height: 120)
 	public typealias SpeakerRef = String
-	public var identifier: String? { didSet {
+	open var identifier: String? { didSet {
 		if self.identifier != oldValue {
 			self.needsCloudSave = self.isLocalSpeaker
 			self.cloudKitRecordID = Speaker.cloudKitRecordIDFromIdentifier(self.identifier)
 		}
 	}}
 	var pending: PendingMessage?
-	public var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
-	public var tags: Set<String> = [] { didSet { if self.tags != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
-	public var isLocalSpeaker = false
-	public class func allKnownSpeakers() -> [Speaker] { return Array(self.knownSpeakers) }
-	public var avatarImage: UIImage? { didSet {
+	open var name: String? { didSet { if self.name != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
+	open var tags: Set<String> = [] { didSet { if self.tags != oldValue { self.needsCloudSave = self.isLocalSpeaker }}}
+	open var isLocalSpeaker = false
+	open class func allKnownSpeakers() -> [Speaker] { return Array(self.knownSpeakers) }
+	open var avatarImage: UIImage? { didSet {
 		self.needsCloudSave = self.isLocalSpeaker
 	}}
-	public var avatarImageLocalURL: NSURL? { return self.avatarImageFileName.isEmpty ? nil : DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(self.avatarImageFileName) }
-	public func storeAvatarImage(image: UIImage?) {
+	open var avatarImageLocalURL: URL? { return self.avatarImageFileName.isEmpty ? nil : DataStore.instance.imagesCacheURL.appendingPathComponent(self.avatarImageFileName) }
+	open func storeAvatarImage(_ image: UIImage?) {
 		if var newImage = image {
 			if newImage.size.width > Speaker.maxImageSize.width || newImage.size.height > Speaker.maxImageSize.height {
 				let scale = min(Speaker.maxImageSize.width / newImage.size.width, Speaker.maxImageSize.height / newImage.size.height)
 				let bounds = CGRect(x: 0, y: 0, width: newImage.size.width * scale, height: newImage.size.height * scale)
 				UIGraphicsBeginImageContextWithOptions(bounds.size, false, 2.0)
-				newImage.drawInRect(bounds)
-				newImage = UIGraphicsGetImageFromCurrentImageContext()
+				newImage.draw(in: bounds)
+				newImage = UIGraphicsGetImageFromCurrentImageContext()!
 				UIGraphicsEndImageContext()
 			}
 			if let data = UIImageJPEGRepresentation(newImage, 0.9) {
 				self.avatarImageFileName = data.sha255Hash + ".jpg"
 				
-				data.writeToURL(self.avatarImageLocalURL!, atomically: true)
+				try? data.write(to: self.avatarImageLocalURL!, options: [.atomic])
 				self.needsCloudSave = true
 				self.avatarImage = newImage
 			}
@@ -51,9 +51,9 @@ public class Speaker: CloudObject {
 		}
 	}
 	
-	public static var localSpeaker: Speaker!
-	public class func speakerWithIdentifier(identifier: String, name: String? = nil) -> Speaker {
-		if let cloudID = Speaker.cloudKitRecordIDFromIdentifier(identifier), existing = self.speakerFromRecordID(cloudID) { return existing }
+	open static var localSpeaker: Speaker!
+	open class func speaker(withIdentifier identifier: String, name: String? = nil) -> Speaker {
+		if let cloudID = Speaker.cloudKitRecordIDFromIdentifier(identifier), let existing = self.speakerFromRecordID(cloudID) { return existing }
 		
 		let newSpeaker = Speaker()
 		newSpeaker.identifier = identifier
@@ -64,7 +64,7 @@ public class Speaker: CloudObject {
 		return newSpeaker
 	}
 	
-	public func sendMessage(content: String, completion: ((Bool) -> Void)?) -> Message {
+	@discardableResult open func sendMessage(_ content: String, completion: ((Bool) -> Void)?) -> Message {
 		let message = Message(speaker: Speaker.localSpeaker, listener: self, content: content)
 		
 		message.saveManagedObject()
@@ -72,14 +72,14 @@ public class Speaker: CloudObject {
 			completion?(error == nil)
 		}
 		
-		Conversation.existingConversationWith(self)?.addMessage(message, from: .New)
+		Conversation.existingConversationWith(self)?.addMessage(message, from: .new)
 		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 		
 		return message
 	}
 	
-	public var speakerRef: SpeakerRef? { return self.identifier }
-	public class func speakerFromSpeakerRef(ref: SpeakerRef?) -> Speaker? {
+	open var speakerRef: SpeakerRef? { return self.identifier }
+	open class func speakerFromSpeakerRef(_ ref: SpeakerRef?) -> Speaker? {
 		if let reference = ref {
 			for speaker in self.knownSpeakers {
 				if speaker.identifier == reference { return speaker }
@@ -88,23 +88,23 @@ public class Speaker: CloudObject {
 		return nil
 	}
 	
-	public func conversationWith(other: Speaker) -> Conversation {
+	open func conversationWith(_ other: Speaker) -> Conversation {
 		return Conversation.conversationBetween([other, self])
 	}
 
-	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .None) } else { return nil } }
+	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .none) } else { return nil } }
 	
 	static var knownSpeakersLoaded = false
-	class func loadCachedSpeakers(completion: () -> Void) {
+	class func loadCachedSpeakers(_ completion: @escaping () -> Void) {
 		if self.knownSpeakersLoaded {
 			completion()
 			return
 		}
 		self.knownSpeakersLoaded = true
 		
-		dispatch_sync(ConversationKit.queue) { self.knownSpeakers = [] }
+		ConversationKit.queue.sync { self.knownSpeakers = [] }
 		let moc = DataStore.instance.privateContext
-		moc.performBlock {
+		moc.perform {
 			let speakers: [SpeakerObject] = moc.allObjects()
 			for record in speakers {
 				let speaker = Speaker()
@@ -113,7 +113,7 @@ public class Speaker: CloudObject {
 				self.addKnownSpeaker(speaker)
 			}
 			
-			dispatch_sync(ConversationKit.queue) {
+			ConversationKit.queue.sync {
 				if self.localSpeaker == nil {
 					let speaker = Speaker()
 					speaker.isLocalSpeaker = true
@@ -129,22 +129,23 @@ public class Speaker: CloudObject {
 	}
 	
 	static var knownSpeakers = Set<Speaker>()
-	class func addKnownSpeaker(spkr: Speaker) { dispatch_sync(ConversationKit.queue) { self.knownSpeakers.insert(spkr) } }
-	class func cloudKitRecordIDFromIdentifier(identifier: String?) -> CKRecordID? {
+	class func addKnownSpeaker(_ spkr: Speaker) {
+		_ = ConversationKit.queue.sync { self.knownSpeakers.insert(spkr) } }
+	class func cloudKitRecordIDFromIdentifier(_ identifier: String?) -> CKRecordID? {
 		if let ident = identifier {
 			return CKRecordID(recordName: "Speaker: " + ident)
 		}
 		return nil
 	}
 	
-	internal class func speakerFromRecordID(recordID: CKRecordID) -> Speaker? {
+	internal class func speakerFromRecordID(_ recordID: CKRecordID) -> Speaker? {
 		for speaker in self.knownSpeakers {
 			if speaker.cloudKitRecordID == recordID { return speaker }
 		}
 		return nil
 	}
 	
-	internal class func speakerFromRecord(record: CKRecord, inContext moc: NSManagedObjectContext? = nil) -> Speaker {
+	internal class func speakerFromRecord(_ record: CKRecord, inContext moc: NSManagedObjectContext? = nil) -> Speaker {
 		for speaker in self.knownSpeakers {
 			if speaker.cloudKitRecordID == record.recordID {
 				speaker.loadWithCloudKitRecord(record, inContext: moc)
@@ -160,7 +161,7 @@ public class Speaker: CloudObject {
 		return speaker
 	}
 
-	internal class func speakerFromIdentifier(identifier: String?) -> Speaker? {
+	internal class func speakerFromIdentifier(_ identifier: String?) -> Speaker? {
 		for speaker in self.knownSpeakers {
 			if speaker.identifier == identifier {
 				return speaker
@@ -169,8 +170,8 @@ public class Speaker: CloudObject {
 		return nil
 	}
 	
-	internal class func loadSpeakerFromRecordID(recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
-		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
+	internal class func loadSpeakerFromRecordID(_ recordID: CKRecordID, completion: ((Speaker?) -> Void)?) -> Speaker? {
+		Cloud.instance.database.fetch(withRecordID: recordID) { record, error in
 			if let record = record {
 				let speaker = Speaker()
 				speaker.loadWithCloudKitRecord(record)
@@ -188,7 +189,7 @@ public class Speaker: CloudObject {
 	
 	internal var avatarImageFileName = ""
 	
-	override func readFromCloudKitRecord(record: CKRecord) {
+	override func readFromCloudKitRecord(_ record: CKRecord) {
 		super.readFromCloudKitRecord(record)
 		self.identifier = record["identifier"] as? String
 		self.name = record["name"] as? String
@@ -198,15 +199,15 @@ public class Speaker: CloudObject {
 			Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated)
 		}
 		
-		if let asset = record["avatarImage"] as? CKAsset, data = NSData(contentsOfURL: asset.fileURL) {
+		if let asset = record["avatarImage"] as? CKAsset, let data = try? Data(contentsOf: asset.fileURL) {
 			self.avatarImage = UIImage(data: data)
-			self.avatarImageFileName = asset.fileURL.lastPathComponent! + ".jpg"
-			let url = DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(self.avatarImageFileName)
-			data.writeToURL(url, atomically: true)
+			self.avatarImageFileName = asset.fileURL.lastPathComponent + ".jpg"
+			let url = DataStore.instance.imagesCacheURL.appendingPathComponent(self.avatarImageFileName)
+			try? data.write(to: url, options: [.atomic])
 		}
 	}
 	
-	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
+	override func writeToCloudKitRecord(_ record: CKRecord) -> Bool {
 		if !self.isLocalSpeaker { return false }
 		let recordTags = Set(record["tags"] as? [String] ?? [])
 		
@@ -219,9 +220,9 @@ public class Speaker: CloudObject {
 		
 		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name && recordTags == self.tags && !avatarChanged { return self.needsCloudSave }
 		
-		record["identifier"] = self.identifier
-		record["name"] = self.name
-		record["tags"] = self.tags.count > 0 ? Array(self.tags): nil
+		record["identifier"] = self.identifier as CKRecordValue?
+		record["name"] = self.name as CKRecordValue?
+		if !self.tags.isEmpty { record["tags"] = Array(self.tags) as NSArray }
 		if let url = self.avatarImageLocalURL {
 			record["avatarImage"] = CKAsset(fileURL: url)
 		} else {
@@ -230,7 +231,7 @@ public class Speaker: CloudObject {
 		return true
 	}
 	
-	override func readFromManagedObject(object: ManagedCloudObject) {
+	override func readFromManagedObject(_ object: ManagedCloudObject) {
 		guard let spkr = object as? SpeakerObject else { return }
 		
 		super.readFromManagedObject(object)
@@ -240,7 +241,7 @@ public class Speaker: CloudObject {
 		self.tags = Set(spkr.tags ?? [])
 		self.pending = PendingMessage(speaker: self, cachedPendingAt: spkr.lastPendingAt)
 		
-		if let filename = spkr.avatarImageFilename, data = NSData(contentsOfURL: DataStore.instance.imagesCacheURL.URLByAppendingPathComponent(filename)) {
+		if let filename = spkr.avatarImageFilename, let data = try? Data(contentsOf: DataStore.instance.imagesCacheURL.appendingPathComponent(filename)) {
 			self.avatarImage = UIImage(data: data)
 			self.avatarImageFileName = filename
 			self.needsCloudSave = self.cloudKitRecordID == nil && self.isLocalSpeaker
@@ -249,12 +250,12 @@ public class Speaker: CloudObject {
 		}
 	}
 	
-	override func writeToManagedObject(object: ManagedCloudObject) {
+	override func writeToManagedObject(_ object: ManagedCloudObject) {
 		guard let speakerObject = object as? SpeakerObject else { return }
 		speakerObject.name = self.name
 		speakerObject.identifier = self.identifier
 		speakerObject.isLocalSpeaker = self.isLocalSpeaker
-		speakerObject.lastPendingAt = self.pending?.pendingAt
+		speakerObject.lastPendingAt = self.pending?.pendingAt as Date?
 		speakerObject.tags = self.tags.count > 0 ? Array(self.tags) : nil
 	
 		if !self.avatarImageFileName.isEmpty {
@@ -269,8 +270,8 @@ public class Speaker: CloudObject {
 
 	internal override var canSaveToCloud: Bool { return self.identifier != nil }
 	
-	class func clearKnownSpeakers(completion: () -> Void) {
-		dispatch_async(ConversationKit.queue) {
+	class func clearKnownSpeakers(_ completion: @escaping () -> Void) {
+		ConversationKit.queue.async {
 			self.knownSpeakers = Set<Speaker>()
 			self.localSpeaker = nil
 			self.knownSpeakersLoaded = false
@@ -279,8 +280,8 @@ public class Speaker: CloudObject {
 	}
 }
 
-public extension Speaker {
-	override var description: String {
+extension Speaker {
+	override open var description: String {
 		return "\(self.name ?? "unnamed"): \(self.identifier ?? "--")"
 	}
 }
@@ -295,8 +296,8 @@ internal class SpeakerObject: ManagedCloudObject {
 	@NSManaged var isLocalSpeaker: Bool
 	@NSManaged var avatarImageFilename: String?
 	@NSManaged var tags: [String]?
-	@NSManaged var lastPendingAt: NSDate?
+	@NSManaged var lastPendingAt: Date?
 	
 	internal override class var entityName: String { return "Speaker" }
-	var speaker: Speaker { return Speaker.speakerWithIdentifier(self.identifier!, name: self.name) }
+	var speaker: Speaker { return Speaker.speaker(withIdentifier: self.identifier!, name: self.name) }
 }

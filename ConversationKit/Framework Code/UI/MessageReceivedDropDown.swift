@@ -11,19 +11,19 @@ import UIKit
 @objc public protocol MessageReceivedDisplay {
 	init(message: Message)
 	var message: Message! { get set }
-	func display(viewController: UIViewController, didHide: (Bool) -> Void)
+	func display(viewController: UIViewController, didHide: @escaping (Bool) -> Void)
 	func hide(automatically: Bool)
 }
 
-public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, UIScrollViewDelegate {
-	public var message: Message!
-	public var contentLabel: UILabel!
-	public var mainButton: UIButton!
-	public var senderLabel: UILabel!
-	public var imageView: UIImageView!
-	public var didHide: ((Bool) -> Void)!
-	public weak var hideTimer: NSTimer?
-	public var contentView: UIView!
+open class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, UIScrollViewDelegate {
+	open var message: Message!
+	open var contentLabel: UILabel!
+	open var mainButton: UIButton!
+	open var senderLabel: UILabel!
+	open var imageView: UIImageView!
+	open var didHide: ((Bool) -> Void)!
+	open weak var hideTimer: Timer?
+	open var contentView: UIView!
 	
 	var scrollView: UIScrollView? { return self.view as? UIScrollView }
 	
@@ -31,18 +31,18 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 		self.init()
 		self.message = message
 		self.automaticallyAdjustsScrollViewInsets = false
-		self.edgesForExtendedLayout = .None
+		self.edgesForExtendedLayout = UIRectEdge()
 	}
 	
-	public override func loadView() {
-		self.view = UIScrollView(frame: CGRectZero)
+	open override func loadView() {
+		self.view = UIScrollView(frame: CGRect.zero)
 		self.scrollView?.showsHorizontalScrollIndicator = false
 		self.scrollView?.showsVerticalScrollIndicator = false
 		self.scrollView?.delegate = self
-		self.scrollView?.pagingEnabled = true
+		self.scrollView?.isPagingEnabled = true
 	}
 	
-	public func display(viewController: UIViewController, didHide: (Bool) -> Void) {
+	open func display(viewController: UIViewController, didHide: @escaping (Bool) -> Void) {
 		guard let scrollView = self.scrollView else { didHide(true); return }
 		
 		let parentBounds = viewController.view.bounds
@@ -55,30 +55,30 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 		scrollView.contentSize = CGSize(width: width, height: height * 2)
 		
 		self.contentView = UIView(frame: CGRect(x: 0, y: 0, width: width, height: height))
-		self.view.backgroundColor = UIColor.clearColor()
+		self.view.backgroundColor = UIColor.clear
 		scrollView.addSubview(self.contentView)
 		self.didHide = didHide
 		scrollView.contentOffset = CGPoint(x: 0, y: height)
 		
-		self.willMoveToParentViewController(viewController)
+		self.willMove(toParentViewController: viewController)
 		viewController.addChildViewController(self)
 		viewController.view.addSubview(self.view)
-		self.didMoveToParentViewController(viewController)
+		self.didMove(toParentViewController: viewController)
 		
-		let duration = ConversationKit.feedbackLevel == .Production ? 7.0 : 3.0
-		self.hideTimer = NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: "autoHide", userInfo: nil, repeats: false)
+		let duration = ConversationKit.feedbackLevel == .production ? 7.0 : 3.0
+		self.hideTimer = Timer.scheduledTimer(timeInterval: duration, target: self, selector: #selector(autoHide), userInfo: nil, repeats: false)
 		scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
 	}
 	
 	func autoHide() {
-		self.hide(true)
+		self.hide(automatically: true)
 	}
 	
-	var textColor = UIColor.whiteColor()
-	let contentFont = UIFont.systemFontOfSize(16)
-	let senderFont = UIFont.boldSystemFontOfSize(16)
+	var textColor = UIColor.white
+	let contentFont = UIFont.systemFont(ofSize: 16)
+	let senderFont = UIFont.boldSystemFont(ofSize: 16)
 	
-	public override func viewDidLayoutSubviews() {
+	open override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		
 		let bounds = self.contentView.bounds
@@ -89,44 +89,44 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 		self.contentView.backgroundColor = UIColor(white: 0.1, alpha: 0.9)
 		
 		if self.mainButton == nil {
-			self.mainButton = UIButton(type: .Custom)
+			self.mainButton = UIButton(type: .custom)
 			self.mainButton.frame = self.contentView.bounds
 			self.contentView.addSubview(self.mainButton)
 			self.mainButton.showsTouchWhenHighlighted = true
-			self.mainButton.addTarget(self, action: "mainButtonTapped:", forControlEvents: .TouchUpInside)
+			self.mainButton.addTarget(self, action: #selector(MessageReceivedDropDown.mainButtonTapped(_:)), for: .touchUpInside)
 		}
 		
 		if self.contentLabel == nil {
 			self.contentLabel = UILabel(frame: CGRect(x: imageViewWidth + hMargin, y: vMargin, width: bounds.width - (imageViewWidth + hMargin * 2), height: bounds.height - vMargin * 2))
-			self.contentLabel.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+			self.contentLabel.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 			self.view.addSubview(self.contentLabel)
-			self.contentLabel.textColor = UIColor.whiteColor()
+			self.contentLabel.textColor = UIColor.white
 			self.contentLabel.numberOfLines = 0
-			self.contentLabel.lineBreakMode = .ByWordWrapping
+			self.contentLabel.lineBreakMode = .byWordWrapping
 		}
 		
 		if let message = self.message {
-			let speakerAttr = [ NSFontAttributeName: self.senderFont, NSForegroundColorAttributeName: self.textColor.colorWithAlphaComponent(0.75) ]
-			let contentAttr = [ NSFontAttributeName: self.contentFont, NSForegroundColorAttributeName: self.textColor ]
+			let speakerAttr = [ NSFontAttributeName: self.senderFont, NSForegroundColorAttributeName: self.textColor.withAlphaComponent(0.75) ]
+			let contentAttr = [ NSFontAttributeName: self.contentFont, NSForegroundColorAttributeName: self.textColor ] as [String : Any]
 			let string = NSMutableAttributedString(string: (message.speaker?.name ?? "") + "\n", attributes: speakerAttr)
-			string.appendAttributedString(NSAttributedString(string: message.content ?? "", attributes: contentAttr))
+			string.append(NSAttributedString(string: message.content, attributes: contentAttr))
 			self.contentLabel.attributedText = string
 		}
 	}
 	
-	public func hide(automatically: Bool) {
-		UIView.animateWithDuration(0.25, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: [], animations: {
-			self.view.transform = CGAffineTransformMakeTranslation(0, -self.view.bounds.height)
+	open func hide(automatically: Bool) {
+		UIView.animate(withDuration: 0.25, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: [], animations: {
+			self.view.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height)
 		}, completion: { completed in
-			self.willMoveToParentViewController(nil)
+			self.willMove(toParentViewController: nil)
 			self.view.removeFromSuperview()
 			self.removeFromParentViewController()
-			self.didMoveToParentViewController(nil)
+			self.didMove(toParentViewController: nil)
 			self.didHide?(automatically)
 		})
 	}
 	
-	func mainButtonTapped(sender: UIButton?) {
+	func mainButtonTapped(_ sender: UIButton?) {
 		if let convo = self.message.conversation {
 			Utilities.postNotification(ConversationKit.notifications.conversationSelected, object: convo)
 		}
@@ -135,21 +135,21 @@ public class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, 
 
 
 extension MessageReceivedDropDown {
-	public func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 		self.checkForHidden()
 	}
 	
-	public func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+	public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
 		self.checkForHidden()
 	}
 	
-	public func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+	public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 		self.checkForHidden()
 	}
 	
 	func checkForHidden() {
-		if let sv = self.scrollView where sv.contentOffset.y >= sv.bounds.height {
-			self.hide(false)
+		if let sv = self.scrollView , sv.contentOffset.y >= sv.bounds.height {
+			self.hide(automatically: false)
 		}
 	}
 	

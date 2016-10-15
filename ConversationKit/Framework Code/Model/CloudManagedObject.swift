@@ -10,23 +10,23 @@ import Foundation
 import CoreData
 import CloudKit
 
-public class CloudObject: NSObject {
+open class CloudObject: NSObject {
 	internal var needsCloudSave = false
 	internal var hasSavedToCloud = false
 	
-	internal static var saveDispatchQueue = dispatch_queue_create("ConversationKitSaveQueue", DISPATCH_QUEUE_SERIAL)
-	internal static weak var saveTimer: NSTimer?
+	internal static var saveDispatchQueue = DispatchQueue(label: "ConversationKitSaveQueue", attributes: [])
+	internal static weak var saveTimer: Timer?
 	internal static var queuedObjects: Set<CloudObject> = []
 	internal func queueForSaving() {
-		dispatch_async(CloudObject.saveDispatchQueue) {
+		CloudObject.saveDispatchQueue.async {
 			CloudObject.queuedObjects.insert(self)
 			Utilities.mainThread {
 				CloudObject.saveTimer?.invalidate()
-				CloudObject.saveTimer = NSTimer.scheduledTimerWithTimeInterval(0.2, target: CloudObject.self, selector: "saveQueuedObjects:", userInfo: nil, repeats: false)
+				CloudObject.saveTimer = Timer.scheduledTimer(timeInterval: 0.2, target: CloudObject.self, selector: #selector(CloudObject.saveQueuedObjects(_:)), userInfo: nil, repeats: false)
 			}
 		}
 	}
-	internal static func saveQueuedObjects(timer: NSTimer) {
+	internal static func saveQueuedObjects(_ timer: Timer) {
 		let objects = self.queuedObjects
 		self.saveTimer?.invalidate()
 		self.queuedObjects = []
@@ -40,7 +40,7 @@ public class CloudObject: NSObject {
 		}
 	}
 	
-	public func save(completion: ((NSError?) -> Void)? = nil) {
+	open func save(_ completion: ((NSError?) -> Void)? = nil) {
 		self.queueForSaving()
 		self.saveToCloudKit { error in
 			completion?(error)
@@ -53,18 +53,18 @@ public class CloudObject: NSObject {
 	internal class var recordName: String { return "" }
 	internal class var entityName: String { return "" }
 	
-	func writeToManagedObject(object: ManagedCloudObject) {
+	func writeToManagedObject(_ object: ManagedCloudObject) {
 	}
 
-	func writeToCloudKitRecord(record: CKRecord) -> Bool {		//return true if any changes were made
+	func writeToCloudKitRecord(_ record: CKRecord) -> Bool {		//return true if any changes were made
 		return false
 	}
 	
-	func readFromCloudKitRecord(record: CKRecord) {
+	func readFromCloudKitRecord(_ record: CKRecord) {
 		self.cloudKitRecordID = record.recordID
 	}
 	
-	func readFromManagedObject(object: ManagedCloudObject) {
+	func readFromManagedObject(_ object: ManagedCloudObject) {
 		self.recordID = object.objectID
 		if let name = object.cloudKitRecordIDName {
 			self.cloudKitRecordID = CKRecordID(recordName: name)
@@ -73,16 +73,16 @@ public class CloudObject: NSObject {
 	
 	var canSaveToCloud: Bool { return true }
 	
-	public func delete() {
+	open func delete() {
 		self.deleteFromiCloud()
 		self.deleteFromCoreData()
 	}
 	
-	public func deleteFromCoreData(completion: ((Bool) -> Void)? = nil) {
+	open func deleteFromCoreData(_ completion: ((Bool) -> Void)? = nil) {
 		if let recordID = self.recordID {
 			DataStore.instance.importBlock { moc in
-				if let object = try? moc.existingObjectWithID(recordID) {
-					moc.deleteObject(object)
+				if let object = try? moc.existingObject(with: recordID) {
+					moc.delete(object)
 					moc.safeSave()
 					completion?(true)
 					return
@@ -94,11 +94,11 @@ public class CloudObject: NSObject {
 		}
 	}
 	
-	public func deleteFromiCloud(completion: ((Bool) -> Void)? = nil) {
+	open func deleteFromiCloud(_ completion: ((Bool) -> Void)? = nil) {
 		if let recordID = self.cloudKitRecordID {
-			Cloud.instance.database.deleteRecordWithID(recordID) { recordID, error in
+			Cloud.instance.database.delete(withRecordID: recordID) { recordID, error in
 				if let error = error {
-					ConversationKit.log("Failed to delete \(self.dynamicType.recordName) \(recordID)", error: error)
+					ConversationKit.log("Failed to delete \(type(of: self).recordName) \(recordID)", error: error)
 				}
 				completion?(error == nil)
 			}
@@ -109,19 +109,19 @@ public class CloudObject: NSObject {
 }
 
 internal extension CloudObject {
-	func refreshFromCloud(completion: ((Bool) -> Void)? = nil) {
+	func refreshFromCloud(_ completion: ((Bool) -> Void)? = nil) {
 		guard let recordID = self.cloudKitRecordID else { completion?(false); return }
 		
-		ConversationKit.instance.networkActivityUsageCount++
-		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
+		ConversationKit.instance.networkActivityUsageCount += 1
+		Cloud.instance.database.fetch(withRecordID: recordID) { record, error in
 			if (error != nil) { ConversationKit.log("Problem refreshing record \(self)", error: error) }
 			if let record = record { self.loadWithCloudKitRecord(record, forceSave: true) }
 			completion?(record != nil)
-			ConversationKit.instance.networkActivityUsageCount--
+			ConversationKit.instance.networkActivityUsageCount -= 1
 		}
 	}
 	
-	func loadWithCloudKitRecord(record: CKRecord, forceSave: Bool = false, inContext moc: NSManagedObjectContext? = nil) {
+	func loadWithCloudKitRecord(_ record: CKRecord, forceSave: Bool = false, inContext moc: NSManagedObjectContext? = nil) {
 		let isNew = self.recordID == nil || forceSave
 		self.cloudKitRecordID = record.recordID
 		self.readFromCloudKitRecord(record)
@@ -131,7 +131,7 @@ internal extension CloudObject {
 		}
 	}
 	
-	func loadWithManagedObject(object: ManagedCloudObject) {
+	func loadWithManagedObject(_ object: ManagedCloudObject) {
 		self.needsCloudSave = object.needsCloudSave
 		self.recordID = object.objectID
 		if let cloudRecordName = object.cloudKitRecordIDName {
@@ -142,17 +142,17 @@ internal extension CloudObject {
 		self.readFromManagedObject(object)	
 	}
 	
-	func saveToCloudKit(completion: ((NSError?) -> Void)?) {
-		if !self.canSaveToCloud{ completion?(NSError(conversationKitError: .CloudSaveNotAllowed)); return }
+	func saveToCloudKit(_ completion: ((NSError?) -> Void)?) {
+		if !self.canSaveToCloud{ completion?(NSError(conversationKitError: .cloudSaveNotAllowed)); return }
 		if !self.needsCloudSave { completion?(nil); return }
 		
 		guard let recordID = self.cloudKitRecordID else { fatalError("no cloudkit record id found") }
-		Cloud.instance.database.fetchRecordWithID(recordID) { record, error in
+		Cloud.instance.database.fetch(withRecordID: recordID) { record, error in
 			let actual = record ?? self.createNewCloudKitRecord(recordID)
 
 			if self.writeToCloudKitRecord(actual) {
-				ConversationKit.instance.networkActivityUsageCount++
-				Cloud.instance.database.saveRecord(actual) { record, error in
+				ConversationKit.instance.networkActivityUsageCount += 1
+				Cloud.instance.database.save(actual, completionHandler: { record, error in
 					if (error != nil) { ConversationKit.log("Problem saving record \(self)", error: error) }
 					
 					if let saved = record {
@@ -161,10 +161,10 @@ internal extension CloudObject {
 						self.needsCloudSave = false
 						self.saveManagedObject(completion: completion)
 					} else {
-						completion?(error)
+						completion?(error as NSError?)
 					}
-					ConversationKit.instance.networkActivityUsageCount--
-				}
+					ConversationKit.instance.networkActivityUsageCount -= 1
+				}) 
 			} else {
 				self.needsCloudSave = false
 				self.saveManagedObject(completion: completion)
@@ -172,8 +172,8 @@ internal extension CloudObject {
 		}
 	}
 	
-	func createNewCloudKitRecord(recordID: CKRecordID) -> CKRecord {
-		let record = CKRecord(recordType: self.dynamicType.recordName, recordID: recordID)
+	func createNewCloudKitRecord(_ recordID: CKRecordID) -> CKRecord {
+		let record = CKRecord(recordType: type(of: self).recordName, recordID: recordID)
 		return record
 	}
 }
@@ -185,9 +185,9 @@ internal extension CloudObject {
 		let block = { (moc: NSManagedObjectContext) in
 			let localRecord: ManagedCloudObject?
 			if let recordID = self.recordID {
-				localRecord = moc.objectWithID(recordID) as? ManagedCloudObject
+				localRecord = moc.object(with: recordID) as? ManagedCloudObject
 			} else {
-				localRecord = moc.insert(self.dynamicType.entityName) as? ManagedCloudObject
+				localRecord = moc.insert(type(of: self).entityName) as? ManagedCloudObject
 			}
 			guard let record = localRecord else { return }
 			
@@ -207,8 +207,8 @@ internal extension CloudObject {
 		}
 	}
 	
-	func objectInContext(moc: NSManagedObjectContext) -> ManagedCloudObject? {
-		if let id = self.recordID { return moc.objectWithID(id) as? ManagedCloudObject }
+	func objectInContext(_ moc: NSManagedObjectContext) -> ManagedCloudObject? {
+		if let id = self.recordID { return moc.object(with: id) as? ManagedCloudObject }
 		return nil
 	}
 }

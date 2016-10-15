@@ -9,31 +9,29 @@
 import Foundation
 import CommonCrypto
 
-public class Utilities {
-	public class func postNotification(name: String, object: NSObject? = nil) {
+open class Utilities {
+	open class func postNotification(_ name: String, object: NSObject? = nil) {
 		Utilities.mainThread {
-			NSNotificationCenter.defaultCenter().postNotificationName(name, object: object)
+			NotificationCenter.default.post(name: Notification.Name(rawValue: name), object: object)
 		}
 	}
 	
-	public class func mainThread(block: () -> Void) {
-		dispatch_async(dispatch_get_main_queue(), block)
+	open class func mainThread(_ block: @escaping () -> Void) {
+		DispatchQueue.main.async(execute: block)
 	}
 }
 
-extension NSData {
+extension Data {
 	var sha255Hash: String {
-		let shaOut: NSMutableData! = NSMutableData(length: Int(CC_SHA256_DIGEST_LENGTH));
-		CC_SHA256(self.bytes, CC_LONG(self.length), UnsafeMutablePointer<UInt8>(shaOut.mutableBytes));
+		var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
+		self.withUnsafeBytes {
+			_ = CC_SHA256($0, CC_LONG(self.count), &hash)
+		}
 		
 		var string = ""
-		var byteArray = [UInt8](count: shaOut.length, repeatedValue: 0x0)
 		
-		shaOut.getBytes(&byteArray, length: shaOut.length)
-		
-		
-		for i in 0..<shaOut.length {
-			let byte = Int(byteArray[i])
+		for i in 0..<hash.count {
+			let byte = Int(hash[i])
 			let chunk = String(format: "%02x", byte)
 			string += chunk
 		}
@@ -47,7 +45,7 @@ public let kConversationKitErrorDomain = "ConversationKitError"
 
 extension NSError {
 	
-	@objc public enum ConversationKitError: Int { case CloudSaveNotAllowed }
+	@objc public enum ConversationKitError: Int { case cloudSaveNotAllowed }
 	
 	convenience init(conversationKitError: ConversationKitError) {
 		self.init(domain: kConversationKitErrorDomain, code: conversationKitError.rawValue, userInfo: [NSLocalizedDescriptionKey: "\(conversationKitError)"])

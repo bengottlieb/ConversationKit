@@ -10,15 +10,15 @@ import Foundation
 import CoreData
 import CloudKit
 
-public class Message: CloudObject {
-	public var content = ""
-	public var speaker: Speaker!
-	public var listener: Speaker!
-	public var spokenAt = NSDate()
-	public var conversation: Conversation?
-	public var readAt: NSDate?
+open class Message: CloudObject {
+	open var content = ""
+	open var speaker: Speaker!
+	open var listener: Speaker!
+	open var spokenAt = Date()
+	open var conversation: Conversation?
+	open var readAt: Date?
 	
-	class func recordExists(record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
+	class func recordExists(_ record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
 		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
 		let object: MessageObject? = moc.anyObject(pred)
 		
@@ -40,15 +40,15 @@ public class Message: CloudObject {
 		self.speaker = speaker
 		self.listener = listener
 		self.content = content
-		self.spokenAt = NSDate()
+		self.spokenAt = Date()
 		self.needsCloudSave = true
-		self.cloudKitRecordID = CKRecordID(recordName: "Message: \(NSUUID().UUIDString)")
+		self.cloudKitRecordID = CKRecordID(recordName: "Message: \(UUID().uuidString)")
 	}
 	
 	convenience init?(record: CKRecord) {
 		self.init()
 		
-		guard let speakers = record["speakers"] as? [String] where speakers.count == 2 else { return nil }
+		guard let speakers = record["speakers"] as? [String] , speakers.count == 2 else { return nil }
 		
 		self.readFromCloudKitRecord(record)
 	}
@@ -60,12 +60,12 @@ public class Message: CloudObject {
 	}
 	
 	static var hasRemindedAboutPermissions = false
-	public func markAsRead() {
+	open func markAsRead() {
 		if self.readAt == nil && !(self.speaker?.isLocalSpeaker ?? true) {
-			self.readAt = NSDate()
+			self.readAt = Date()
 			self.needsCloudSave = true
 			self.save() { error in
-				if let err = error where err.code == 10 && !Message.hasRemindedAboutPermissions && ConversationKit.feedbackLevel != .Production {
+				if let err = error , err.code == 10 && !Message.hasRemindedAboutPermissions && ConversationKit.feedbackLevel != .production {
 					Message.hasRemindedAboutPermissions = true
 					print("\n\nUnable to mark a message as read. Please make sure you enable Write permissions on the ConversationKitMessage object for all Authenticated users.\n\n")
 				}
@@ -73,47 +73,47 @@ public class Message: CloudObject {
 		}
 	}
 	
-	override func readFromManagedObject(object: ManagedCloudObject) {
+	override func readFromManagedObject(_ object: ManagedCloudObject) {
 		super.readFromManagedObject(object)
 		if let object = object as? MessageObject {
 			self.speaker = object.speaker?.speaker
 			self.listener = object.listener?.speaker
 			self.content = object.content ?? ""
 			self.needsCloudSave = object.needsCloudSave
-			self.spokenAt = object.spokenAt ?? NSDate()
+			self.spokenAt = object.spokenAt ?? Date()
 			self.readAt = object.readAt
 		}
 	}
 	
-	override func readFromCloudKitRecord(record: CKRecord) {
+	override func readFromCloudKitRecord(_ record: CKRecord) {
 		super.readFromCloudKitRecord(record)
 		
 		self.content = record["content"] as? String ?? ""
-		self.spokenAt = record["spokenAt"] as? NSDate ?? NSDate()
-		self.readAt = record["readAt"] as? NSDate
+		self.spokenAt = record["spokenAt"] as? Date ?? Date()
+		self.readAt = record["readAt"] as? Date
 		
-		if let speakers = record["speakers"] as? [String] where speakers.count == 2 {
-			let speaker = Speaker.speakerWithIdentifier(speakers[0]), listener = Speaker.speakerWithIdentifier(speakers[1])
+		if let speakers = record["speakers"] as? [String] , speakers.count == 2 {
+			let speaker = Speaker.speaker(withIdentifier: speakers[0]), listener = Speaker.speaker(withIdentifier: speakers[1])
 
 			self.speaker = speaker
 			self.listener = listener
 		}
 	}
 	
-	override func writeToCloudKitRecord(record: CKRecord) -> Bool {
-		if let speakerID = self.speaker?.identifier, listenerID = self.listener?.identifier {
+	override func writeToCloudKitRecord(_ record: CKRecord) -> Bool {
+		if let speakerID = self.speaker?.identifier, let listenerID = self.listener?.identifier {
 			
-			record["spokenAt"] = self.spokenAt;
-			record["content"] = self.content
-			record["speakerName"] = self.speaker?.name ?? ""
-			record["speakers"] = [speakerID, listenerID]
-			if self.readAt != nil { record["readAt"] = self.readAt }
+			record["spokenAt"] = self.spokenAt as CKRecordValue?;
+			record["content"] = self.content as CKRecordValue?
+			record["speakerName"] = self.speaker?.name as CKRecordValue?? ?? "" as CKRecordValue?
+			record["speakers"] = [speakerID, listenerID] as NSArray
+			if self.readAt != nil { record["readAt"] = self.readAt as CKRecordValue? }
 			return true
 		}
 		return self.needsCloudSave
 	}
 	
-	override func writeToManagedObject(object: ManagedCloudObject) {
+	override func writeToManagedObject(_ object: ManagedCloudObject) {
 		guard let messageObject = object as? MessageObject else { return }
 		
 		messageObject.content = self.content
@@ -130,7 +130,7 @@ public class Message: CloudObject {
 		return self.speaker != nil && self.listener != nil
 	}
 	
-	public override func delete() {
+	open override func delete() {
 		self.conversation?.removeMessage(self)
 		super.delete()
 	}
@@ -145,7 +145,7 @@ internal class MessageObject: ManagedCloudObject {
 	@NSManaged var content: String?
 	@NSManaged var speaker: SpeakerObject?
 	@NSManaged var listener: SpeakerObject?
-	@NSManaged var spokenAt: NSDate?
-	@NSManaged var readAt: NSDate?
+	@NSManaged var spokenAt: Date?
+	@NSManaged var readAt: Date?
 	internal override class var entityName: String { return "Message" }
 }

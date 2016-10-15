@@ -17,14 +17,14 @@ class ConversationMessageTableViewCell: UITableViewCell {
 	
     override func awakeFromNib() {
         super.awakeFromNib()
-		self.selectionStyle = .None
+		self.selectionStyle = .none
     }
 
 	var message: Message? { didSet {
 		self.bubbleView.message = self.message
 	}}
 	
-	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
+	class func heightForMessage(_ message: Message, inTableWidth width: CGFloat) -> CGFloat {
 		return MessageBubbleView.heightForMessage(message, inTableWidth: width - 16) + 16.0
 	}
 }

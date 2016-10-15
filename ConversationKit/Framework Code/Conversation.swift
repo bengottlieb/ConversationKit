@@ -10,12 +10,12 @@ import Foundation
 import CoreData
 import CloudKit
 
-public class Conversation: NSObject {
-	public var sortedMessages: [Message] { return Array(self.messages ?? []).sort(<) }
-	public var startedBy: Speaker
-	public var joinedBy: Speaker
-	public var nonLocalSpeaker: Speaker { return self.startedBy.isLocalSpeaker ? self.joinedBy : self.startedBy }
-	public var hasPendingIncomingMessage = false {
+open class Conversation: NSObject {
+	open var sortedMessages: [Message] { return Array(self.messages).sorted(by: <) }
+	open var startedBy: Speaker
+	open var joinedBy: Speaker
+	open var nonLocalSpeaker: Speaker { return self.startedBy.isLocalSpeaker ? self.joinedBy : self.startedBy }
+	open var hasPendingIncomingMessage = false {
 		didSet {
 			if self.hasPendingIncomingMessage != oldValue {
 				Utilities.postNotification(ConversationKit.notifications.incomingPendingMessageChanged, object: self)
@@ -23,8 +23,8 @@ public class Conversation: NSObject {
 		}
 	}
 	
-	public var messagesLoaded = false
-	public var isVisible: Bool = false {
+	open var messagesLoaded = false
+	open var isVisible: Bool = false {
 		didSet {
 			if self.isVisible {
 				ConversationKit.addVisibleConversation(self)
@@ -36,9 +36,10 @@ public class Conversation: NSObject {
 	
 	var messages: Set<Message> = []
 	static var existingConversations: Set<Conversation> = []
-	class func addExistingConversation(convo: Conversation) { dispatch_sync(ConversationKit.queue) { self.existingConversations.insert(convo) } }
+	class func addExistingConversation(_ convo: Conversation) {
+		_ = ConversationKit.queue.sync { self.existingConversations.insert(convo) } }
 	
-	public class func existingConversationWith(speaker: Speaker?) -> Conversation? {
+	open class func existingConversationWith(_ speaker: Speaker?) -> Conversation? {
 		guard let speaker = speaker else { return nil }
 		
 		let speakers = [speaker, Speaker.localSpeaker!]
@@ -53,7 +54,7 @@ public class Conversation: NSObject {
 		return nil
 	}
 	
-	public class func conversationBetween(speakers: [Speaker]) -> Conversation {
+	open class func conversationBetween(_ speakers: [Speaker]) -> Conversation {
 		let actual: [Speaker]
 		
 		if speakers.count == 1 && speakers[0] != Speaker.localSpeaker {
@@ -73,15 +74,15 @@ public class Conversation: NSObject {
 		return conversation
 	}
 	
-	public var shortDescription: String {
+	open var shortDescription: String {
 		return "\(self.startedBy.name ?? "unnamed") <-> \(self.joinedBy.name ?? "unnamed")"
 	}
 	
-	public func deleteConversation(completion: (() -> Void)? = nil) {
-		dispatch_sync(ConversationKit.queue) { Conversation.existingConversations.remove(self) }
+	open func deleteConversation(_ completion: (() -> Void)? = nil) {
+		_ = ConversationKit.queue.sync { Conversation.existingConversations.remove(self) }
 		DataStore.instance.importBlock { moc in
 			for message in self.messages {
-				if let object = message.objectInContext(moc) { moc.deleteObject(object) }
+				if let object = message.objectInContext(moc) { moc.delete(object) }
 				message.deleteFromiCloud()
 			}
 			moc.safeSave()
@@ -109,44 +110,44 @@ public class Conversation: NSObject {
 				
 				for object in objects {
 					let message = Message(object: object)
-					self.addMessage(message, from: .CoreDataCache)
+					self.addMessage(message, from: .coreDataCache)
 				}
-				dispatch_async(ConversationKit.queue) {
+				ConversationKit.queue.async {
 					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
 				}
 			}
 		}
 	}
 	
-	func messagePredicateInContext(moc: NSManagedObjectContext) -> NSPredicate? {
-		if let speaker = self.startedBy.objectInContext(moc), other = self.joinedBy.objectInContext(moc) {
+	func messagePredicateInContext(_ moc: NSManagedObjectContext) -> NSPredicate? {
+		if let speaker = self.startedBy.objectInContext(moc), let other = self.joinedBy.objectInContext(moc) {
 			return NSPredicate(format: "(speaker == %@ || listener == %@) && (speaker == %@ || listener == %@)", speaker, speaker, other, other)
 		}
 		return nil
 	}
 	
-	enum MessageCacheSource { case New, CoreDataCache, iCloudCache }
+	enum MessageCacheSource { case new, coreDataCache, iCloudCache }
 	
-	func addMessage(message: Message, from: MessageCacheSource) {
+	func addMessage(_ message: Message, from: MessageCacheSource) {
 		message.conversation = self
-		dispatch_async(ConversationKit.queue) {
+		ConversationKit.queue.async {
 			self.messages.insert(message)
 			
 			switch from {
 			case .iCloudCache: Utilities.postNotification(ConversationKit.notifications.downloadedOldMessage, object: message)
-			case .CoreDataCache: break
-			case .New: Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
+			case .coreDataCache: break
+			case .new: Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 			}
 		}
 	}
 	
-	func removeMessage(message: Message) {
-		dispatch_async(ConversationKit.queue) {
+	func removeMessage(_ message: Message) {
+		ConversationKit.queue.async {
 			self.messages.remove(message)
 		}
 	}
 	
-	func hasSpeakers(speakers: [Speaker]) -> Bool {
+	func hasSpeakers(_ speakers: [Speaker]) -> Bool {
 		return speakers.contains(self.startedBy) && speakers.contains(self.joinedBy)
 	}
 	

@@ -16,7 +16,7 @@ class DataStore: NSObject {
 	let persistentStoreCoordinator: NSPersistentStoreCoordinator
 	let mainThreadContext: NSManagedObjectContext
 	let privateContext: NSManagedObjectContext
-	let imagesCacheURL: NSURL
+	let imagesCacheURL: URL
 	
 	let dbName = "Conversations.db"
 	let containerName = "ConversationKit"
@@ -24,39 +24,39 @@ class DataStore: NSObject {
 	
 	init(dbName: String) {
 		let modelName = "ConversationKit"
-		let mgr = NSFileManager.defaultManager()
-		let modelURL = NSBundle(forClass: self.dynamicType).URLForResource(modelName, withExtension: "momd")!
+		let mgr = FileManager.default
+		let modelURL = Bundle(for: type(of: self)).url(forResource: modelName, withExtension: "momd")!
 		let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
-		let cachesPath = NSSearchPathForDirectoriesInDomains(.CachesDirectory, [.UserDomainMask], true).first!
-		let storeURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(self.containerName).URLByAppendingPathComponent(self.dbName)
-		imagesCacheURL = NSURL(fileURLWithPath: cachesPath).URLByAppendingPathComponent(self.containerName).URLByAppendingPathComponent(self.imagesCacheDirectoryName)
-		do { try NSFileManager.defaultManager().createDirectoryAtURL(imagesCacheURL, withIntermediateDirectories: true, attributes: nil) } catch {}
+		let cachesPath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, [.userDomainMask], true).first!
+		let storeURL = URL(fileURLWithPath: cachesPath).appendingPathComponent(self.containerName).appendingPathComponent(self.dbName)
+		imagesCacheURL = URL(fileURLWithPath: cachesPath).appendingPathComponent(self.containerName).appendingPathComponent(self.imagesCacheDirectoryName)
+		do { try FileManager.default.createDirectory(at: imagesCacheURL, withIntermediateDirectories: true, attributes: nil) } catch {}
 
-		if !NSFileManager.defaultManager().fileExistsAtPath(storeURL.path!) {
-			ConversationKit.log("Creating database at \(storeURL.path!)")
+		if !FileManager.default.fileExists(atPath: storeURL.path) {
+			ConversationKit.log("Creating database at \(storeURL.path)")
 		}
-		model = NSManagedObjectModel(contentsOfURL: modelURL)!
+		model = NSManagedObjectModel(contentsOf: modelURL)!
 		persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
-		let parentURL = storeURL.URLByDeletingLastPathComponent!
+		let parentURL = storeURL.deletingLastPathComponent()
 		
-		try! mgr.createDirectoryAtURL(parentURL, withIntermediateDirectories: true, attributes: nil)
+		try! mgr.createDirectory(at: parentURL, withIntermediateDirectories: true, attributes: nil)
 		
 		var addedStore: NSPersistentStore?
 		repeat {
 			do {
-				addedStore = try persistentStoreCoordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
+				addedStore = try persistentStoreCoordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
 			} catch {
-				try! mgr.removeItemAtURL(parentURL)
-				try! mgr.createDirectoryAtURL(parentURL, withIntermediateDirectories: true, attributes: nil)
+				try! mgr.removeItem(at: parentURL)
+				try! mgr.createDirectory(at: parentURL, withIntermediateDirectories: true, attributes: nil)
 			}
 		} while addedStore == nil
 		
-		privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+		privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
 		privateContext.persistentStoreCoordinator = persistentStoreCoordinator
 		privateContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 		
-		mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
-		mainThreadContext.parentContext = privateContext
+		mainThreadContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+		mainThreadContext.parent = privateContext
 		mainThreadContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 		
 		super.init()
@@ -66,10 +66,10 @@ class DataStore: NSObject {
 		
 	}
 	
-	subscript(key: String) -> AnyObject? {
+	subscript(key: String) -> Any? {
 		get {
-			let store = self.persistentStoreCoordinator.persistentStores[0]
-			return store.metadata[key]
+			let metadata = self.persistentStoreCoordinator.persistentStores.first?.metadata
+			return metadata?[key]
 		}
 		set {
 			let store = self.persistentStoreCoordinator.persistentStores[0]
@@ -78,33 +78,33 @@ class DataStore: NSObject {
 	}
 	
 	func createWorkerContext() -> NSManagedObjectContext {
-		let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-		context.parentContext = self.mainThreadContext
+		let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+		context.parent = self.mainThreadContext
 		context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 		return context
 	}
 	
-	func importBlock(block: (NSManagedObjectContext) -> Void) {
+	func importBlock(_ block: @escaping (NSManagedObjectContext) -> Void) {
 		let moc = self.createWorkerContext()
-		moc.performBlock {
+		moc.perform {
 			block(moc)
 			if moc.hasChanges { moc.safeSave() }
 		}
 	}
 
-	func clearAllCachedDataWithCompletion(completion: () -> Void) {
+	func clearAllCachedDataWithCompletion(_ completion: @escaping () -> Void) {
 		ConversationKit.log("Clearing all data")
 		let moc = self.privateContext
 		self[Cloud.lastPendingFetchedAtKey] = nil
 		
-		moc.performBlock {
+		moc.perform {
 			moc.removeAllObjectsOfType(Message.entityName)
 			moc.removeAllObjectsOfType(Speaker.entityName)
 			do { try moc.save() } catch {}
 			
 			moc.reset()
 			
-			self.mainThreadContext.performBlock {
+			self.mainThreadContext.perform {
 				self.mainThreadContext.reset()
 				
 				completion()
@@ -114,11 +114,11 @@ class DataStore: NSObject {
 }
 
 extension NSManagedObjectContext {
-	func removeAllObjectsOfType(name: String) {
-		let fetchRequest = NSFetchRequest(entityName: name)
+	func removeAllObjectsOfType(_ name: String) {
+		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: name)
 		let deleteAllRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
 		do {
-			try self.persistentStoreCoordinator?.executeRequest(deleteAllRequest, withContext: self)
+			try self.persistentStoreCoordinator?.execute(deleteAllRequest, with: self)
 		} catch let error {
 			ConversationKit.log("Error while removing all \(name) objects", error: error as NSError)
 		}
@@ -127,27 +127,27 @@ extension NSManagedObjectContext {
 	func safeSave() {
 		do {
 			try self.save()
-			self.parentContext?.safeSave()
+			self.parent?.safeSave()
 		} catch let error {
 			ConversationKit.log("Error while saving database", error: error)
 		}
 	}
 	
-	func anyObject<T where T:NSManagedObject>(predicate: NSPredicate? = nil, sortBy: [NSSortDescriptor] = []) -> T? {
+	func anyObject<Entity>(_ predicate: NSPredicate? = nil, sortBy: [NSSortDescriptor] = []) -> Entity? where Entity: NSManagedObject {
 		if sortBy.count == 0 {
-			for object in self.registeredObjects where object is T && !object.fault {
-				if predicate == nil || predicate!.evaluateWithObject(object) { return object as? T }
+			for object in self.registeredObjects where object is Entity && !object.isFault {
+				if predicate == nil || predicate!.evaluate(with: object) { return object as? Entity }
 			}
 		}
 		
-		let request = self.fetchRequest(T.entityName)
+		let request = self.fetchRequest(Entity.entityName)
 		if predicate != nil { request.predicate = predicate! }
 		request.fetchLimit = 1
 		if sortBy.count > 0 { request.sortDescriptors = sortBy }
 		
 		do {
-			if let results = try self.executeFetchRequest(request) as? [NSManagedObject] {
-				return results.count > 0 ? results[0] as? T : nil
+			if let results = try self.fetch(request) as? [Entity] {
+				return results.first
 			}
 		} catch let error {
 			ConversationKit.log("Error executing fetch request: \(request)", error: error)
@@ -156,13 +156,13 @@ extension NSManagedObjectContext {
 		return nil
 	}
 
-	func allObjects<T where T:NSManagedObject>(predicate: NSPredicate? = nil, sortedBy: [NSSortDescriptor] = []) -> [T] {
-		let request = self.fetchRequest(T.entityName)
+	func allObjects<Entity>(_ predicate: NSPredicate? = nil, sortedBy: [NSSortDescriptor] = []) -> [Entity] where Entity: NSManagedObject {
+		let request = self.fetchRequest(Entity.entityName)
 		if predicate != nil { request.predicate = predicate! }
 		if sortedBy.count > 0 { request.sortDescriptors = sortedBy }
 		
 		do {
-			if let results = try self.executeFetchRequest(request) as? [T] {
+			if let results = try self.fetch(request) as? [Entity] {
 				return results
 			}
 		} catch let error {
@@ -171,30 +171,30 @@ extension NSManagedObjectContext {
 		return []
 	}
 	
-	func fetchRequest(name: String) -> NSFetchRequest {
-		let request = NSFetchRequest(entityName: name)
+	func fetchRequest<Entity>(_ name: String) -> NSFetchRequest<Entity> where Entity: NSManagedObject {
+		let request = NSFetchRequest<Entity>(entityName: name)
 		
 		return request
 	}
 	
-	func insert(entityName: String) -> NSManagedObject {
-		return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self)
+	func insert(_ entityName: String) -> NSManagedObject {
+		return NSEntityDescription.insertNewObject(forEntityName: entityName, into: self)
 	}
 	
-	func insertObject<T where T:NSManagedObject>() -> T {
+	func insertObject<T>() -> T where T:NSManagedObject {
 		return self.insert(T.entityName) as! T
 	}
 }
 
 extension NSManagedObject {
 	subscript(key: String) -> AnyObject? {
-		get { return self.valueForKey(key) }
+		get { return self.value(forKey: key) as AnyObject? }
 		set { self.setValue(newValue, forKey: key) }
 	}
 	
 	var moc: NSManagedObjectContext? { return self.managedObjectContext }
-	func objectInContext(moc: NSManagedObjectContext) -> NSManagedObject? {
-		return moc.objectWithID(self.objectID)
+	func objectInContext(_ moc: NSManagedObjectContext) -> NSManagedObject? {
+		return moc.object(with: self.objectID)
 	}
 	
 	func log() { ConversationKit.log("\(self)") }
@@ -204,6 +204,6 @@ extension NSManagedObject {
 	}
 	
 	func deleteFromContext() {
-		self.managedObjectContext?.deleteObject(self)
+		self.managedObjectContext?.delete(self)
 	}
 }

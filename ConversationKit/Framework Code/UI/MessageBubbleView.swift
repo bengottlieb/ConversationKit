@@ -8,25 +8,25 @@
 
 import UIKit
 
-public class MessageBubbleView: UIView {
-	public static var showAvatarImage = true
-	public static var roundAvatarImages = true
-	public static var avatarImageSize = CGSize(width: 50, height: 50)
-	public static var messageFont = UIFont.systemFontOfSize(15.0)
-	public static var localMessageBackgroundColor = UIColor.greenColor()
-	public static var localMessageBorderColor = UIColor.blackColor()
-	public static var localMessageTextColor = UIColor.blackColor()
+open class MessageBubbleView: UIView {
+	open static var showAvatarImage = true
+	open static var roundAvatarImages = true
+	open static var avatarImageSize = CGSize(width: 50, height: 50)
+	open static var messageFont = UIFont.systemFont(ofSize: 15.0)
+	open static var localMessageBackgroundColor = UIColor.green
+	open static var localMessageBorderColor = UIColor.black
+	open static var localMessageTextColor = UIColor.black
 
-	public static var otherMessageBackgroundColor = UIColor.blueColor()
-	public static var otherMessageBorderColor = UIColor.blackColor()
-	public static var otherMessageTextColor = UIColor.whiteColor()
+	open static var otherMessageBackgroundColor = UIColor.blue
+	open static var otherMessageBorderColor = UIColor.black
+	open static var otherMessageTextColor = UIColor.white
 
-	public static var avatarImagePlaceholder: UIImage?
+	open static var avatarImagePlaceholder: UIImage?
 
-	public var rightHandStem = false
+	open var rightHandStem = false
 
-	public static var defaultImagePlaceholder: UIImage = {
-		let path = NSBundle(forClass: MessageBubbleView.self).pathForResource("speaker_placeholder", ofType: "png")
+	open static var defaultImagePlaceholder: UIImage = {
+		let path = Bundle(for: MessageBubbleView.self).path(forResource: "speaker_placeholder", ofType: "png")
 		return UIImage(contentsOfFile: path!)!
 	}()
 	
@@ -34,29 +34,29 @@ public class MessageBubbleView: UIView {
 	var label: UILabel!
 	var imageView: UIImageView!
 	
-	public var message: Message? { didSet {
+	open var message: Message? { didSet {
 		self.updateUI()
 	}}
 	
 	public override init(frame: CGRect) {
 		super.init(frame: frame)
-		self.backgroundColor = UIColor.clearColor()
+		self.backgroundColor = UIColor.clear
 	}
 
 	public required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
-		self.backgroundColor = UIColor.clearColor()
+		self.backgroundColor = UIColor.clear
 	}
 	
 	static let horizontalInset: CGFloat = 10.0
 	static let verticalInset: CGFloat = 7.0
 	static let stemWidth: CGFloat = 11.0
 	
-	class func heightForMessage(message: Message, inTableWidth width: CGFloat) -> CGFloat {
+	class func heightForMessage(_ message: Message, inTableWidth width: CGFloat) -> CGFloat {
 		var contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
 		if MessageBubbleView.showAvatarImage { contentWidth -= MessageBubbleView.avatarImageSize.width }
 		let attr = NSAttributedString(string: message.content, attributes: [NSFontAttributeName: MessageBubbleView.messageFont])
-		let bounding = attr.boundingRectWithSize(CGSize(width: contentWidth, height: 10000.0), options: [.UsesLineFragmentOrigin, .UsesFontLeading, .TruncatesLastVisibleLine], context: nil)
+		let bounding = attr.boundingRect(with: CGSize(width: contentWidth, height: 10000.0), options: [.usesLineFragmentOrigin, .usesFontLeading, .truncatesLastVisibleLine], context: nil)
 		
 		let height = ceil(bounding.height + self.verticalInset * 2)
 		if MessageBubbleView.showAvatarImage && height < MessageBubbleView.avatarImageSize.height { return MessageBubbleView.avatarImageSize.height }
@@ -74,18 +74,18 @@ public class MessageBubbleView: UIView {
 		return frame
 	}
 	
-	public override func layoutSubviews() {
+	open override func layoutSubviews() {
 		super.layoutSubviews()
 		
 		var needsUpdate = false
 		if self.label == nil {
 			self.label = UILabel(frame: self.fullLabelFrame)
-			self.label.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+			self.label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 			self.label.numberOfLines = 0
 			self.label.font = MessageBubbleView.messageFont
-			self.label.lineBreakMode = .ByWordWrapping
+			self.label.lineBreakMode = .byWordWrapping
 			self.addSubview(self.label)
-			self.label.backgroundColor = UIColor.clearColor()
+			self.label.backgroundColor = UIColor.clear
 			needsUpdate = true
 		} else {
 			self.label.frame = self.labelFrame ?? self.fullLabelFrame
@@ -93,7 +93,7 @@ public class MessageBubbleView: UIView {
 
 		if MessageBubbleView.showAvatarImage && self.imageView == nil {
 			self.imageView = UIImageView(frame: self.imageFrame)
-			self.imageView.contentMode = .ScaleAspectFill
+			self.imageView.contentMode = .scaleAspectFill
 			self.imageView.clipsToBounds = true
 			if MessageBubbleView.roundAvatarImages {
 				self.imageView.layer.cornerRadius = MessageBubbleView.avatarImageSize.width / 2.0
@@ -123,7 +123,7 @@ public class MessageBubbleView: UIView {
 
 			self.rightHandStem = message.speaker.isLocalSpeaker
 			self.label?.text = message.content
-			self.label?.textAlignment = self.rightHandStem ? .Right : .Left
+			self.label?.textAlignment = self.rightHandStem ? .right : .left
 			let full = self.fullLabelFrame
 			if let size = self.label?.sizeThatFits(full.size) {
 				self.labelFrame = self.rightHandStem ? CGRect(x: full.maxX - size.width, y: full.origin.y, width: size.width, height: size.height) : CGRect(x: full.origin.x, y: full.origin.y, width: size.width, height: size.height)
@@ -132,7 +132,7 @@ public class MessageBubbleView: UIView {
 		}
 	}
 
-	public override func drawRect(rect: CGRect) {
+	open override func draw(_ rect: CGRect) {
 		let labelFrame = self.labelFrame ?? self.fullLabelFrame
 		let bubbleHeight = labelFrame.height + MessageBubbleView.verticalInset * 2
 		let bubbleWidth = labelFrame.width + MessageBubbleView.horizontalInset * 2 + MessageBubbleView.stemWidth
@@ -177,21 +177,21 @@ public class MessageBubbleView: UIView {
 			let cpI = CGPoint(x: x1, y: y5)
 			
 			
-			bezier.moveToPoint(a)
-			bezier.addCurveToPoint(b, controlPoint1: cpA, controlPoint2: cpA)
-			bezier.addCurveToPoint(c, controlPoint1: cpC, controlPoint2: cpC)
-			bezier.addCurveToPoint(d, controlPoint1: cpA, controlPoint2: cpA)
+			bezier.move(to: a)
+			bezier.addCurve(to: b, controlPoint1: cpA, controlPoint2: cpA)
+			bezier.addCurve(to: c, controlPoint1: cpC, controlPoint2: cpC)
+			bezier.addCurve(to: d, controlPoint1: cpA, controlPoint2: cpA)
 			
-			bezier.addLineToPoint(e)
-			bezier.addCurveToPoint(f, controlPoint1: cpE, controlPoint2: cpE)
+			bezier.addLine(to: e)
+			bezier.addCurve(to: f, controlPoint1: cpE, controlPoint2: cpE)
 			
-			bezier.addLineToPoint(g)
-			bezier.addCurveToPoint(h, controlPoint1: cpG, controlPoint2: cpG)
+			bezier.addLine(to: g)
+			bezier.addCurve(to: h, controlPoint1: cpG, controlPoint2: cpG)
 			
-			bezier.addLineToPoint(i)
-			bezier.addCurveToPoint(j, controlPoint1: cpI, controlPoint2: cpI)
+			bezier.addLine(to: i)
+			bezier.addCurve(to: j, controlPoint1: cpI, controlPoint2: cpI)
 			
-			bezier.addLineToPoint(a)
+			bezier.addLine(to: a)
 		} else {
 			bounds = CGRect(x: avatarWidth, y: 0, width: bubbleWidth, height: bubbleHeight)
 
@@ -225,21 +225,21 @@ public class MessageBubbleView: UIView {
 			let cpI = CGPoint(x: x5, y: y5)
 			
 			
-			bezier.moveToPoint(a)
-			bezier.addCurveToPoint(b, controlPoint1: cpA, controlPoint2: cpA)
-			bezier.addCurveToPoint(c, controlPoint1: cpC, controlPoint2: cpC)
-			bezier.addCurveToPoint(d, controlPoint1: cpA, controlPoint2: cpA)
+			bezier.move(to: a)
+			bezier.addCurve(to: b, controlPoint1: cpA, controlPoint2: cpA)
+			bezier.addCurve(to: c, controlPoint1: cpC, controlPoint2: cpC)
+			bezier.addCurve(to: d, controlPoint1: cpA, controlPoint2: cpA)
 			
-			bezier.addLineToPoint(e)
-			bezier.addCurveToPoint(f, controlPoint1: cpE, controlPoint2: cpE)
+			bezier.addLine(to: e)
+			bezier.addCurve(to: f, controlPoint1: cpE, controlPoint2: cpE)
 			
-			bezier.addLineToPoint(g)
-			bezier.addCurveToPoint(h, controlPoint1: cpG, controlPoint2: cpG)
+			bezier.addLine(to: g)
+			bezier.addCurve(to: h, controlPoint1: cpG, controlPoint2: cpG)
 			
-			bezier.addLineToPoint(i)
-			bezier.addCurveToPoint(j, controlPoint1: cpI, controlPoint2: cpI)
+			bezier.addLine(to: i)
+			bezier.addCurve(to: j, controlPoint1: cpI, controlPoint2: cpI)
 			
-			bezier.addLineToPoint(a)
+			bezier.addLine(to: a)
 		}
 		
 		if let message = self.message {
