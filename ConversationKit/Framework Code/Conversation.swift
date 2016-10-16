@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 import CloudKit
+import UIKit
 
 open class Conversation: NSObject {
 	open var sortedMessages: [Message] { return Array(self.messages).sorted(by: <) }
@@ -23,6 +24,40 @@ open class Conversation: NSObject {
 		}
 	}
 	
+	var buttons: Set<UIButton> = []
+	
+	public func createBarButtonItem(target: NSObject, action: Selector) -> UIBarButtonItem {
+		let button = UIButton(type: .system)
+		let image = UIImage(named: "chat", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+		button.setBackgroundImage(image, for: .normal)
+		button.setTitle(self.unreadCountText, for: .normal)
+		
+		button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+		button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
+		button.titleLabel?.adjustsFontSizeToFitWidth = true
+		button.titleLabel?.minimumScaleFactor = 0.5
+		button.addTarget(target, action: action, for: .touchUpInside)
+		
+		self.buttons.insert(button)
+		self.updateButtons()
+		
+		return UIBarButtonItem(customView: button)
+	}
+	
+	func updateButtons() {
+		DispatchQueue.main.async {
+			for button in self.buttons {
+				if button.window == nil {
+					self.buttons.remove(button)
+					continue
+				}
+				button.setTitle(self.unreadCountText, for: .normal)
+			}
+		}
+	}
+	
+	var unreadCountText: String { return self.unreadCount > 0 ? "\(self.unreadCount)" : "" }
+	
 	open var messagesLoaded = false
 	open var isVisible: Bool = false {
 		didSet {
@@ -32,6 +67,10 @@ open class Conversation: NSObject {
 				ConversationKit.removeVisibleConversation(self)
 			}
 		}
+	}
+	
+	var unreadCount: Int {
+		return self.messages.reduce(0) { $0 + ($1.isUnread ? 1 : 0) }
 	}
 	
 	var messages: Set<Message> = []
@@ -138,6 +177,8 @@ open class Conversation: NSObject {
 			case .coreDataCache: break
 			case .new: Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 			}
+			
+			self.updateButtons()
 		}
 	}
 	

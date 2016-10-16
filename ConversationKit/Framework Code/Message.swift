@@ -18,6 +18,8 @@ open class Message: CloudObject {
 	open var conversation: Conversation?
 	open var readAt: Date?
 	
+	var isUnread: Bool { return (self.speaker?.isLocalSpeaker == false) && self.readAt == nil }
+	
 	open var displayedContent: String {
 		return "\(self.content)"
 	}
@@ -68,6 +70,7 @@ open class Message: CloudObject {
 		if self.readAt == nil && !(self.speaker?.isLocalSpeaker ?? true) {
 			self.readAt = Date()
 			self.needsCloudSave = true
+			self.conversation?.updateButtons()
 			self.save() { error in
 				if let err = error , err.code == 10 && !Message.hasRemindedAboutPermissions && ConversationKit.feedbackLevel != .production {
 					Message.hasRemindedAboutPermissions = true

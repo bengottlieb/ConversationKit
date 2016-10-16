@@ -14,7 +14,7 @@ class TestViewController: ConversationViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .plain, target: self, action: #selector(TestViewController.chooseConverationalist(_:)))
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .plain, target: self, action: #selector(TestViewController.chooseConverationalist))
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Info", style: .plain, target: self, action: #selector(TestViewController.showSpeakerInfo))
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(TestViewController.didLoadLocalSpeakers(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.loadedKnownSpeakers), object: nil)
@@ -25,6 +25,7 @@ class TestViewController: ConversationViewController {
 			let defaults = UserDefaults()
 			defaults.set(speaker.speakerRef, forKey: self.lastConversationalistKey)
 			defaults.synchronize()
+			self.navigationItem.rightBarButtonItem = self.currentConversation?.createBarButtonItem(target: self, action: #selector(TestViewController.chooseConverationalist))
 		}
 	}
 	

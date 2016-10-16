@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		B533028A1DB3EF7A00A0EF40 /* Conversation.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B53302891DB3EF7A00A0EF40 /* Conversation.xcassets */; };
 		B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */; };
 		B53CFA961BFE04250005120C /* SpeakerInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */; };
 		B549E3261BF8C8460046463A /* ConversationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549E31B1BF8C8460046463A /* ConversationKit.framework */; };
@@ -86,6 +87,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B53302891DB3EF7A00A0EF40 /* Conversation.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Conversation.xcassets; sourceTree = "<group>"; };
 		B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpeakerInfoViewController.swift; path = "Speaker Info/SpeakerInfoViewController.swift"; sourceTree = "<group>"; };
 		B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SpeakerInfoViewController.xib; path = "Speaker Info/SpeakerInfoViewController.xib"; sourceTree = "<group>"; };
 		B549E31B1BF8C8460046463A /* ConversationKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ConversationKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -268,6 +270,7 @@
 		B5A739901C0C6A19004262BA /* Rsc */ = {
 			isa = PBXGroup;
 			children = (
+				B53302891DB3EF7A00A0EF40 /* Conversation.xcassets */,
 				B5A739911C0C6A19004262BA /* speaker_placeholder.png */,
 			);
 			name = Rsc;
@@ -426,6 +429,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B533028A1DB3EF7A00A0EF40 /* Conversation.xcassets in Resources */,
 				B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */,
 				B5A739921C0C6A19004262BA /* speaker_placeholder.png in Resources */,
 				B5FEE6A91C05217500EA7FCA /* ConversationViewController.xib in Resources */,
