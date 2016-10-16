@@ -93,7 +93,7 @@ open class Message: CloudObject {
 		super.read(fromCloud: record)
 		
 		self.content = record["content"] as? String ?? ""
-		self.spokenAt = record["spokenAt"] as? Date ?? Date()
+		self.spokenAt = record.creationDate ?? record["spokenAt"] as? Date ?? Date()
 		self.readAt = record["readAt"] as? Date
 		
 		if let speakers = record["speakers"] as? [String] , speakers.count == 2 {
