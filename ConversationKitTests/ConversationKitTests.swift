@@ -28,9 +28,9 @@ class ConversationKitTests: XCTestCase {
 		moc.perform {
 			let speaker1: Speaker = Speaker.speaker(withIdentifier: "1")!
 			let speaker2: Speaker = Speaker.localSpeaker!
-			let convo = Conversation.conversationBetween([speaker1, speaker2])
+			//let convo = Conversation.conversationBetween([speaker1, speaker2])
 			
-			convo?.createNewMessage("Hello")
+			speaker1.send(message: "Hello")
 			
 			moc.safeSave(toDisk: true)
 			

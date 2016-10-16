@@ -137,9 +137,9 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 			self.tableView.dataSource = self
 			self.tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight] 
 			self.tableView.register(UINib(nibName: "ConversationMessageTableViewCell", bundle: Bundle(for: type(of: self))), forCellReuseIdentifier: ConversationMessageTableViewCell.identifier)
-			self.tableView.separatorColor = UIColor.clear
-			self.tableView.separatorStyle = .none
 		}
+		self.tableView.separatorColor = UIColor.clear
+		self.tableView.separatorStyle = .none
 	}
 	
 	public func numberOfSections(in tableView: UITableView) -> Int { return 1 }

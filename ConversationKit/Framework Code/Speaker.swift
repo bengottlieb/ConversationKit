@@ -71,7 +71,7 @@ open class Speaker: CloudObject {
 		return newSpeaker
 	}
 	
-	@discardableResult open func send(message content: String, completion: ((Bool) -> Void)?) -> Message? {
+	@discardableResult open func send(message content: String, completion: ((Bool) -> Void)? = nil) -> Message? {
 		guard let local = Speaker.localSpeaker else { return nil }
 		let message = Message(speaker: local, listener: self, content: content)
 		

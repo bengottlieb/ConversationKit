@@ -25,8 +25,8 @@ class SelectSpeakerViewController: UITableViewController {
 		
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(SelectSpeakerViewController.cancel))
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(SelectSpeakerViewController.messagesLoaded(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.finishedLoadingMessagesForConversation), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(SelectSpeakerViewController.reloadTable), name: NSNotification.Name(rawValue: ConversationKit.notifications.foundNewSpeaker), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(SelectSpeakerViewController.messagesLoaded), name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(SelectSpeakerViewController.reloadTable), name: ConversationKit.notifications.foundNewSpeaker, object: nil)
 		self.query.start { speakers in
 			self.refreshControl?.endRefreshing()
 		}

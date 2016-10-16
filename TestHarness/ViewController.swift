@@ -17,7 +17,7 @@ class TestViewController: ConversationViewController {
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Talk To…", style: .plain, target: self, action: #selector(TestViewController.chooseConverationalist))
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Info", style: .plain, target: self, action: #selector(TestViewController.showSpeakerInfo))
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(TestViewController.didLoadLocalSpeakers(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.loadedKnownSpeakers), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(TestViewController.didLoadLocalSpeakers(_:)), name: ConversationKit.notifications.loadedKnownSpeakers, object: nil)
 	}
 	
 	override func didChangeConversation() {
@@ -53,7 +53,7 @@ class TestViewController: ConversationViewController {
 			}
 		}
 		
-		controller.title = Speaker.localSpeaker.name ?? "Unnamed"
+		controller.title = Speaker.localSpeaker?.name ?? "Unnamed"
 		self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
 
 	}

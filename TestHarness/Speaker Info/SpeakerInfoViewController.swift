@@ -18,7 +18,8 @@ class SpeakerInfoViewController: UIViewController, UIImagePickerControllerDelega
 	@IBOutlet var tagsField: UITextField!
 	
 	
-	class func showSpeaker(_ speaker: Speaker, inController: UIViewController) {
+	class func showSpeaker(_ speaker: Speaker?, inController: UIViewController) {
+		guard let speaker = speaker else { return }
 		let controller = SpeakerInfoViewController(speaker: speaker)
 		inController.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
 	}
