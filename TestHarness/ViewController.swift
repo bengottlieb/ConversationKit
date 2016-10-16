@@ -34,7 +34,7 @@ class TestViewController: ConversationViewController {
 	//┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 	func didLoadLocalSpeakers(_ note: Notification) {
-		if let speaker = Speaker.speakerFromSpeakerRef(UserDefaults.standard.object(forKey: self.lastConversationalistKey) as? Speaker.SpeakerRef), let localSpeaker = Speaker.localSpeaker {
+		if let speaker = Speaker.speaker(fromRef: UserDefaults.standard.object(forKey: self.lastConversationalistKey) as? Speaker.SpeakerRef), let localSpeaker = Speaker.localSpeaker {
 			self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
 		}
 	}

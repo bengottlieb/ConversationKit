@@ -227,7 +227,7 @@ open class Cloud: NSObject {
 					}
 					return
 				} else if record.recordType == PendingMessage.recordName {
-					if let speaker = Speaker.speakerFromIdentifier(record["speaker"] as? String), let conversation = Conversation.existingConversationWith(speaker) {
+					if let speaker = Speaker.speaker(fromID: record["speaker"] as? String), let conversation = Conversation.existingConversationWith(speaker) {
 						conversation.hasPendingIncomingMessage = record["lastPendingAt"] != nil
 					}
 				}

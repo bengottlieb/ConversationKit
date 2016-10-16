@@ -31,7 +31,7 @@ open class SpeakerQuery: NSObject {
 		ConversationKit.instance.networkActivityUsageCount += 1
 		self.queryOperation = CKQueryOperation(query: query)
 		self.queryOperation.recordFetchedBlock = { record in
-			self.found.append(Speaker.speakerFromRecord(record, inContext: self.importContext))
+			self.found.append(Speaker.speaker(fromCloudRecord: record, inContext: self.importContext))
 		}
 		
 		self.queryOperation.queryCompletionBlock = { cursor, error in

@@ -105,8 +105,8 @@ open class ConversationKit: NSObject {
 	open class func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) {
 		
 		Cloud.instance.setup {
-			if let text = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String, let speakerRef = notification.userInfo?["speaker"] as? String, let speaker = Speaker.speakerFromIdentifier(speakerRef) {
-				speaker.sendMessage(text) { success in
+			if let text = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String, let speakerRef = notification.userInfo?["speaker"] as? String, let speaker = Speaker.speaker(fromRef: speakerRef) {
+				speaker.send(message: text) { success in
 					completionHandler()
 				}
 				return

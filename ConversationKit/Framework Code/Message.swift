@@ -50,13 +50,13 @@ open class Message: CloudObject {
 		
 		guard let speakers = record["speakers"] as? [String] , speakers.count == 2 else { return nil }
 		
-		self.readFromCloudKitRecord(record)
+		self.read(fromCloud: record)
 	}
 	
 	convenience init(object: MessageObject) {
 		self.init()
 		
-		self.readFromManagedObject(object)
+		self.read(fromObject: object)
 	}
 	
 	static var hasRemindedAboutPermissions = false
@@ -73,8 +73,8 @@ open class Message: CloudObject {
 		}
 	}
 	
-	override func readFromManagedObject(_ object: ManagedCloudObject) {
-		super.readFromManagedObject(object)
+	override func read(fromObject object: ManagedCloudObject) {
+		super.read(fromObject: object)
 		if let object = object as? MessageObject {
 			self.speaker = object.speaker?.speaker
 			self.listener = object.listener?.speaker
@@ -85,8 +85,8 @@ open class Message: CloudObject {
 		}
 	}
 	
-	override func readFromCloudKitRecord(_ record: CKRecord) {
-		super.readFromCloudKitRecord(record)
+	override func read(fromCloud record: CKRecord) {
+		super.read(fromCloud: record)
 		
 		self.content = record["content"] as? String ?? ""
 		self.spokenAt = record["spokenAt"] as? Date ?? Date()
@@ -100,7 +100,7 @@ open class Message: CloudObject {
 		}
 	}
 	
-	override func writeToCloudKitRecord(_ record: CKRecord) -> Bool {
+	override func write(toCloud record: CKRecord) -> Bool {
 		if let speakerID = self.speaker?.identifier, let listenerID = self.listener?.identifier {
 			
 			record["spokenAt"] = self.spokenAt as CKRecordValue?;
@@ -113,7 +113,7 @@ open class Message: CloudObject {
 		return self.needsCloudSave
 	}
 	
-	override func writeToManagedObject(_ object: ManagedCloudObject) {
+	override func write(toObject object: ManagedCloudObject) {
 		guard let messageObject = object as? MessageObject else { return }
 		
 		messageObject.content = self.content

@@ -22,11 +22,11 @@ open class CloudObject: NSObject {
 			CloudObject.queuedObjects.insert(self)
 			Utilities.mainThread {
 				CloudObject.saveTimer?.invalidate()
-				CloudObject.saveTimer = Timer.scheduledTimer(timeInterval: 0.2, target: CloudObject.self, selector: #selector(CloudObject.saveQueuedObjects(_:)), userInfo: nil, repeats: false)
+				CloudObject.saveTimer = Timer.scheduledTimer(timeInterval: 0.2, target: CloudObject.self, selector: #selector(CloudObject.saveQueuedObjects), userInfo: nil, repeats: false)
 			}
 		}
 	}
-	internal static func saveQueuedObjects(_ timer: Timer) {
+	internal static func saveQueuedObjects(timer: Timer) {
 		let objects = self.queuedObjects
 		self.saveTimer?.invalidate()
 		self.queuedObjects = []
@@ -53,18 +53,18 @@ open class CloudObject: NSObject {
 	internal class var recordName: String { return "" }
 	internal class var entityName: String { return "" }
 	
-	func writeToManagedObject(_ object: ManagedCloudObject) {
+	func write(toObject object: ManagedCloudObject) {
 	}
 
-	func writeToCloudKitRecord(_ record: CKRecord) -> Bool {		//return true if any changes were made
+	func write(toCloud record: CKRecord) -> Bool {		//return true if any changes were made
 		return false
 	}
 	
-	func readFromCloudKitRecord(_ record: CKRecord) {
+	func read(fromCloud record: CKRecord) {
 		self.cloudKitRecordID = record.recordID
 	}
 	
-	func readFromManagedObject(_ object: ManagedCloudObject) {
+	func read(fromObject object: ManagedCloudObject) {
 		self.recordID = object.objectID
 		if let name = object.cloudKitRecordIDName {
 			self.cloudKitRecordID = CKRecordID(recordName: name)
@@ -124,7 +124,7 @@ internal extension CloudObject {
 	func loadWithCloudKitRecord(_ record: CKRecord, forceSave: Bool = false, inContext moc: NSManagedObjectContext? = nil) {
 		let isNew = self.recordID == nil || forceSave
 		self.cloudKitRecordID = record.recordID
-		self.readFromCloudKitRecord(record)
+		self.read(fromCloud: record)
 		
 		if isNew {
 			self.saveManagedObject(inContext: moc)
@@ -139,7 +139,7 @@ internal extension CloudObject {
 			self.cloudKitRecordID = CKRecordID(recordName: cloudRecordName)
 		}
 		
-		self.readFromManagedObject(object)	
+		self.read(fromObject: object)
 	}
 	
 	func saveToCloudKit(_ completion: ((NSError?) -> Void)?) {
@@ -150,7 +150,7 @@ internal extension CloudObject {
 		Cloud.instance.database.fetch(withRecordID: recordID) { record, error in
 			let actual = record ?? self.createNewCloudKitRecord(recordID)
 
-			if self.writeToCloudKitRecord(actual) {
+			if self.write(toCloud: actual) {
 				ConversationKit.instance.networkActivityUsageCount += 1
 				Cloud.instance.database.save(actual, completionHandler: { record, error in
 					if (error != nil) { ConversationKit.log("Problem saving record \(self)", error: error) }
@@ -194,7 +194,7 @@ internal extension CloudObject {
 			if !self.needsCloudSave { record.cloudKitRecordIDName = self.cloudKitRecordID?.recordName }
 			record.needsCloudSave = self.needsCloudSave
 			
-			self.writeToManagedObject(record)
+			self.write(toObject: record)
 			self.recordID = record.objectID
 			if shouldSave { moc.safeSave(toDisk: true) }
 			completion?(nil)

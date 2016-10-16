@@ -80,7 +80,7 @@ extension SpeakerInfoViewController {
 	func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
 		let image = info[UIImagePickerControllerEditedImage] as? UIImage ?? info[UIImagePickerControllerOriginalImage] as? UIImage
 		self.updateAvatarImageButton(image)
-		self.speaker.storeAvatarImage(image)
+		self.speaker.store(avatar: image)
 		
 		picker.dismiss(animated: true, completion: nil)
 	}
