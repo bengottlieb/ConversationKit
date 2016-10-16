@@ -31,6 +31,25 @@ open class ConversationViewController: UIViewController {
 		}
 		get { return self.conversationView?.conversation }
 	}
+
+	public convenience init?(remoteID: String?) {
+		guard let id = remoteID else {
+			self.init(nibName: "ConversationViewController", bundle: Bundle(for: ConversationKit.self))
+			return nil
+		}
+		
+		self.init(remoteSpeaker: Speaker.speaker(withIdentifier: id))
+	}
+	
+	public convenience init?(remoteSpeaker: Speaker?) {
+		guard let speaker = remoteSpeaker, let localSpeaker = Speaker.localSpeaker else {
+			self.init(nibName: "ConversationViewController", bundle: Bundle(for: ConversationKit.self))
+			return nil
+		}
+		
+		let convo = localSpeaker.conversation(with: speaker)
+		self.init(conversation: convo)
+	}
 	
 	public convenience init(conversation: Conversation?) {
 		self.init(nibName: "ConversationViewController", bundle: Bundle(for: ConversationKit.self))
@@ -106,10 +125,8 @@ open class ConversationViewController: UIViewController {
 	}
 	
 	func updateUI() {
-		if let convo = self.currentConversation {
-			self.title = convo.nonLocalSpeaker.name
-		} else {
-			self.title = ""
+		if let convo = self.currentConversation, let name = convo.nonLocalSpeaker.name {
+			self.title = name
 		}
 		
 		let returnKeyType: UIReturnKeyType
