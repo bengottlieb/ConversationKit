@@ -47,7 +47,6 @@
 		B5A739861C033284004262BA /* ConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739851C033284004262BA /* ConversationView.swift */; };
 		B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */; };
 		B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */; };
-		B5A739921C0C6A19004262BA /* speaker_placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A739911C0C6A19004262BA /* speaker_placeholder.png */; };
 		B5A739941C1069BC004262BA /* MessageReceivedDropDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A739931C1069BC004262BA /* MessageReceivedDropDown.swift */; };
 		B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */; };
 		B5FEE6A31C03B76E00EA7FCA /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */; };
@@ -120,7 +119,6 @@
 		B5A739851C033284004262BA /* ConversationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationView.swift; path = UI/ConversationView.swift; sourceTree = "<group>"; };
 		B5A739871C033393004262BA /* ConversationMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConversationMessageTableViewCell.swift; path = UI/ConversationMessageTableViewCell.swift; sourceTree = "<group>"; };
 		B5A739881C033393004262BA /* ConversationMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ConversationMessageTableViewCell.xib; path = UI/ConversationMessageTableViewCell.xib; sourceTree = "<group>"; };
-		B5A739911C0C6A19004262BA /* speaker_placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = speaker_placeholder.png; sourceTree = "<group>"; };
 		B5A739931C1069BC004262BA /* MessageReceivedDropDown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageReceivedDropDown.swift; path = UI/MessageReceivedDropDown.swift; sourceTree = "<group>"; };
 		B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudManagedObject.swift; path = Model/CloudManagedObject.swift; sourceTree = "<group>"; };
 		B5FEE6A21C03B76E00EA7FCA /* MessageBubbleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageBubbleView.swift; path = UI/MessageBubbleView.swift; sourceTree = "<group>"; };
@@ -271,7 +269,6 @@
 			isa = PBXGroup;
 			children = (
 				B53302891DB3EF7A00A0EF40 /* Conversation.xcassets */,
-				B5A739911C0C6A19004262BA /* speaker_placeholder.png */,
 			);
 			name = Rsc;
 			path = "ConversationKit/Framework Code/Rsc";
@@ -394,7 +391,7 @@
 								enabled = 1;
 							};
 							com.apple.Push = {
-								enabled = 0;
+								enabled = 1;
 							};
 							com.apple.iCloud = {
 								enabled = 1;
@@ -431,7 +428,6 @@
 			files = (
 				B533028A1DB3EF7A00A0EF40 /* Conversation.xcassets in Resources */,
 				B5A7398A1C033393004262BA /* ConversationMessageTableViewCell.xib in Resources */,
-				B5A739921C0C6A19004262BA /* speaker_placeholder.png in Resources */,
 				B5FEE6A91C05217500EA7FCA /* ConversationViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

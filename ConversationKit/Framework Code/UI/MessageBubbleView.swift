@@ -25,10 +25,7 @@ open class MessageBubbleView: UIView {
 
 	open var rightHandStem = false
 
-	open static var defaultImagePlaceholder: UIImage = {
-		let path = Bundle(for: MessageBubbleView.self).path(forResource: "speaker_placeholder", ofType: "png")
-		return UIImage(contentsOfFile: path!)!
-	}()
+	open static var defaultImagePlaceholder = UIImage(named: "speaker_placeholder", in: Bundle(for: MessageBubbleView.self), compatibleWith: nil)
 	
 	var text: String = ""
 	var label: UILabel!
