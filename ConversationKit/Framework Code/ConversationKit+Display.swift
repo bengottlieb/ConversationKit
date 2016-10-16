@@ -22,7 +22,7 @@ extension ConversationKit {
 		} else {
 			let note = UILocalNotification()
 			
-			note.alertBody = message.speaker.name == nil ? message.content : "\(message.speaker.name!): \(message.content)"
+			note.alertBody = message.speaker.name == nil ? message.displayedContent : "\(message.speaker.name!): \(message.displayedContent)"
 			note.fireDate = when ?? Date(timeIntervalSinceNow: 0.001)
 			note.category = ConversationKit.MessageCategory
 			note.userInfo = ["speaker": message.conversation?.nonLocalSpeaker.speakerRef ?? ""]

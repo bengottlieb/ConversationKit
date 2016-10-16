@@ -30,6 +30,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			}
 		}
 		
+		ConversationKit.instance.incrementActivityIndicator = {
+			self.networkActivityUsageCount += 1
+		}
+		
+		ConversationKit.instance.decrementActivityIndicator = {
+			self.networkActivityUsageCount -= 1
+		}
+		
 		self.window = UIWindow(frame: UIScreen.main.bounds)
 		self.window?.rootViewController = UINavigationController(rootViewController: TestViewController(conversation: nil))
 		
@@ -40,6 +48,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Override point for customization after application launch.
 		return true
 	}
+	
+	
+	open var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
+		UIApplication.shared.isNetworkActivityIndicatorVisible = enable
+	}
+	
+	internal var networkActivityUsageCount = 0 { didSet {
+		if self.networkActivityUsageCount == 0 && oldValue != 0 {
+			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(false) }
+		} else if self.networkActivityUsageCount != 0 && oldValue == 0 {
+			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(true) }
+		}
+		}}
+
 
 	func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		ConversationKit.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)

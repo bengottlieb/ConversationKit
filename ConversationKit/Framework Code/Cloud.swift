@@ -119,7 +119,7 @@ open class Cloud: NSObject {
 		guard ConversationKit.state != .notSetup, let localUserID = Speaker.localSpeaker?.identifier else { return }
 		
 		if self.queryOperation == nil {
-			ConversationKit.instance.networkActivityUsageCount += 1
+			ConversationKit.instance.incrementActivityIndicator()
 			var pred = NSPredicate(format: "speakers contains %@", localUserID)
 			
 			if !all, let date = DataStore.instance[Cloud.lastPendingFetchedAtKey] as? Date {
@@ -154,7 +154,7 @@ open class Cloud: NSObject {
 					self.parsingContext = nil
 					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesOldMessages)
 					Utilities.postNotification(ConversationKit.notifications.setupComplete)
-					ConversationKit.instance.networkActivityUsageCount -= 1
+					ConversationKit.instance.decrementActivityIndicator()
 				}
 			}
 			

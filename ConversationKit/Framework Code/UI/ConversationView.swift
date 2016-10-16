@@ -66,7 +66,7 @@ open class ConversationView: UIView {
 		if ConversationKit.state == .notSetup { return }
 		
 		self.loadTable()
-		if ConversationKit.state == .authenticated {
+		if ConversationKit.isAuthenticated {
 			self.openSettingsButton?.isHidden = true
 			self.notSignedInLabel?.isHidden = true
 			self.messages = self.conversation?.sortedMessages ?? []
@@ -137,6 +137,7 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 			self.tableView.dataSource = self
 			self.tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight] 
 			self.tableView.register(UINib(nibName: "ConversationMessageTableViewCell", bundle: Bundle(for: type(of: self))), forCellReuseIdentifier: ConversationMessageTableViewCell.identifier)
+			self.tableView.separatorColor = UIColor.clear
 			self.tableView.separatorStyle = .none
 		}
 	}
@@ -149,7 +150,7 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 	}
 	
 	func messageAtIndexPath(_ path: IndexPath) -> Message? {
-		if (path as NSIndexPath).row < self.messages.count { return self.messages[(path as NSIndexPath).row] }
+		if path.row < self.messages.count { return self.messages[path.row] }
 		return nil
 	}
 	
@@ -179,7 +180,7 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 		if let message = self.messageAtIndexPath(indexPath) {
 			tableView.beginUpdates()
 			tableView.deleteRows(at: [indexPath], with: .automatic)
-			self.messages.remove(at: (indexPath as NSIndexPath).row)
+			self.messages.remove(at: indexPath.row)
 			
 			message.delete()
 			tableView.endUpdates()

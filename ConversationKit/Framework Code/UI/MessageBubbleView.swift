@@ -55,7 +55,7 @@ open class MessageBubbleView: UIView {
 	class func heightForMessage(_ message: Message, inTableWidth width: CGFloat) -> CGFloat {
 		var contentWidth = width - (self.horizontalInset * 2 + self.stemWidth)
 		if MessageBubbleView.showAvatarImage { contentWidth -= MessageBubbleView.avatarImageSize.width }
-		let attr = NSAttributedString(string: message.content, attributes: [NSFontAttributeName: MessageBubbleView.messageFont])
+		let attr = NSAttributedString(string: message.displayedContent, attributes: [NSFontAttributeName: MessageBubbleView.messageFont])
 		let bounding = attr.boundingRect(with: CGSize(width: contentWidth, height: 10000.0), options: [.usesLineFragmentOrigin, .usesFontLeading, .truncatesLastVisibleLine], context: nil)
 		
 		let height = ceil(bounding.height + self.verticalInset * 2)
@@ -122,7 +122,7 @@ open class MessageBubbleView: UIView {
 			self.label?.textColor = message.speaker.isLocalSpeaker ? MessageBubbleView.localMessageTextColor : MessageBubbleView.otherMessageTextColor
 
 			self.rightHandStem = message.speaker.isLocalSpeaker
-			self.label?.text = message.content
+			self.label?.text = message.displayedContent
 			self.label?.textAlignment = self.rightHandStem ? .right : .left
 			let full = self.fullLabelFrame
 			if let size = self.label?.sizeThatFits(full.size) {

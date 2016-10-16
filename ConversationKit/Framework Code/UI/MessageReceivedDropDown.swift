@@ -109,7 +109,7 @@ open class MessageReceivedDropDown: UIViewController, MessageReceivedDisplay, UI
 			let speakerAttr = [ NSFontAttributeName: self.senderFont, NSForegroundColorAttributeName: self.textColor.withAlphaComponent(0.75) ]
 			let contentAttr = [ NSFontAttributeName: self.contentFont, NSForegroundColorAttributeName: self.textColor ] as [String : Any]
 			let string = NSMutableAttributedString(string: (message.speaker?.name ?? "") + "\n", attributes: speakerAttr)
-			string.append(NSAttributedString(string: message.content, attributes: contentAttr))
+			string.append(NSAttributedString(string: message.displayedContent, attributes: contentAttr))
 			self.contentLabel.attributedText = string
 		}
 	}

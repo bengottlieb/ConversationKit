@@ -18,6 +18,10 @@ open class Message: CloudObject {
 	open var conversation: Conversation?
 	open var readAt: Date?
 	
+	open var displayedContent: String {
+		return "\(self.content)"
+	}
+	
 	class func recordExists(_ record: CKRecord, inContext moc: NSManagedObjectContext) -> Bool {
 		let pred = NSPredicate(format: "cloudKitRecordIDName == %@", record.recordID.recordName)
 		let object: MessageObject? = moc.anyObject(pred)
@@ -137,7 +141,7 @@ open class Message: CloudObject {
 }
 
 public func <(lhs: Message, rhs: Message) -> Bool {
-	return lhs.spokenAt.timeIntervalSinceReferenceDate < rhs.spokenAt.timeIntervalSinceReferenceDate
+	return lhs.spokenAt < rhs.spokenAt
 }
 
 

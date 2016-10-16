@@ -16,21 +16,14 @@ open class ConversationKit: NSObject {
 	open static var feedbackLevel = FeedbackLevel.development
 	open static var state = State.notSetup
 	
-	open var showNetworkActivityIndicatorBlock: (Bool) -> Void = { enable in
-		UIApplication.shared.isNetworkActivityIndicatorVisible = enable
-	}
-	
-	internal var networkActivityUsageCount = 0 { didSet {
-		if self.networkActivityUsageCount == 0 && oldValue != 0 {
-			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(false) }
-		} else if self.networkActivityUsageCount != 0 && oldValue == 0 {
-			Utilities.mainThread { self.showNetworkActivityIndicatorBlock(true) }
-		}
-	}}
+	public static var isAuthenticated: Bool { return self.state != .notSetup }
+
+	public var incrementActivityIndicator: () -> Void = { }
+	public var decrementActivityIndicator: () -> Void = { }
 
 	open static var cloudAvailable: Bool { return ConversationKit.state != .notSetup }
 
-	static let instance = ConversationKit()
+	static public let instance = ConversationKit()
 	
 	public struct notifications {
 		public static let setupComplete = "ConversationKit.setupComplete"
