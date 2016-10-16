@@ -127,12 +127,14 @@ extension NSManagedObjectContext {
 	func safeSave(toDisk: Bool) {
 		if !self.hasChanges { return }
 
-		print("Saving \(self), parent: \(self.parent)")
+	//	print("Saving \(self), parent: \(self.parent)")
 		
 		do {
 			try self.save()
 			
-			if toDisk, let parent = self.parent { parent.safeSave(toDisk: true) }
+			if toDisk, let parent = self.parent { parent.performAndWait {
+				parent.safeSave(toDisk: true)
+			} }
 		} catch let error {
 			ConversationKit.log("Error while saving database", error: error)
 		}
