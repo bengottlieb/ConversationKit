@@ -36,7 +36,7 @@ open class CloudObject: NSObject {
 				object.saveManagedObject(inContext: moc)
 			}
 			
-			moc.safeSave()
+			moc.safeSave(toDisk: false)
 		}
 	}
 	
@@ -83,7 +83,7 @@ open class CloudObject: NSObject {
 			DataStore.instance.importBlock { moc in
 				if let object = try? moc.existingObject(with: recordID) {
 					moc.delete(object)
-					moc.safeSave()
+					moc.safeSave(toDisk: false)
 					completion?(true)
 					return
 				}
@@ -196,7 +196,7 @@ internal extension CloudObject {
 			
 			self.writeToManagedObject(record)
 			self.recordID = record.objectID
-			if shouldSave { moc.safeSave() }
+			if shouldSave { moc.safeSave(toDisk: true) }
 			completion?(nil)
 		}
 		

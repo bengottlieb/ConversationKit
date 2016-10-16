@@ -12,7 +12,7 @@ import CloudKit
 
 open class ConversationKit: NSObject {
 	@objc public enum State: Int { case notSetup, authenticatedNoAccount, authenticated }
-	@objc public enum FeedbackLevel: Int { case development = 0, testing = 1, production = 2 }
+	@objc public enum FeedbackLevel: Int { case verbose = 0, development = 1, testing = 2, production = 3 }
 	open static var feedbackLevel = FeedbackLevel.development
 	open static var state = State.notSetup
 	
@@ -221,9 +221,21 @@ open class ConversationKit: NSObject {
 }
 
 extension ConversationKit {
-	class func log(_ message: String, error: Error? = nil) {
-		if ConversationKit.feedbackLevel != .production {
-			print("••• \(message)" + (error != nil ? ": \(error)" : ""))
+	internal class func log(_ message: String, error: Error? = nil, onlyIfError: Bool = true) {
+		if onlyIfError && error == nil { return }
+		
+		if ConversationKit.feedbackLevel != .verbose, let error = error as? NSError, error.shouldBeSupressed { return }
+		if error == nil && ConversationKit.feedbackLevel == .production { return }
+		
+		print("••• \(message)" + (error != nil ? ": \(error)" : ""))
+	}
+}
+
+extension NSError {
+	var shouldBeSupressed: Bool {
+		if self.domain == CKErrorDomain {
+			return self.code == 11
 		}
+		return false
 	}
 }

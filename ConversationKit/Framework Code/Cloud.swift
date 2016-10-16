@@ -149,7 +149,7 @@ open class Cloud: NSObject {
 				let moc = self.parsingContext
 				moc?.perform {
 					ConversationKit.log("message loading complete")
-					moc?.safeSave()
+					moc?.safeSave(toDisk: true)
 					self.queryOperation = nil
 					self.parsingContext = nil
 					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesOldMessages)

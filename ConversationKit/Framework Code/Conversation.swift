@@ -85,7 +85,7 @@ open class Conversation: NSObject {
 				if let object = message.objectInContext(moc) { moc.delete(object) }
 				message.deleteFromiCloud()
 			}
-			moc.safeSave()
+			moc.safeSave(toDisk: false)
 			Utilities.postNotification(ConversationKit.notifications.conversationDeleted, object: self)
 			completion?()
 		}

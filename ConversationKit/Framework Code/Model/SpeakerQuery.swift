@@ -35,7 +35,7 @@ open class SpeakerQuery: NSObject {
 		}
 		
 		self.queryOperation.queryCompletionBlock = { cursor, error in
-			self.importContext.safeSave()
+			self.importContext.safeSave(toDisk: false)
 			completion(self.found)
 			ConversationKit.instance.networkActivityUsageCount -= 1
 		}

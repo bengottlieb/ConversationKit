@@ -32,7 +32,7 @@ class ConversationKitTests: XCTestCase {
 			
 			convo.createNewMessage("Hello")
 			
-			moc.safeSave()
+			moc.safeSave(toDisk: true)
 			
 		}
 	}

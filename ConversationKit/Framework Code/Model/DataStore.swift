@@ -88,7 +88,7 @@ class DataStore: NSObject {
 		let moc = self.createWorkerContext()
 		moc.perform {
 			block(moc)
-			if moc.hasChanges { moc.safeSave() }
+			if moc.hasChanges { moc.safeSave(toDisk: true) }
 		}
 	}
 
@@ -124,10 +124,15 @@ extension NSManagedObjectContext {
 		}
 	}
 	
-	func safeSave() {
+	func safeSave(toDisk: Bool) {
+		if !self.hasChanges { return }
+
+		print("Saving \(self), parent: \(self.parent)")
+		
 		do {
 			try self.save()
-			self.parent?.safeSave()
+			
+			if toDisk, let parent = self.parent { parent.safeSave(toDisk: true) }
 		} catch let error {
 			ConversationKit.log("Error while saving database", error: error)
 		}
