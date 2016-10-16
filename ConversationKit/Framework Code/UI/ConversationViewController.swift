@@ -67,9 +67,9 @@ open class ConversationViewController: UIViewController {
 		self.sendButton.setTitleColor(self.sendButtonEnabledColor, for: UIControlState())
 		self.sendButton.setTitleColor(self.sendButtonDisabledColor, for: .disabled)
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.updateUI), name: NSNotification.Name(rawValue: ConversationKit.notifications.localSpeakerUpdated), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.receivedMessage(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.postedNewMessage), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.conversationSelected(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.conversationSelected), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.updateUI), name: ConversationKit.notifications.localSpeakerUpdated, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.receivedMessage(_:)), name: ConversationKit.notifications.postedNewMessage, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.conversationSelected(_:)), name: ConversationKit.notifications.conversationSelected, object: nil)
 		
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)

@@ -26,19 +26,19 @@ open class ConversationKit: NSObject {
 	static public let instance = ConversationKit()
 	
 	public struct notifications {
-		public static let setupComplete = "ConversationKit.setupComplete"
-		public static let updateComplete = "ConversationKit.updateComplete"
-		public static let localSpeakerUpdated = "ConversationKit.localSpeakerUpdated"
-		public static let loadedKnownSpeakers = "ConversationKit.loadedKnownSpeakers"
-		public static let foundNewSpeaker = "ConversationKit.foundNewSpeaker"
-		public static let postedNewMessage = "ConversationKit.postedNewMessage"
-		public static let downloadedOldMessage = "ConversationKit.downloadedOldMessage"
-		public static let finishedLoadingMessagesForConversation = "ConversationKit.finishedLoadingMessagesForConversation"
-		public static let finishedLoadingMessagesOldMessages = "ConversationKit.finishedLoadingMessagesOldMessages"
-		public static let iCloudAccountIDChanged = "ConversationKit.iCloudAccountIDChanged"
-		public static let incomingPendingMessageChanged = "ConversationKit.incomingPendingMessageChanged"
-		public static let conversationDeleted = "ConversationKit.conversationDeleted"
-		public static let conversationSelected = "ConversationKit.conversationSelected"
+		public static let setupComplete = Notification.Name("ConversationKit.setupComplete")
+		public static let updateComplete = Notification.Name("ConversationKit.updateComplete")
+		public static let localSpeakerUpdated = Notification.Name("ConversationKit.localSpeakerUpdated")
+		public static let loadedKnownSpeakers = Notification.Name("ConversationKit.loadedKnownSpeakers")
+		public static let foundNewSpeaker = Notification.Name("ConversationKit.foundNewSpeaker")
+		public static let postedNewMessage = Notification.Name("ConversationKit.postedNewMessage")
+		public static let downloadedOldMessage = Notification.Name("ConversationKit.downloadedOldMessage")
+		public static let finishedLoadingMessagesForConversation = Notification.Name("ConversationKit.finishedLoadingMessagesForConversation")
+		public static let finishedLoadingMessagesOldMessages = Notification.Name("ConversationKit.finishedLoadingMessagesOldMessages")
+		public static let iCloudAccountIDChanged = Notification.Name("ConversationKit.iCloudAccountIDChanged")
+		public static let incomingPendingMessageChanged = Notification.Name("ConversationKit.incomingPendingMessageChanged")
+		public static let conversationDeleted = Notification.Name("ConversationKit.conversationDeleted")
+		public static let conversationSelected = Notification.Name("ConversationKit.conversationSelected")
 	}
 	
 	override init() {

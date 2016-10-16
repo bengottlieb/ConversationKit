@@ -26,11 +26,11 @@ class ConversationKitTests: XCTestCase {
 		let moc = self.store.createWorkerContext()
 		
 		moc.perform {
-			let speaker1: Speaker = Speaker.speaker(withIdentifier: "1")
-			let speaker2: Speaker = Speaker.localSpeaker
+			let speaker1: Speaker = Speaker.speaker(withIdentifier: "1")!
+			let speaker2: Speaker = Speaker.localSpeaker!
 			let convo = Conversation.conversationBetween([speaker1, speaker2])
 			
-			convo.createNewMessage("Hello")
+			convo?.createNewMessage("Hello")
 			
 			moc.safeSave(toDisk: true)
 			

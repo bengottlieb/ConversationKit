@@ -110,7 +110,7 @@ open class CloudObject: NSObject {
 
 internal extension CloudObject {
 	func refreshFromCloud(_ completion: ((Bool) -> Void)? = nil) {
-		guard let recordID = self.cloudKitRecordID else { completion?(false); return }
+		guard Cloud.instance.database != nil, let recordID = self.cloudKitRecordID else { completion?(false); return }
 		
 		ConversationKit.instance.incrementActivityIndicator()
 		Cloud.instance.database.fetch(withRecordID: recordID) { record, error in

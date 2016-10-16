@@ -10,9 +10,9 @@ import Foundation
 import CommonCrypto
 
 open class Utilities {
-	open class func postNotification(_ name: String, object: NSObject? = nil) {
+	open class func postNotification(_ note: Notification.Name, object: NSObject? = nil) {
 		Utilities.mainThread {
-			NotificationCenter.default.post(name: Notification.Name(rawValue: name), object: object)
+			NotificationCenter.default.post(name: note, object: object)
 		}
 	}
 	

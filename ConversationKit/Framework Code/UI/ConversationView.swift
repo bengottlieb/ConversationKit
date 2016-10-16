@@ -34,12 +34,12 @@ open class ConversationView: UIView {
 	}
 	
 	func setup() {
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.scrollToLast), name: NSNotification.Name(rawValue: ConversationKit.notifications.finishedLoadingMessagesForConversation), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.newMessage(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.postedNewMessage), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.updateUI), name: NSNotification.Name(rawValue: ConversationKit.notifications.downloadedOldMessage), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.updateUI), name: NSNotification.Name(rawValue: ConversationKit.notifications.iCloudAccountIDChanged), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.pendingStatusChanged(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.incomingPendingMessageChanged), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.conversationWasDeleted(_:)), name: NSNotification.Name(rawValue: ConversationKit.notifications.conversationDeleted), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.scrollToLast), name: ConversationKit.notifications.finishedLoadingMessagesForConversation, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.newMessage(_:)), name: ConversationKit.notifications.postedNewMessage, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.updateUI), name: ConversationKit.notifications.downloadedOldMessage, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.updateUI), name: ConversationKit.notifications.iCloudAccountIDChanged, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.pendingStatusChanged(_:)), name: ConversationKit.notifications.incomingPendingMessageChanged, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(ConversationView.conversationWasDeleted(_:)), name: ConversationKit.notifications.conversationDeleted, object: nil)
 		
 		self.updateUI()
 	}

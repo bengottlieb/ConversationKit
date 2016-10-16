@@ -59,8 +59,8 @@ open class Speaker: CloudObject {
 
 	
 	open static var localSpeaker: Speaker?
-	open class func speaker(withIdentifier identifier: String, name: String? = nil) -> Speaker {
-		if let cloudID = Speaker.cloudKitRecordID(from: identifier), let existing = self.speaker(fromCloudID: cloudID) { return existing }
+	open class func speaker(withIdentifier identifier: String?, name: String? = nil) -> Speaker? {
+		if let identifier = identifier, let cloudID = Speaker.cloudKitRecordID(from: identifier), let existing = self.speaker(fromCloudID: cloudID) { return existing }
 		
 		let newSpeaker = Speaker()
 		newSpeaker.identifier = identifier
@@ -307,5 +307,5 @@ internal class SpeakerObject: ManagedCloudObject {
 	@NSManaged var lastPendingAt: Date?
 	
 	internal override class var entityName: String { return "Speaker" }
-	var speaker: Speaker { return Speaker.speaker(withIdentifier: self.identifier!, name: self.name) }
+	var speaker: Speaker? { return Speaker.speaker(withIdentifier: self.identifier, name: self.name) }
 }
