@@ -64,10 +64,14 @@ open class MessageBubbleView: UIView {
 	var fullLabelFrame: CGRect {
 		let avatarWidth: CGFloat = MessageBubbleView.showAvatarImage ? MessageBubbleView.avatarImageSize.width : 0
 		var frame = self.bounds.insetBy(dx: MessageBubbleView.horizontalInset, dy: MessageBubbleView.verticalInset)
-		if !self.rightHandStem {
+
+		frame.size.width -= MessageBubbleView.stemWidth + avatarWidth
+
+		if self.rightHandStem {
+		//	frame.origin.x += MessageBubbleView.stemWidth / 2
+		} else {
 			frame.origin.x += MessageBubbleView.stemWidth + avatarWidth
 		}
-		frame.size.width -= MessageBubbleView.stemWidth + avatarWidth
 		return frame
 	}
 	
@@ -144,11 +148,11 @@ open class MessageBubbleView: UIView {
 		
 		if self.rightHandStem {
 			bounds = CGRect(x: self.bounds.width - (bubbleWidth + avatarWidth), y: 0, width: bubbleWidth, height: bubbleHeight)
-			let x1 = horizontalMargin + bounds.origin.x
-			let x2 = horizontalMargin + cornerRadius + bounds.origin.x
-			let x3 = bounds.origin.x + bounds.width - (horizontalMargin + cornerRadius + stemWidth)
-			let x4 = bounds.origin.x + bounds.width - (horizontalMargin + stemWidth)
-			let x5 = bounds.origin.x + bounds.width - (horizontalMargin)
+			let x1 = bounds.minX + horizontalMargin
+			let x2 = bounds.minX + horizontalMargin + cornerRadius
+			let x3 = bounds.maxX - (horizontalMargin + cornerRadius + stemWidth)
+			let x4 = bounds.maxX - (horizontalMargin + stemWidth + 5)
+			let x5 = bounds.maxX - (horizontalMargin)
 			
 			let y1 = verticalMargin
 			let y2 = verticalMargin + cornerRadius
@@ -192,11 +196,11 @@ open class MessageBubbleView: UIView {
 		} else {
 			bounds = CGRect(x: avatarWidth, y: 0, width: bubbleWidth, height: bubbleHeight)
 
-			let x1 = bounds.origin.x + horizontalMargin
-			let x2 = bounds.origin.x + cornerRadius + horizontalMargin
-			let x3 = bounds.origin.x + horizontalMargin + stemWidth + cornerRadius
-			let x4 = bounds.origin.x + bounds.width - (horizontalMargin + stemWidth)
-			let x5 = bounds.origin.x + bounds.width - (horizontalMargin)
+			let x1 = bounds.minX + horizontalMargin
+			let x2 = bounds.minX + horizontalMargin + cornerRadius
+			let x3 = bounds.minX + horizontalMargin + stemWidth + cornerRadius
+			let x4 = bounds.maxX - (horizontalMargin + stemWidth)
+			let x5 = bounds.maxX - (horizontalMargin)
 			
 			let y1 = verticalMargin
 			let y2 = verticalMargin + cornerRadius
