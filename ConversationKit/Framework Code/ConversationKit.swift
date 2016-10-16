@@ -174,9 +174,9 @@ open class ConversationKit: NSObject {
 
 		if ConversationKit.state != .notSetup {
 			Speaker.localSpeaker?.refreshFromCloud() { success in
-				Speaker.localSpeaker.identifier = identifier
-				Speaker.localSpeaker.refreshFromCloud { complete in
-					Speaker.localSpeaker.saveToCloudKit { success in
+				Speaker.localSpeaker?.identifier = identifier
+				Speaker.localSpeaker?.refreshFromCloud { complete in
+					Speaker.localSpeaker?.saveToCloudKit { success in
 						Cloud.instance.setupSubscription()
 						Cloud.instance.pullDownMessages(false)
 						completion?()

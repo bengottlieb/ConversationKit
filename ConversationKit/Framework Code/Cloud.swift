@@ -178,7 +178,7 @@ open class Cloud: NSObject {
 	}
 	
 	func setupSubscription() {
-		guard ConversationKit.state != .notSetup, let localUserID = Speaker.localSpeaker.identifier else { return }
+		guard ConversationKit.state != .notSetup, let localUserID = Speaker.localSpeaker?.identifier else { return }
 		
 		if self.messagesSubscription == nil {
 			let pred = NSPredicate(format: "speakers contains %@", localUserID)

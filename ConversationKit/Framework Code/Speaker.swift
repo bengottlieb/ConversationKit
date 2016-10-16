@@ -52,7 +52,13 @@ open class Speaker: CloudObject {
 		}
 	}
 	
-	open static var localSpeaker: Speaker!
+	public func createBarButtonItem(target: NSObject, action: Selector) -> UIBarButtonItem? {
+		guard let local = Speaker.localSpeaker else { return nil }
+		return self.conversation(with: local).createBarButtonItem(target: target, action: action)
+	}
+
+	
+	open static var localSpeaker: Speaker?
 	open class func speaker(withIdentifier identifier: String, name: String? = nil) -> Speaker {
 		if let cloudID = Speaker.cloudKitRecordID(from: identifier), let existing = self.speaker(fromCloudID: cloudID) { return existing }
 		
@@ -65,8 +71,9 @@ open class Speaker: CloudObject {
 		return newSpeaker
 	}
 	
-	@discardableResult open func send(message content: String, completion: ((Bool) -> Void)?) -> Message {
-		let message = Message(speaker: Speaker.localSpeaker, listener: self, content: content)
+	@discardableResult open func send(message content: String, completion: ((Bool) -> Void)?) -> Message? {
+		guard let local = Speaker.localSpeaker else { return nil }
+		let message = Message(speaker: local, listener: self, content: content)
 		
 		message.saveManagedObject()
 		message.saveToCloudKit { error in
