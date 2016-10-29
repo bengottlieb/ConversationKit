@@ -81,18 +81,20 @@ open class ConversationKit: NSObject {
 		application.registerForRemoteNotifications()
 	}
 	
-	open class func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification , ckNotification.notificationType == .query {
-			print("received notification: \(ckNotification)")
+	open class func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
+		if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject]) as? CKQueryNotification,
+			ckNotification.notificationType == .query,
+			(ckNotification.subscriptionID == Cloud.instance.messagesSubscriptionID || ckNotification.subscriptionID == Cloud.instance.pendingSubscriptionID)
+			{
 			if let recordID = ckNotification.recordID {
 				Cloud.instance.handleNotificationCloudRecordID(recordID, reason: ckNotification.queryNotificationReason) { success in
 					completionHandler(.newData)
 				}
-				return
+				return true
 			}
 		}
 
-		completionHandler(.newData)
+		return false
 	}
 	
 	open class func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) {
