@@ -211,7 +211,11 @@ open class Cloud: NSObject {
 	
 	
 	internal func handleNotificationCloudRecordID(_ recordID: CKRecordID, reason: CKQueryNotificationReason, completion: @escaping (Bool) -> Void) {
-		self.database.fetch(withRecordID: recordID) { incoming, error in
+		guard let database = self.database else {
+			completion(false)
+			return 
+		}
+		database.fetch(withRecordID: recordID) { incoming, error in
 			if let record = incoming {
 				if record.recordType == Message.recordName {
 					

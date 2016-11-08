@@ -39,7 +39,7 @@ open class Conversation: NSObject {
 		button.addTarget(target, action: action, for: .touchUpInside)
 		
 		self.buttons.insert(button)
-		self.updateButtons()
+		button.setTitle(self.unreadCountText, for: .normal)
 		
 		return UIBarButtonItem(customView: button)
 	}
