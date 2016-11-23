@@ -26,15 +26,16 @@ open class Conversation: NSObject {
 	
 	var buttons: Set<UIButton> = []
 	
-	public func createBarButtonItem(target: NSObject, action: Selector) -> UIBarButtonItem {
+	public func createBarButtonItem(image buttonImage: UIImage? = nil, textColor: UIColor = UIColor.black, target: NSObject, action: Selector) -> UIBarButtonItem {
 		let button = UIButton(type: .system)
-		let image = UIImage(named: "chat", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+		let image = buttonImage ?? UIImage(named: "chat", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
 		button.setBackgroundImage(image, for: .normal)
 		button.setTitle(self.unreadCountText, for: .normal)
 		
 		button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
 		button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
 		button.titleLabel?.adjustsFontSizeToFitWidth = true
+		button.setTitleColor(textColor, for: .normal)
 		button.titleLabel?.minimumScaleFactor = 0.5
 		button.addTarget(target, action: action, for: .touchUpInside)
 		
