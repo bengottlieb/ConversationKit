@@ -51,21 +51,27 @@ class PendingMessage {
 		}
 	}
 	
+	struct keys {
+		static let lastPendingAt = "lastPendingAt"
+		static let recipient = "recipient"
+		static let speaker = "speaker"
+	}
+
 	func saveToCloud() {
 		guard let recordID = self.recordID, let local = Speaker.localSpeaker else { return }
 		
 		Cloud.instance.database.fetch(withRecordID: recordID) { existing, error in
 			if let record = existing {
-				if (record["lastPendingAt"] != nil && self.pendingAt != nil) || (record["lastPendingAt"] == nil && self.pendingAt == nil) { return }
-				record["lastPendingAt"] = self.pendingAt as CKRecordValue?
+				if (record[keys.lastPendingAt] != nil && self.pendingAt != nil) || (record[keys.lastPendingAt] == nil && self.pendingAt == nil) { return }
+				record[keys.lastPendingAt] = self.pendingAt as CKRecordValue?
 				Cloud.instance.database.save(record, completionHandler: { record, error in
 					if error != nil { ConversationKit.log("Failed to save pending message", error: error) }
 				})
 			} else {		//create it
 				let record = CKRecord(recordType: PendingMessage.recordName, recordID: recordID)
-				record["recipient"] = self.speaker.identifier as CKRecordValue?
-				record["speaker"] = local.identifier as CKRecordValue?
-				record["lastPendingAt"] = self.pendingAt as CKRecordValue?
+				record[keys.recipient] = self.speaker.identifier as CKRecordValue?
+				record[keys.speaker] = local.identifier as CKRecordValue?
+				record[keys.lastPendingAt] = self.pendingAt as CKRecordValue?
 				Cloud.instance.database.save(record, completionHandler: { record, error in
 					if error != nil { ConversationKit.log("Failed to save pending message", error: error) }
 				})

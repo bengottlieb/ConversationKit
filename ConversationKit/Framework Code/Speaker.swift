@@ -197,17 +197,24 @@ open class Speaker: CloudObject {
 	
 	internal var avatarImageFileName = ""
 	
+	struct keys {
+		static let identifier = "identifier"
+		static let avatarImage = "avatarImage"
+		static let tags = "tags"
+		static let name = "name"
+	}
+
 	override func read(fromCloud record: CKRecord) {
 		super.read(fromCloud: record)
-		self.identifier = record["identifier"] as? String
-		self.name = record["name"] as? String
-		self.tags = Set(record["tags"] as? [String] ?? [])
+		self.identifier = record[keys.identifier] as? String
+		self.name = record[keys.name] as? String
+		self.tags = Set(record[keys.tags] as? [String] ?? [])
 		
 		if self.isLocalSpeaker {
 			Utilities.postNotification(ConversationKit.notifications.localSpeakerUpdated)
 		}
 		
-		if let asset = record["avatarImage"] as? CKAsset, let data = try? Data(contentsOf: asset.fileURL) {
+		if let asset = record[keys.avatarImage] as? CKAsset, let data = try? Data(contentsOf: asset.fileURL) {
 			self.avatarImage = UIImage(data: data)
 			self.avatarImageFileName = asset.fileURL.lastPathComponent + ".jpg"
 			let url = DataStore.instance.imagesCacheURL.appendingPathComponent(self.avatarImageFileName)
@@ -217,24 +224,24 @@ open class Speaker: CloudObject {
 	
 	override func write(toCloud record: CKRecord) -> Bool {
 		if !self.isLocalSpeaker { return false }
-		let recordTags = Set(record["tags"] as? [String] ?? [])
+		let recordTags = Set(record[keys.tags] as? [String] ?? [])
 		
 		var avatarChanged = false
-		if let recordAvatar = record["avatarImage"] as? CKAsset {
+		if let recordAvatar = record[keys.avatarImage] as? CKAsset {
 			avatarChanged = self.avatarImageFileName != recordAvatar.fileURL.lastPathComponent
 		} else {
 			avatarChanged = !self.avatarImageFileName.isEmpty
 		}
 		
-		if (record["identifier"] as? String) == self.identifier && (record["name"] as? String) == self.name && recordTags == self.tags && !avatarChanged { return self.needsCloudSave }
+		if (record[keys.identifier] as? String) == self.identifier && (record[keys.name] as? String) == self.name && recordTags == self.tags && !avatarChanged { return self.needsCloudSave }
 		
-		record["identifier"] = self.identifier as CKRecordValue?
-		record["name"] = self.name as CKRecordValue?
-		if !self.tags.isEmpty { record["tags"] = Array(self.tags) as NSArray }
+		record[keys.identifier] = self.identifier as CKRecordValue?
+		record[keys.name] = self.name as CKRecordValue?
+		if !self.tags.isEmpty { record[keys.tags] = Array(self.tags) as NSArray }
 		if let url = self.avatarImageLocalURL {
-			record["avatarImage"] = CKAsset(fileURL: url)
+			record[keys.avatarImage] = CKAsset(fileURL: url)
 		} else {
-			record["avatarImage"] = nil
+			record[keys.avatarImage] = nil
 		}
 		return true
 	}

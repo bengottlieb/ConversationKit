@@ -54,7 +54,7 @@ open class Message: CloudObject {
 	convenience init?(record: CKRecord) {
 		self.init()
 		
-		guard let speakers = record["speakers"] as? [String] , speakers.count == 2 else { return nil }
+		guard let speakers = record[keys.speakers] as? [String] , speakers.count == 2 else { return nil }
 		
 		self.read(fromCloud: record)
 	}
@@ -95,11 +95,11 @@ open class Message: CloudObject {
 	override func read(fromCloud record: CKRecord) {
 		super.read(fromCloud: record)
 		
-		self.content = record["content"] as? String ?? ""
-		self.spokenAt = record.creationDate ?? record["spokenAt"] as? Date ?? Date()
-		self.readAt = record["readAt"] as? Date
+		self.content = record[keys.content] as? String ?? ""
+		self.spokenAt = record.creationDate ?? record[keys.spokenAt] as? Date ?? Date()
+		self.readAt = record[keys.readAt] as? Date
 		
-		if let speakers = record["speakers"] as? [String] , speakers.count == 2 {
+		if let speakers = record[keys.speakers] as? [String] , speakers.count == 2 {
 			let speaker = Speaker.speaker(withIdentifier: speakers[0]), listener = Speaker.speaker(withIdentifier: speakers[1])
 
 			self.speaker = speaker
@@ -107,14 +107,22 @@ open class Message: CloudObject {
 		}
 	}
 	
+	struct keys {
+		static let spokenAt = "spokenAt"
+		static let content = "content"
+		static let speakerName = "speakerName"
+		static let speakers = "speakers"
+		static let readAt = "readAt"
+	}
+	
 	override func write(toCloud record: CKRecord) -> Bool {
 		if let speakerID = self.speaker?.identifier, let listenerID = self.listener?.identifier {
 			
-			record["spokenAt"] = self.spokenAt as CKRecordValue?;
-			record["content"] = self.content as CKRecordValue?
-			record["speakerName"] = self.speaker?.name as CKRecordValue?? ?? "" as CKRecordValue?
-			record["speakers"] = [speakerID, listenerID] as NSArray
-			if self.readAt != nil { record["readAt"] = self.readAt as CKRecordValue? }
+			record[keys.spokenAt] = self.spokenAt as CKRecordValue?;
+			record[keys.content] = self.content as CKRecordValue?
+			record[keys.speakerName] = self.speaker?.name as CKRecordValue?? ?? "" as CKRecordValue?
+			record[keys.speakers] = [speakerID, listenerID] as NSArray
+			if self.readAt != nil { record[keys.readAt] = self.readAt as CKRecordValue? }
 			return true
 		}
 		return self.needsCloudSave

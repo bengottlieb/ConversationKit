@@ -156,7 +156,7 @@ open class Conversation: NSObject {
 		self.messagesLoaded = true
 		DataStore.instance.importBlock { moc in
 			if let pred = self.messagePredicateInContext(moc) {
-				let objects: [MessageObject] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: "spokenAt", ascending: true)])
+				let objects: [MessageObject] = moc.allObjects(pred, sortedBy: [NSSortDescriptor(key: Message.keys.spokenAt, ascending: true)])
 				
 				for object in objects {
 					let message = Message(object: object)

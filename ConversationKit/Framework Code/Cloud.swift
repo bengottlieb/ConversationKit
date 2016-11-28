@@ -120,10 +120,10 @@ open class Cloud: NSObject {
 		
 		if self.queryOperation == nil {
 			ConversationKit.instance.incrementActivityIndicator()
-			var pred = NSPredicate(format: "speakers contains %@", localUserID)
+			var pred = NSPredicate(format: "%K contains %@", Message.keys.speakers, localUserID)
 			
 			if !all, let date = DataStore.instance[Cloud.lastPendingFetchedAtKey] as? Date {
-				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "spokenAt > %@", date as CVarArg)])
+				pred = NSCompoundPredicate(andPredicateWithSubpredicates: [pred, NSPredicate(format: "%K > %@", Message.keys.spokenAt, date as CVarArg)])
 				ConversationKit.log("pulling down messages for \(localUserID) starting at \(date)")
 			} else {
 				ConversationKit.log("pulling all messages down for \(localUserID)")
@@ -181,13 +181,10 @@ open class Cloud: NSObject {
 		guard ConversationKit.state != .notSetup, let localUserID = Speaker.localSpeaker?.identifier else { return }
 		
 		if self.messagesSubscription == nil {
-			let pred = NSPredicate(format: "speakers contains %@", localUserID)
+			let pred = NSPredicate(format: "%K contains %@", Message.keys.speakers, localUserID)
 			self.messagesSubscription = CKSubscription(recordType: Message.recordName, predicate: pred, subscriptionID: self.messagesSubscriptionID, options: .firesOnRecordCreation)
 			let info = CKNotificationInfo()
 			info.shouldSendContentAvailable = true
-//			info.alertBody = "Test Alert"
-//			info.alertLocalizationKey = "%1$@ : %2$@"
-//			info.alertLocalizationArgs = ["speakerName", "content"]
 			
 			self.messagesSubscription?.notificationInfo = info
 			self.database.save(self.messagesSubscription!, completionHandler: { sub, error in
@@ -196,7 +193,7 @@ open class Cloud: NSObject {
 		}
 
 		if self.pendingSubscription == nil {
-			let pred = NSPredicate(format: "recipient = %@", localUserID)
+			let pred = NSPredicate(format: "%K = %@", PendingMessage.keys.recipient, localUserID)
 			self.pendingSubscription = CKSubscription(recordType: PendingMessage.recordName, predicate: pred, subscriptionID: self.pendingSubscriptionID, options: [.firesOnRecordCreation, .firesOnRecordUpdate])
 			let info = CKNotificationInfo()
 			info.shouldSendContentAvailable = true
@@ -231,8 +228,8 @@ open class Cloud: NSObject {
 					}
 					return
 				} else if record.recordType == PendingMessage.recordName {
-					if let speaker = Speaker.speaker(fromID: record["speaker"] as? String), let conversation = Conversation.existingConversationWith(speaker) {
-						conversation.hasPendingIncomingMessage = record["lastPendingAt"] != nil
+					if let speaker = Speaker.speaker(fromID: record[PendingMessage.keys.speaker] as? String), let conversation = Conversation.existingConversationWith(speaker) {
+						conversation.hasPendingIncomingMessage = record[PendingMessage.keys.lastPendingAt] != nil
 					}
 				}
 			}
