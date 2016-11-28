@@ -58,7 +58,7 @@ open class ConversationView: UIView {
 	func pendingStatusChanged(_ note: Notification) {
 		self.updateUI()
 		if self.messages.count > 0 {
-			self.tableView?.scrollToRow(at: IndexPath(row: self.messages.count - 1, section: 0), at: .bottom, animated: true)
+			self.tableView?.scrollToRow(at: IndexPath(row: self.messages.count, section: 0), at: .bottom, animated: true)
 		}
 	}
 	
@@ -126,6 +126,8 @@ open class ConversationView: UIView {
 		self.updateUI()
 		self.scrollToMessage(self.messages.last)
 	}
+
+	let emptyCell = UITableViewCell(style: .default, reuseIdentifier: "empty")
 }
 
 extension ConversationView: UITableViewDataSource, UITableViewDelegate {
@@ -144,9 +146,9 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 	
 	public func numberOfSections(in tableView: UITableView) -> Int { return 1 }
 	public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		guard let conversation = self.conversation else { return 0 }
+//		guard let conversation = self.conversation else { return 0 }
 		
-		return self.messages.count + (conversation.hasPendingIncomingMessage ? 1 : 0)
+		return self.messages.count + 1
 	}
 	
 	func messageAtIndexPath(_ path: IndexPath) -> Message? {
@@ -160,7 +162,11 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 			cell.message = message
 			message.markAsRead()
 		} else {
-			cell.message = Message(speaker: self.conversation?.nonLocalSpeaker, content: "…")
+			if self.conversation?.hasPendingIncomingMessage == true {
+				cell.message = Message(speaker: self.conversation?.nonLocalSpeaker, content: "…")
+			} else {
+				return self.emptyCell
+			}
 		}
 		return cell
 	}
@@ -169,7 +175,9 @@ extension ConversationView: UITableViewDataSource, UITableViewDelegate {
 		if let message = self.messageAtIndexPath(indexPath) {
 			return ConversationMessageTableViewCell.heightForMessage(message, inTableWidth: tableView.bounds.width)
 		}
-		return 44.0
+		
+		if self.conversation?.hasPendingIncomingMessage == true { return 44.0 }
+		return 0
 	}
 	
 	public func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {

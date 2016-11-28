@@ -26,21 +26,29 @@ open class Conversation: NSObject {
 	
 	var buttons: Set<UIButton> = []
 	
-	public func createBarButtonItem(image buttonImage: UIImage? = nil, textColor: UIColor = UIColor.black, target: NSObject, action: Selector) -> UIBarButtonItem {
+	let labelID = 400
+	
+	public func createBarButtonItem(image buttonImage: UIImage? = nil, textColor: UIColor = UIColor.black, labelInsets: UIEdgeInsets = .zero, target: NSObject, action: Selector) -> UIBarButtonItem {
 		let button = UIButton(type: .system)
-		let image = buttonImage ?? UIImage(named: "chat", in: Bundle(for: type(of: self)), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+		let image: UIImage = buttonImage ?? UIImage(named: "chat", in: Bundle(for: type(of: self)), compatibleWith: nil)!.withRenderingMode(.alwaysTemplate)
 		button.setBackgroundImage(image, for: .normal)
-		button.setTitle(self.unreadCountText, for: .normal)
+		
+		let vMargin = (image.size.height - 40) / 2
+		let labelFrame = CGRect(x: labelInsets.left, y: vMargin + labelInsets.top, width: 40 - (labelInsets.left + labelInsets.right), height: 40 - (vMargin * 2 + labelInsets.top + labelInsets.bottom))
+		let counterLabel = UILabel(frame: labelFrame)
+		counterLabel.tag = self.labelID
+		counterLabel.font = UIFont.boldSystemFont(ofSize: 15)
+		counterLabel.adjustsFontSizeToFitWidth = true
+		counterLabel.textColor = textColor
+		counterLabel.minimumScaleFactor = 0.5
+		counterLabel.textAlignment = .center
+		counterLabel.text = self.unreadCountText
 		
 		button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-		button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-		button.titleLabel?.adjustsFontSizeToFitWidth = true
-		button.setTitleColor(textColor, for: .normal)
-		button.titleLabel?.minimumScaleFactor = 0.5
 		button.addTarget(target, action: action, for: .touchUpInside)
 		
+		button.addSubview(counterLabel)
 		self.buttons.insert(button)
-		button.setTitle(self.unreadCountText, for: .normal)
 		
 		return UIBarButtonItem(customView: button)
 	}
@@ -52,7 +60,9 @@ open class Conversation: NSObject {
 					self.buttons.remove(button)
 					continue
 				}
-				button.setTitle(self.unreadCountText, for: .normal)
+				if let label = button.viewWithTag(self.labelID) as? UILabel {
+					label.text = self.unreadCountText
+				}
 			}
 		}
 	}

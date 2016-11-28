@@ -52,9 +52,9 @@ open class Speaker: CloudObject {
 		}
 	}
 	
-	public func createBarButtonItem(image buttonImage: UIImage? = nil, textColor: UIColor = UIColor.black, target: NSObject, action: Selector) -> UIBarButtonItem? {
+	public func createBarButtonItem(image buttonImage: UIImage? = nil, textColor: UIColor = UIColor.black, labelInsets: UIEdgeInsets = .zero, target: NSObject, action: Selector) -> UIBarButtonItem? {
 		guard let local = Speaker.localSpeaker else { return nil }
-		return self.conversation(with: local).createBarButtonItem(image: buttonImage, textColor: textColor, target: target, action: action)
+		return self.conversation(with: local).createBarButtonItem(image: buttonImage, textColor: textColor, labelInsets: labelInsets, target: target, action: action)
 	}
 
 	

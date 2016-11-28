@@ -167,9 +167,7 @@ open class ConversationViewController: UIViewController {
 	@IBAction func sendMessage() {
 		if let text = self.messageField.text, let speaker = self.currentConversation?.nonLocalSpeaker , text.characters.count > 0 {
 			self.currentConversation?.hasPendingOutgoingMessage = false
-			speaker.send(message: text) { saved in
-				print("message saved: \(saved)")
-			}
+			speaker.send(message: text) { saved in }
 			
 			self.messageField.text = ""
 			self.updateUI()
