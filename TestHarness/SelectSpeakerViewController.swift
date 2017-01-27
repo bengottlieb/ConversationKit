@@ -80,7 +80,7 @@ class SelectSpeakerViewController: UITableViewController {
 		cell.textLabel?.text = speaker.name
 		cell.imageView?.image = speaker.avatarImage ?? MessageBubbleView.defaultImagePlaceholder
 		
-		if let messageCount = Conversation.existingConversationWith(speaker)?.sortedMessages.count , messageCount > 0 {
+		if let messageCount = Conversation.existing(with: speaker)?.sortedMessages.count , messageCount > 0 {
 			let label = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 30))
 			label.text = "\(messageCount)"
 			label.textColor = UIColor.lightGray
@@ -105,15 +105,15 @@ class SelectSpeakerViewController: UITableViewController {
 	
 	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
 		let speaker = self.speakers[indexPath.row]
-		if let convo = Conversation.existingConversationWith(speaker) {
-			convo.deleteConversation() {
+		if let convo = Conversation.existing(with: speaker) {
+			convo.delete() {
 				Utilities.mainThread { tableView.reloadData() }
 			}
 		}
 	}
 	override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
 		let speaker = self.speakers[indexPath.row]
-		return Conversation.existingConversationWith(speaker)?.sortedMessages.isEmpty == false
+		return Conversation.existing(with: speaker)?.sortedMessages.isEmpty == false
 	}
 
 }

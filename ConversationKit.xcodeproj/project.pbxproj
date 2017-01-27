@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		B52863D81E3C01A200C017DC /* CloudKitConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52863D71E3C01A200C017DC /* CloudKitConversation.swift */; };
 		B533028A1DB3EF7A00A0EF40 /* Conversation.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B53302891DB3EF7A00A0EF40 /* Conversation.xcassets */; };
 		B53CFA951BFE04250005120C /* SpeakerInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */; };
 		B53CFA961BFE04250005120C /* SpeakerInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */; };
@@ -86,6 +87,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B52863D71E3C01A200C017DC /* CloudKitConversation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudKitConversation.swift; path = Model/CloudKit/CloudKitConversation.swift; sourceTree = "<group>"; };
 		B53302891DB3EF7A00A0EF40 /* Conversation.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Conversation.xcassets; sourceTree = "<group>"; };
 		B53CFA931BFE04250005120C /* SpeakerInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SpeakerInfoViewController.swift; path = "Speaker Info/SpeakerInfoViewController.swift"; sourceTree = "<group>"; };
 		B53CFA941BFE04250005120C /* SpeakerInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SpeakerInfoViewController.xib; path = "Speaker Info/SpeakerInfoViewController.xib"; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 				B5A7397F1BF9F5CC004262BA /* DataStore.swift */,
 				B5D91C3C1BFAA7EE0083D45D /* CloudManagedObject.swift */,
 				B549E3371BF8C8F80046463A /* Conversation.swift */,
+				B52863D71E3C01A200C017DC /* CloudKitConversation.swift */,
 				B59F6FB31C0D1D7A000E0566 /* Pending.swift */,
 				B549E33A1BF8C8F80046463A /* Message.swift */,
 				B549E33B1BF8C8F80046463A /* Speaker.swift */,
@@ -477,6 +480,7 @@
 				B5FEE6A81C05217500EA7FCA /* ConversationViewController.swift in Sources */,
 				B5A7397D1BF9F50B004262BA /* ConversationKit.xcdatamodeld in Sources */,
 				B549E3421BF8C8F80046463A /* ConversationKitUtilities.swift in Sources */,
+				B52863D81E3C01A200C017DC /* CloudKitConversation.swift in Sources */,
 				B549E3411BF8C8F80046463A /* ConversationKit.swift in Sources */,
 				B5D91C3D1BFAA7EE0083D45D /* CloudManagedObject.swift in Sources */,
 				B5A739891C033393004262BA /* ConversationMessageTableViewCell.swift in Sources */,

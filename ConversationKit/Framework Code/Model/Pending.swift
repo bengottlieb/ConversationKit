@@ -9,11 +9,6 @@
 import Foundation
 import CloudKit
 
-extension Cloud {
-	
-}
-
-
 class PendingMessage {
 	static var recordName = "ConversationKitPending"
 	

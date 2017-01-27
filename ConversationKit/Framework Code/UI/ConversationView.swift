@@ -51,7 +51,7 @@ open class ConversationView: UIView {
 	
 	func conversationWasDeleted(_ note: Notification) {
 		if let convo = note.object as? Conversation, let current = self.conversation , convo == current {
-			self.conversation = Conversation.existingConversationWith(current.nonLocalSpeaker)
+			self.conversation = Conversation.existing(with: current.nonLocalSpeaker)
 		}
 	}
 	

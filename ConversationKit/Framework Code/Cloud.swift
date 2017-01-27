@@ -140,7 +140,7 @@ open class Cloud: NSObject {
 					if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 						message.saveManagedObject(inContext: moc)
 						ConversationKit.log("\(message.content)")
-						Conversation.conversationBetween([message.listener, message.speaker]).addMessage(message, from: .iCloudCache)
+						Conversation.conversation(between: [message.listener, message.speaker]).add(message: message, from: .iCloudCache)
 					}
 				}
 			}
@@ -220,15 +220,15 @@ open class Cloud: NSObject {
 						if !Message.recordExists(record, inContext: moc), let message = Message(record: record) {
 							message.saveManagedObject(inContext: moc)
 							ConversationKit.log("\(message.content)")
-							let convo = Conversation.conversationBetween([message.listener, message.speaker])
-							convo.addMessage(message, from: .new)
+							let convo = Conversation.conversation(between: [message.listener, message.speaker])
+							convo.add(message: message, from: .new)
 							ConversationKit.displayIncomingMessage(message)
 						}
 						completion(true)
 					}
 					return
 				} else if record.recordType == PendingMessage.recordName {
-					if let speaker = Speaker.speaker(fromID: record[PendingMessage.keys.speaker] as? String), let conversation = Conversation.existingConversationWith(speaker) {
+					if let speaker = Speaker.speaker(fromID: record[PendingMessage.keys.speaker] as? String), let conversation = Conversation.existing(with: speaker) {
 						conversation.hasPendingIncomingMessage = record[PendingMessage.keys.lastPendingAt] != nil
 					}
 				}

@@ -91,5 +91,5 @@ A `Conversation` contains all `Message`s between two `Speaker`s.
 
 Class methods:
 
-* `existingConversationWith(Speaker)`  looks up and returns an existing conversation between the local speaker and the passed in one
+* `existing(with: Speaker)`  looks up and returns an existing conversation between the local speaker and the passed in one
 * `conversationWith(Soeaker)` looks up existing and creates a new one if needed

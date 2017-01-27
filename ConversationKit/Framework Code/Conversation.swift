@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import CloudKit
 import UIKit
 
 open class Conversation: NSObject {
@@ -86,10 +85,10 @@ open class Conversation: NSObject {
 	
 	var messages: Set<Message> = []
 	static var existingConversations: Set<Conversation> = []
-	class func addExistingConversation(_ convo: Conversation) {
+	class func addExisting(conversation convo: Conversation) {
 		_ = ConversationKit.queue.sync { self.existingConversations.insert(convo) } }
 	
-	open class func existingConversationWith(_ speaker: Speaker?) -> Conversation? {
+	open class func existing(with speaker: Speaker?) -> Conversation? {
 		guard let speaker = speaker else { return nil }
 		
 		let speakers = [speaker, Speaker.localSpeaker!]
@@ -104,7 +103,7 @@ open class Conversation: NSObject {
 		return nil
 	}
 	
-	open class func conversationBetween(_ speakers: [Speaker]) -> Conversation {
+	open class func conversation(between speakers: [Speaker]) -> Conversation {
 		let actual: [Speaker]
 		
 		if speakers.count == 1 && speakers[0] != Speaker.localSpeaker {
@@ -119,7 +118,7 @@ open class Conversation: NSObject {
 		}
 		
 		let conversation = Conversation(starter: actual[0], and: actual[1])
-		self.addExistingConversation(conversation)
+		self.addExisting(conversation: conversation)
 		conversation.loadMessagesFromCoreData()
 		return conversation
 	}
@@ -128,7 +127,7 @@ open class Conversation: NSObject {
 		return "\(self.startedBy.name ?? "unnamed") <-> \(self.joinedBy.name ?? "unnamed")"
 	}
 	
-	open func deleteConversation(_ completion: (() -> Void)? = nil) {
+	open func delete(_ completion: (() -> Void)? = nil) {
 		_ = ConversationKit.queue.sync { Conversation.existingConversations.remove(self) }
 		DataStore.instance.importBlock { moc in
 			for message in self.messages {
@@ -160,7 +159,7 @@ open class Conversation: NSObject {
 				
 				for object in objects {
 					let message = Message(object: object)
-					self.addMessage(message, from: .coreDataCache)
+					self.add(message: message, from: .coreDataCache)
 				}
 				ConversationKit.queue.async {
 					Utilities.postNotification(ConversationKit.notifications.finishedLoadingMessagesForConversation, object: self)
@@ -178,7 +177,7 @@ open class Conversation: NSObject {
 	
 	enum MessageCacheSource { case new, coreDataCache, iCloudCache }
 	
-	func addMessage(_ message: Message, from: MessageCacheSource) {
+	func add(message: Message, from: MessageCacheSource) {
 		message.conversation = self
 		ConversationKit.queue.async {
 			self.messages.insert(message)
@@ -193,7 +192,7 @@ open class Conversation: NSObject {
 		}
 	}
 	
-	func removeMessage(_ message: Message) {
+	func remove(message: Message) {
 		ConversationKit.queue.async {
 			self.messages.remove(message)
 		}

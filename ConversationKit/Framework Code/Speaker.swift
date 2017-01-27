@@ -80,7 +80,7 @@ open class Speaker: CloudObject {
 			completion?(error == nil)
 		}
 		
-		Conversation.existingConversationWith(self)?.addMessage(message, from: .new)
+		Conversation.existing(with: self)?.add(message: message, from: .new)
 		Utilities.postNotification(ConversationKit.notifications.postedNewMessage, object: message)
 		
 		return message
@@ -97,7 +97,7 @@ open class Speaker: CloudObject {
 	}
 	
 	open func conversation(with other: Speaker) -> Conversation {
-		return Conversation.conversationBetween([other, self])
+		return Conversation.conversation(between: [other, self])
 	}
 
 	var cloudKitReference: CKReference? { if let recordID = self.cloudKitRecordID { return CKReference(recordID: recordID, action: .none) } else { return nil } }

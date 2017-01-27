@@ -36,7 +36,7 @@ class TestViewController: ConversationViewController {
 
 	func didLoadLocalSpeakers(_ note: Notification) {
 		if let speaker = Speaker.speaker(fromRef: UserDefaults.standard.object(forKey: self.lastConversationalistKey) as? Speaker.SpeakerRef), let localSpeaker = Speaker.localSpeaker {
-			self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
+			self.currentConversation = Conversation.conversation(between: [speaker, localSpeaker])
 		}
 	}
 	
@@ -49,7 +49,7 @@ class TestViewController: ConversationViewController {
 		
 		let controller = SelectSpeakerViewController(tag: "tester") { speaker in
 			if let speaker = speaker, let localSpeaker = Speaker.localSpeaker {
-				self.currentConversation = Conversation.conversationBetween([speaker, localSpeaker])
+				self.currentConversation = Conversation.conversation(between: [speaker, localSpeaker])
 			}
 		}
 		

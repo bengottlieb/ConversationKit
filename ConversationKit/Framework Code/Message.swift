@@ -146,7 +146,7 @@ open class Message: CloudObject {
 	}
 	
 	open override func delete() {
-		self.conversation?.removeMessage(self)
+		self.conversation?.remove(message: self)
 		super.delete()
 	}
 }
